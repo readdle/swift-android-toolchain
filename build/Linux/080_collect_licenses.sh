@@ -15,4 +15,4 @@ cp $SYSROOT/src/curl/COPYING $SWIFT_INSTALLATION_PATH/licenses/LIBCURL
 cp $SYSROOT/src/openssl/LICENSE $SWIFT_INSTALLATION_PATH/licenses/OPENSSL
 cp $SYSROOT/src/libxml2/README $SWIFT_INSTALLATION_PATH/licenses/LIBXML
 cp $LIBICONV_ANDROID/LICENSE $SWIFT_INSTALL/licenses/LIBICU
-cp $ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/COPYING.RUNTIME $SWIFT_INSTALL/licenses/LIBGCC
+cp $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/COPYING.RUNTIME $SWIFT_INSTALL/licenses/LIBGCC

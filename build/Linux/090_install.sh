@@ -12,7 +12,7 @@ cp -r $SYSROOT/src/libxml2/include/libxml $SWIFT_INCLUDE
 rsync -av $SYSROOT/usr/lib/libcurl.* $SWIFT_LIB
 cp -r $SYSROOT/src/curl/include/curl $SWIFT_INCLUDE
 
-rsync -av $ANDROID_NDK/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so $SWIFT_LIB
+rsync -av $ANDROID_NDK_HOME/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so $SWIFT_LIB
 
 # foundation
 rsync -av $SWIFT_BUILD/foundation-linux-x86_64/Foundation/libFoundation.so $SWIFT_LIB
@@ -25,7 +25,7 @@ cp -r $LIBICONV_ANDROID/armeabi-v7a/include/unicode $SWIFT_INCLUDE
 
 for i in $SWIFT_LIB/libicu*.so
 do 
-    $ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/arm-linux-androideabi/bin/strip $i
+    $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/arm-linux-androideabi/bin/strip $i
     mv $i ${i/libicu/libscu}
 done
 
@@ -37,12 +37,12 @@ rm -f swift-install/pkgconfig/*.pc.tmp
 
 # bundle ndk
 mkdir -p $SWIFT_INSTALL/ndk-android-21/usr
-rsync -av $ANDROID_NDK/platforms/android-21/arch-arm/usr/{include,lib} $SWIFT_INSTALL/ndk-android-21/usr
+rsync -av $ANDROID_NDK_HOME/platforms/android-21/arch-arm/usr/{include,lib} $SWIFT_INSTALL/ndk-android-21/usr
 
 # copy to host
 mkdir -p /vagrant/out
 
-rsync -av $ANDROID_NDK/ /vagrant/out/ndk
+rsync -av $ANDROID_NDK_HOME/ /vagrant/out/ndk
 rsync -av $LIBICONV_ANDROID /vagrant/out/
 rsync -av $SWIFT_INSTALL /vagrant/out/
 rsync -av $SWIFT_SOURCE /vagrant/out/ --exclude build

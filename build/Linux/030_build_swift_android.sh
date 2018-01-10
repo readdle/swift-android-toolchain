@@ -10,7 +10,7 @@ pushd $SWIFT_SOURCE/swift
     utils/build-script \
         -R \
         --android \
-        --android-ndk $ANDROID_NDK \
+        --android-ndk $ANDROID_NDK_HOME \
         --android-api-level 21 \
         --android-icu-uc $LIBICONV_ANDROID/armeabi-v7a \
         --android-icu-uc-include $LIBICONV_ANDROID/armeabi-v7a/icu/source/common \
@@ -29,6 +29,6 @@ popd
 # android linkers should be set after swift is built but not earlier
 if [[ `uname` == 'Linux' ]]
 then
-    sudo ln -s $ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ld.gold /usr/bin/armv7-none-linux-android-ld.gold
-    sudo ln -s $ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ld.gold /usr/bin/armv7-none-linux-androideabi-ld.gold
+    sudo ln -s $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ld.gold /usr/bin/armv7-none-linux-android-ld.gold
+    sudo ln -s $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ld.gold /usr/bin/armv7-none-linux-androideabi-ld.gold
 fi

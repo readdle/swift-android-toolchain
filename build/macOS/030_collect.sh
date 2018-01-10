@@ -23,7 +23,7 @@ pushd $LINUX_OUT
         --exclude '/usr/**' 
         
 
-    pushd $ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/
+    pushd $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/
         cp arm-linux-androideabi/bin/ld.gold $OUT_BIN
         cp lib/gcc/arm-linux-androideabi/4.9.x/armv7-a/libgcc.a $OUT_BIN
     

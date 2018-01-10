@@ -33,6 +33,6 @@ $NDK/build/tools/make_standalone_toolchain.py --api 21 --arch arm --stl libc++ -
 NDK=`realpath $NDK`
 STANDALONE_TOOLCHAIN=`realpath $STANDALON_TOOLCHAIN`
 
-echo "export ANDROID_NDK=$NDK" >> .profile
+echo "export ANDROID_NDK_HOME=$NDK" >> .profile
 echo "export STANDALONE_TOOLCHAIN=$STANDALONE_TOOLCHAIN" >> .profile
-echo "export PATH=\$ANDROID_NDK:\$PATH" >> .profile
+echo "export PATH=\$ANDROID_NDK_HOME:\$PATH" >> .profile

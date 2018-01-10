@@ -9,9 +9,9 @@ pushd $SWIFT_SOURCE/swift-corelibs-xctest
     # all this -I/-L needed because dispatch and foundation not finally installed yet
     $SWIFT_BUILD/swift-linux-x86_64/bin/swiftc -v \
         -target armv7-none-linux-androideabi \
-        -sdk $ANDROID_NDK/platforms/android-21/arch-arm \
-        -L $ANDROID_NDK/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a \
-        -L $ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x \
+        -sdk $ANDROID_NDK_HOME/platforms/android-21/arch-arm \
+        -L $ANDROID_NDK_HOME/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a \
+        -L $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x \
         \
         -I $SWIFT_SOURCE/swift-corelibs-libdispatch \
         -I $SWIFT_SOURCE/swift-corelibs-libdispatch/src/swift \

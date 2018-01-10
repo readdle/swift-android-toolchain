@@ -24,9 +24,9 @@ pushd $SWIFT_SOURCE/swift-corelibs-foundation
         BUILD_DIR="$SWIFT_BUILD/foundation-linux-x86_64" \
         DSTROOT="/" \
         PREFIX="/usr/" \
-        CFLAGS="-DDEPLOYMENT_TARGET_ANDROID -DDEPLOYMENT_ENABLE_LIBDISPATCH --sysroot=$ANDROID_NDK/platforms/android-21/arch-arm -I$LIBICONV_ANDROID/armeabi-v7a/include -I${SDKROOT}/lib/swift -I$ANDROID_NDK/sources/android/support/include -I$SYSROOT/usr/include -I$SWIFT_SOURCE/swift-corelibs-foundation/closure" \
-        SWIFTCFLAGS="-DDEPLOYMENT_TARGET_ANDROID -DDEPLOYMENT_ENABLE_LIBDISPATCH -I$ANDROID_NDK/platforms/android-21/arch-arm/usr/include -L /usr/local/lib/swift/android -I /usr/local/lib/swift/android/armv7" \
-        LDFLAGS="-fuse-ld=gold --sysroot=$ANDROID_NDK/platforms/android-21/arch-arm -L$ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x -L$LIBICONV_ANDROID/armeabi-v7a -L/usr/local/lib/swift/android -L$SYSROOT/usr/lib -ldispatch " \
+        CFLAGS="-DDEPLOYMENT_TARGET_ANDROID -DDEPLOYMENT_ENABLE_LIBDISPATCH --sysroot=$ANDROID_NDK_HOME/platforms/android-21/arch-arm -I$LIBICONV_ANDROID/armeabi-v7a/include -I${SDKROOT}/lib/swift -I$ANDROID_NDK_HOME/sources/android/support/include -I$SYSROOT/usr/include -I$SWIFT_SOURCE/swift-corelibs-foundation/closure" \
+        SWIFTCFLAGS="-DDEPLOYMENT_TARGET_ANDROID -DDEPLOYMENT_ENABLE_LIBDISPATCH -I$ANDROID_NDK_HOME/platforms/android-21/arch-arm/usr/include -L /usr/local/lib/swift/android -I /usr/local/lib/swift/android/armv7" \
+        LDFLAGS="-fuse-ld=gold --sysroot=$ANDROID_NDK_HOME/platforms/android-21/arch-arm -L$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x -L$LIBICONV_ANDROID/armeabi-v7a -L/usr/local/lib/swift/android -L$SYSROOT/usr/lib -ldispatch " \
         SDKROOT=$SYSROOT/usr \
         ./configure \
             Release \
