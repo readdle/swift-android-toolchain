@@ -1,0 +1,4 @@
+out/
+vagrant/out/
+*.log
+.vagrant

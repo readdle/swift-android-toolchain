@@ -1,0 +1,3 @@
+#!/bin/bash
+$(xcrun --find swift-build-tool) "$@"
+exit $?
