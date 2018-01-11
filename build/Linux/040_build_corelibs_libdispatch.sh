@@ -6,9 +6,9 @@ pushd $SWIFT_SOURCE/swift-corelibs-libdispatch
         CC="$SWIFT_BUILD/llvm-linux-x86_64/bin/clang" \
         CXX="$SWIFT_BUILD/llvm-linux-x86_64/bin/clang++" \
         SWIFTC="$SWIFT_BUILD/swift-linux-x86_64/bin/swiftc" \
-        CFLAGS="-DTRASHIT='' -I$ANDROID_NDK_HOME/sysroot/usr/include/" \
+        CFLAGS="-DTRASHIT=''" \
         LIBS="-L$SWIFT_INSTALL/usr/lib/swift/android -L$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/arm-linux-androideabi/lib/armv7-a" \
-        LDFLAGS="-lswiftCore -latomic" \
+        LDFLAGS="-latomic" \
         ./configure \
             --with-swift-toolchain="$SWIFT_BUILD/swift-linux-x86_64" \
             --with-build-variant=release \
