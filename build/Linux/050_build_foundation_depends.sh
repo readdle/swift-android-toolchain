@@ -81,7 +81,7 @@ pushd $SYSROOT
 
     pushd src/libxml2
         autoreconf -i
-        ./configure --with-sysroot=$SYSROOT --with-zlib=$SYSROOT/usr --prefix=$SYSROOT/usr --host=$CHOST --without-lzma --disable-static --enable-shared --without-http --without-html --without-ftp
+        ./configure --with-sysroot=$SYSROOT --with-zlib=$SYSROOT/usr --prefix=$SYSROOT/usr --host=$CHOST --without-lzma --disable-static --enable-shared --without-http --with-html --without-ftp
 
         make libxml2.la && make install-libLTLIBRARIES || {
             echo "$0 failed with code $?"
