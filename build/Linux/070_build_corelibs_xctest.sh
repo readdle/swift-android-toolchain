@@ -1,7 +1,7 @@
 #!/bin/bash
 
 module_name=XCTest
-build_dir=
+build_dir=$SWIFT_BUILD/xctest-linux-x86_64
 
 mkdir -p $build_dir
 
