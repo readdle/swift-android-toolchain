@@ -1,4 +1,6 @@
 out/
+swift-android-*/
+swift-android-*.zip
 vagrant/out/
 *.log
 .vagrant
