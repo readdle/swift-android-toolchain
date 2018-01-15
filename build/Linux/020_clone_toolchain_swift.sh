@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GIT_URL_SWIFT=https://github.com/SwiftJava/swift.git
+GIT_URL_SWIFT=https://github.com/zayass/swift.git
 
 pushd $SWIFT_SOURCE
     git clone $GIT_URL_SWIFT
