@@ -3,7 +3,8 @@
 SYSROOT=$STANDALONE_TOOLCHAIN/sysroot
 
 SWIFT_INCLUDE=$SWIFT_INSTALL/usr/lib/swift/
-SWIFT_LIB=$SWIFT_INSTALL/usr/lib/swift/android/
+SWIFT_LIB=$SWIFT_INCLUDE/android/
+SWIFT_MODULE=$SWIFT_LIB/armv7/
 
 # foundation dependencies
 rsync -av $SYSROOT/usr/lib/libxml2.* $SWIFT_LIB
@@ -17,7 +18,11 @@ rsync -av $ANDROID_NDK_HOME/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_
 # foundation
 rsync -av $SWIFT_BUILD/foundation-linux-x86_64/Foundation/libFoundation.so $SWIFT_LIB
 rsync -av $SWIFT_BUILD/foundation-linux-x86_64/Foundation/usr/lib/swift/CoreFoundation $SWIFT_INCLUDE
-rsync -av $SWIFT_BUILD/foundation-linux-x86_64/Foundation/Foundation.swift* $SWIFT_INSTALL/usr/lib/swift/android/armv7/
+rsync -av $SWIFT_BUILD/foundation-linux-x86_64/Foundation/Foundation.swift* $SWIFT_MODULE
+
+# xctest
+rsync -av $SWIFT_BUILD/xctest-linux-x86_64/libXCTest.so $SWIFT_LIB
+rsync -av $SWIFT_BUILD/xctest-linux-x86_64/XCTest.swift* $SWIFT_MODULE
 
 # icu
 rsync -av $LIBICONV_ANDROID/armeabi-v7a/libicu{uc,i18n,data}.so $SWIFT_LIB
