@@ -1,6 +1,8 @@
 #!/bin/bash
 
 GIT_URL_SWIFT=https://github.com/zayass/swift.git
+TOOLCHAIN_VERSION=4.0a
+SWIFT_TAG=swift-android-$TOOLCHAIN_VERSION
 
 pushd $SWIFT_SOURCE
     git clone $GIT_URL_SWIFT
@@ -15,7 +17,7 @@ pushd $SWIFT_SOURCE
     cd lldb        && git checkout a3a5134d7f083f643d09316d41094802cc117db9 && cd - &&
     cd ninja       && git checkout 256bf897b85e35bc90294090ad39b5214eb141fb && cd - &&
 
-    cd swift && git checkout android-toolchain-1.0 && cd - &&
+    cd swift && git checkout $SWIFT_TAG && cd - &&
 
     rm -rf llvm                       && git clone https://github.com/SwiftJava/swift-llvm.git llvm &&
     cd llvm                           && git checkout android-toolchain-1.0.3 && cd - &&

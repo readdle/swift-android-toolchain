@@ -4,8 +4,8 @@ OUT=out
 OUT_TOOLCHAIN=$OUT/toolchain
 OUT_BIN=$OUT_TOOLCHAIN/usr/bin
 
-VERSION=4.0a
-NAME=swift-android-$VERSION
+TOOLCHAIN_VERSION=4.0a
+NAME=swift-android-$TOOLCHAIN_VERSION
 
 mkdir -p $OUT
 mkdir -p $OUT_TOOLCHAIN

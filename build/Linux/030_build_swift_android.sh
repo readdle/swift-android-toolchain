@@ -16,9 +16,8 @@ pushd $SWIFT_SOURCE/swift
         --android-icu-uc-include $LIBICONV_ANDROID/armeabi-v7a/icu/source/common \
         --android-icu-i18n $LIBICONV_ANDROID/armeabi-v7a \
         --android-icu-i18n-include $LIBICONV_ANDROID/armeabi-v7a/icu/source/i18n \
-        --libdispatch --install-libdispatch \
         --install-swift \
-        '--swift-install-components=autolink-driver;compiler;clang-builtin-headers;stdlib;swift-remote-mirror;sdk-overlay;dev' \
+        '--swift-install-components=compiler;clang-builtin-headers;stdlib;sdk-overlay' \
         --install-prefix=/usr --install-destdir=$SWIFT_INSTALL || {
 
             echo "$0 failed with code $?"
