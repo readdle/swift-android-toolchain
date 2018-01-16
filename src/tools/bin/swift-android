@@ -5,7 +5,7 @@ import os
 import sys
 import errno
 
-git_url = "https://github.com/zayass/swift-android-buildtools"
+git_url = "https://github.com/readdle/swift-android-buildtools"
 
 self_dir = os.path.dirname(os.path.realpath(__file__))
 base_dir = os.path.dirname(self_dir)
