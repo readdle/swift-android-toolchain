@@ -5,7 +5,9 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.disksize.size = '100GB'
 
-  config.vm.synced_folder '../build/Linux', "/vagrant/scripts"
+  config.vm.synced_folder '../build/Linux',  "/vagrant/scripts"
+  config.vm.synced_folder '../build/config', "/vagrant/config"
+
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "8096"
     vb.cpus = `sysctl -n hw.physicalcpu`.to_i # use all available

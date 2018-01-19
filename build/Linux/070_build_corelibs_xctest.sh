@@ -26,5 +26,8 @@ pushd $SWIFT_SOURCE/swift-corelibs-xctest
         -emit-library -o "$build_dir/lib$module_name.so" \
         -Xlinker -soname=lib$module_name.so \
         `find Sources -name '*.swift'`
+
+    exit_code=$?
 popd
 
+exit $exit_code

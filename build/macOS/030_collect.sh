@@ -1,11 +1,11 @@
 #!/bin/bash
 
-OUT=out
+TOOLCHAIN_VERSION=`cat build/config/version`
+NAME=swift-android-$TOOLCHAIN_VERSION
+
+OUT=out/$NAME
 OUT_TOOLCHAIN=$OUT/toolchain
 OUT_BIN=$OUT_TOOLCHAIN/usr/bin
-
-TOOLCHAIN_VERSION=4.0a
-NAME=swift-android-$TOOLCHAIN_VERSION
 
 mkdir -p $OUT
 mkdir -p $OUT_TOOLCHAIN
@@ -49,5 +49,6 @@ sed -e 's@".*/android-21/arch-arm@"../../../../../ndk-android-21@' < "$GLIBC_MOD
 
 rsync -av src/tools/ $OUT
 
-mv $OUT $NAME
-zip -r $NAME.zip $NAME
+pushd $(dirname $OUT)
+    zip -r $NAME.zip $NAME
+popd

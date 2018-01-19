@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GIT_URL_SWIFT=https://github.com/zayass/swift.git
-TOOLCHAIN_VERSION=4.0a
+TOOLCHAIN_VERSION=`cat /vagrant/config/version`
 SWIFT_TAG=swift-android-$TOOLCHAIN_VERSION
 
 pushd $SWIFT_SOURCE
