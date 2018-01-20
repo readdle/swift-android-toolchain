@@ -5,6 +5,42 @@ Based on:
  - https://github.com/SwiftJava/swifty-robot-environment
  - https://github.com/zayass/swift-android-vagrant
 
+# Instalation
+Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain)
+
+## System Requirements
+Swift Android toolchain depends on Xcode 9 and Android NDK 15c  
+Environment variables shoud be named **exactly** `ANDROID_NDK_HOME` and `SWIFT_ANDROID_HOME`
+
+## Download Android NDK 15c
+
+    wget https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
+    unzip android-ndk-r15c-darwin-x86_64.zip
+    
+    export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
+    # Replace with ~/.zshrc with ~/.bashrc for bash
+    echo "export ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> ~/.zshrc
+
+## Download toolchain
+
+    wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-4.0b.zip
+    unzip swift-android-4.0b.zip
+    
+    export SWIFT_ANDROID_HOME=$PWD/swift-android-4.0b
+    # Replace with ~/.zshrc with ~/.bashrc for bash
+    echo "export SWIFT_ANDROID_HOME=$SWIFT_ANDROID_HOME" >> ~/.zshrc
+    
+## Setup build tools (optional)
+To build and test swift projects from command line dowload command line tools  
+It is not required if you dont use comand line to build swift directly
+
+    export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
+    # Replace with ~/.zshrc with ~/.bashrc for bash
+    echo 'export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH' >> ~/.zshrc
+    
+    swift-android tools --update
+
+# Build 
 ## System Requirements
 
 Building stdlib require Linux and building macOS compiler requires macOS
