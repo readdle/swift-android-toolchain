@@ -16,6 +16,7 @@ Environment variables shoud be named **exactly** `ANDROID_NDK_HOME` and `SWIFT_A
 
     wget https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
     unzip android-ndk-r15c-darwin-x86_64.zip
+    rm android-ndk-r15c-darwin-x86_64.zip
     
     export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
     # Replace with ~/.zshrc with ~/.bashrc for bash
@@ -25,6 +26,7 @@ Environment variables shoud be named **exactly** `ANDROID_NDK_HOME` and `SWIFT_A
 
     wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-4.0b.zip
     unzip swift-android-4.0b.zip
+    rm swift-android-4.0b.zip
     
     export SWIFT_ANDROID_HOME=$PWD/swift-android-4.0b
     # Replace with ~/.zshrc with ~/.bashrc for bash
@@ -63,9 +65,9 @@ Install Android NDK 15c from [android-ndk-r15c-darwin-x86_64.zip](https://dl.goo
 
     cd $somewhere
     wget https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
-    unzip https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
+    unzip android-ndk-r15c-darwin-x86_64.zip
     rm android-ndk-r15c-darwin-x86_64.zip
-    export ANDROID_NDK_HOME=`pwd`/android-ndk-r15c
+    export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
 
 ## Building
 
