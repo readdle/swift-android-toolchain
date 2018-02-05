@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# hack for configure
+# it is impossible to pass -lswiftCore on configure stage because compiler checking fails
+# it trying to check with host linker and fails because of incoreect arch
+placeholder=-L/tmp/placeholder
+
 pushd $SWIFT_SOURCE/swift-corelibs-libdispatch
     sh autogen.sh
     env \
@@ -7,8 +12,8 @@ pushd $SWIFT_SOURCE/swift-corelibs-libdispatch
         CXX="$SWIFT_BUILD/llvm-linux-x86_64/bin/clang++" \
         SWIFTC="$SWIFT_BUILD/swift-linux-x86_64/bin/swiftc" \
         CFLAGS="-DTRASHIT=''" \
-        LIBS="-L$SWIFT_INSTALL/usr/lib/swift/android -L$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/arm-linux-androideabi/lib/armv7-a" \
-        LDFLAGS="-latomic" \
+        LIBS="$placeholder -latomic" \
+        LDFLAGS="-L$SWIFT_INSTALL/usr/lib/swift/android -L$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/arm-linux-androideabi/lib/armv7-a" \
         ./configure \
             --with-swift-toolchain="$SWIFT_BUILD/swift-linux-x86_64" \
             --with-build-variant=release \
@@ -18,6 +23,8 @@ pushd $SWIFT_SOURCE/swift-corelibs-libdispatch
             --with-android-api-level=21 \
             --disable-build-tests \
             --prefix=$SWIFT_INSTALL/usr
+
+    sed -ie "s@$placeholder@-lswiftCore@" src/Makefile
 
     make && make install || {
         echo "$0 failed with code $?"
