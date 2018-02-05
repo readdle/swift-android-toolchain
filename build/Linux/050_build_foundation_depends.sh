@@ -4,6 +4,9 @@ DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2-latest.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
 GIT_URL_LIBXML2=git://git.gnome.org/libxml2
 
+CURL_VERSION=curl-7_58_0
+LIBXML2_VERSION=v2.9.7
+
 export SYSROOT=$STANDALONE_TOOLCHAIN/sysroot
 export PATH=$STANDALONE_TOOLCHAIN/bin:$PATH
 
@@ -66,6 +69,8 @@ pushd $SYSROOT
     git clone $GIT_URL_CURL src/curl
 
     pushd src/curl
+        git checkout $CURL_VERSION
+
         autoreconf -i
         ./configure --host=arm-linux-androideabi --enable-shared --disable-static --disable-dependency-tracking --with-zlib=$SYSROOT/usr --with-ssl=$SYSROOT/usr --without-ca-bundle --without-ca-path --enable-ipv6 --enable-http --enable-ftp --disable-file --disable-ldap --disable-ldaps --disable-rtsp --disable-proxy --disable-dict --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smtp --disable-gopher --disable-sspi --disable-manual --target=arm-linux-androideabi --build=x86_64-unknown-linux-gnu --prefix=$SYSROOT/usr
 
@@ -80,6 +85,8 @@ pushd $SYSROOT
     git clone $GIT_URL_LIBXML2 src/libxml2
 
     pushd src/libxml2
+        git checkout $LIBXML2_VERSION
+
         autoreconf -i
         ./configure --with-sysroot=$SYSROOT --with-zlib=$SYSROOT/usr --prefix=$SYSROOT/usr --host=$CHOST --without-lzma --disable-static --enable-shared --without-http --with-html --without-ftp
 
