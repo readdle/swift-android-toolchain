@@ -25,8 +25,8 @@ pushd $SWIFT_SOURCE
     rm -rf swift-corelibs-libdispatch && git clone https://github.com/SwiftJava/swift-corelibs-libdispatch.git &&
     cd swift-corelibs-libdispatch     && git checkout android-toolchain-1.0 && cd - &&
 
-    rm -rf swift-corelibs-foundation  && git clone https://github.com/johnno1962b/swift-corelibs-foundation.git &&
-    cd swift-corelibs-foundation      && git checkout 2448bc731436649fd6e21c2ddacbd1a207c31037 && cd - &&
+    rm -rf swift-corelibs-foundation  && git clone https://github.com/zayass/swift-corelibs-foundation.git &&
+    cd swift-corelibs-foundation      && git checkout $SWIFT_TAG && cd - &&
 
     rm -rf swift-corelibs-xctest      && git clone https://github.com/SwiftJava/swift-corelibs-xctest.git &&
     cd swift-corelibs-xctest          && git checkout android-toolchain-1.0 && cd - &&

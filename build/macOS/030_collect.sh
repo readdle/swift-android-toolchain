@@ -48,6 +48,7 @@ fi &&
 sed -e 's@".*/android-21/arch-arm@"../../../../../ndk-android-21@' < "$GLIBC_MODULEMAP.orig" > "$GLIBC_MODULEMAP"
 
 rsync -av src/tools/ $OUT
+echo $TOOLCHAIN_VERSION > $OUT/VERSION
 
 pushd $(dirname $OUT)
     zip -r $NAME.zip $NAME
