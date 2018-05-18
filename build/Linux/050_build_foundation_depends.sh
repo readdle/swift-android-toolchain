@@ -4,7 +4,7 @@ DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2-latest.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
 GIT_URL_LIBXML2=git://git.gnome.org/libxml2
 
-CURL_VERSION=curl-7_58_0
+CURL_VERSION=curl-7_59_0
 LIBXML2_VERSION=v2.9.7
 
 export SYSROOT=$STANDALONE_TOOLCHAIN/sysroot
