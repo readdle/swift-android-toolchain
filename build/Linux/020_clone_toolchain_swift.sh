@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GIT_URL_SWIFT=https://github.com/zayass/swift.git
+GIT_URL_SWIFT=https://github.com/readdle/swift.git
 TOOLCHAIN_VERSION=`cat /vagrant/config/version`
 SWIFT_TAG=swift-android-$TOOLCHAIN_VERSION
 
@@ -25,7 +25,7 @@ pushd $SWIFT_SOURCE
     rm -rf swift-corelibs-libdispatch && git clone https://github.com/SwiftJava/swift-corelibs-libdispatch.git &&
     cd swift-corelibs-libdispatch     && git checkout android-toolchain-1.0 && cd - &&
 
-    rm -rf swift-corelibs-foundation  && git clone https://github.com/zayass/swift-corelibs-foundation.git &&
+    rm -rf swift-corelibs-foundation  && git clone https://github.com/readdle/swift-corelibs-foundation.git &&
     cd swift-corelibs-foundation      && git checkout $SWIFT_TAG && cd - &&
 
     rm -rf swift-corelibs-xctest      && git clone https://github.com/SwiftJava/swift-corelibs-xctest.git &&
@@ -34,7 +34,7 @@ pushd $SWIFT_SOURCE
     cd swift-integration-tests        && git checkout 1d5d149f7aab027c9a7dccd19c0680bf36761a68 && cd - &&
     cd swift-xcode-playground-support && git checkout 05737c49f04b9089392b599ad529ab91c7119a75 && cd - &&
 
-    rm -rf swiftpm                    && git clone https://github.com/zayass/swift-package-manager.git swiftpm && 
+    rm -rf swiftpm                    && git clone https://github.com/readdle/swift-package-manager.git swiftpm && 
     cd swiftpm                        && git checkout swift-4.0-branch && cd -
 
 popd
