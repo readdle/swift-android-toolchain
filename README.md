@@ -9,8 +9,9 @@ Based on:
 Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain)
 
 ## System Requirements
-Swift Android toolchain depends on Xcode 9 and Android NDK 15c  
-Environment variables shoud be named **exactly** `ANDROID_NDK_HOME` and `SWIFT_ANDROID_HOME`
+Swift Android toolchain depends on **exactly** Xcode 9.2 and Android NDK 15c  
+Xcode 9.2 should be selected as default with `sudo xcode-select --switch /path/to/xcode-9.2`  
+Environment variables shoud be named `ANDROID_NDK_HOME` and `SWIFT_ANDROID_HOME`
 
 ## Download Android NDK 15c
 
