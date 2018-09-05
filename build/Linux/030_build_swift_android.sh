@@ -8,7 +8,9 @@ fi
 
 pushd $SWIFT_SOURCE/swift
     utils/build-script \
-        -R \
+        --release \
+        --assertions \
+        --no-swift-stdlib-assertions \
         --android \
         --android-ndk $ANDROID_NDK_HOME \
         --android-api-level 21 \
