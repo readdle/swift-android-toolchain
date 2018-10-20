@@ -14,5 +14,5 @@ SWIFT_INSTALL=`realpath $SWIFT_INSTALL`
 
 echo "export LIBICONV_ANDROID=$LIBICONV_ANDROID" >> .profile
 echo "export SWIFT_SOURCE=$SWIFT_SOURCE" >> .profile
-echo "export SWIFT_BUILD=\$SWIFT_SOURCE/build/Ninja-ReleaseAssert" >> .profile
+echo "export SWIFT_BUILD=\$SWIFT_SOURCE/build/Ninja-ReleaseAssert+stdlib-Release" >> .profile
 echo "export SWIFT_INSTALL=$SWIFT_INSTALL" >> .profile

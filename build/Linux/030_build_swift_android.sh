@@ -11,6 +11,7 @@ pushd $SWIFT_SOURCE/swift
         --release \
         --assertions \
         --no-swift-stdlib-assertions \
+        --swift-enable-ast-verifier=0 \
         --android \
         --android-ndk $ANDROID_NDK_HOME \
         --android-api-level 21 \

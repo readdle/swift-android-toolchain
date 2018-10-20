@@ -34,7 +34,7 @@ pushd $LINUX_OUT
         cp /usr/local/bin/ninja $OUT_BIN
     popd
 
-    cp swift-source/build/Ninja-ReleaseAssert/swift-macosx-x86_64/bin/swiftc $OUT_BIN
+    cp swift-source/build/Ninja-ReleaseAssert+stdlib-Release/swift-macosx-x86_64/bin/swiftc $OUT_BIN
     cp swift-source/swiftpm/.build/x86_64-apple-macosx10.10/release/swift-build $OUT_BIN
 popd
 

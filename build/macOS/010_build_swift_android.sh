@@ -2,9 +2,19 @@
 
 BASE_DIR=`pwd`
 
-export ANDROID_NDK_HOME=$BASE_DIR/vagrant/out/ndk
 export SWIFT_SOURCE=$BASE_DIR/vagrant/out/swift-source
-export SWIFT_INSTALL=$BASE_DIR/vagrant/out/swift-install
-export LIBICONV_ANDROID=$BASE_DIR/vagrant/out/libiconv-libicu-android
 
-build/Linux/030_build_swift_android.sh
+pushd $SWIFT_SOURCE/swift
+    unset TOOLCHAINS
+    utils/build-script \
+        --release \
+        --assertions \
+        --no-swift-stdlib-assertions \
+        --swift-enable-ast-verifier=0 \
+        --skip-ios \
+        --skip-tvos \
+        --skip-watchos \
+        --skip-build-benchmarks \
+        --skip-test-osx \
+        --skip-build-osx
+popd
