@@ -52,9 +52,10 @@ So building scripts uses vagrant to automate eentire process on macOS host
 #### Vagrant
 Install [virtualbox](https://www.virtualbox.org/wiki/Downloads)  
 Install [vagrant](https://www.vagrantup.com/)  
-Install `vagrant-disksize` vagrant plugin
+Install vagrant plugins
 
     vagrant plugin install vagrant-disksize
+    vagrant plugin install vagrant-scp
 
 #### macOS build tools
 Install cmake and ninja
