@@ -35,7 +35,7 @@ BASE_DIR=$SELF_DIR/../
 
 pushd $BASE_DIR/vagrant
     if (( force == 1 )); then
-        vagrant destroy
+        vagrant destroy -f
     else
         vagrant up
         vagrant ssh -c /vagrant/scripts/000_clean.sh
