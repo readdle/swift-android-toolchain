@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-sudo unlink /usr/bin/armv7-none-linux-android-ld.gold
-sudo unlink /usr/bin/armv7-none-linux-androideabi-ld.gold
+sudo rm -f /usr/bin/armv7-none-linux-android-ld.gold
+sudo rm -f /usr/bin/armv7-none-linux-androideabi-ld.gold
 
 pushd $SWIFT_SOURCE/swift
     utils/build-script \
@@ -23,10 +23,10 @@ pushd $SWIFT_SOURCE/swift
 popd
 
 # android linkers should be set after swift is built but not earlier
-sudo ln -s \
+sudo ln -sf \
     $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ld.gold \
     /usr/bin/armv7-none-linux-android-ld.gold 
 
-sudo ln -s \
+sudo ln -sf \
     $ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ld.gold \
     /usr/bin/armv7-none-linux-androideabi-ld.gold
