@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 BINTRAY_USER=${BINTRAY_USER:?BINTRAY_USER env variable should be set}
 BINTRAY_API_KEY=${BINTRAY_API_KEY:?BINTRAY_API_KEY env variable should be set}

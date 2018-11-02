@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # hack for configure
 # it is impossible to pass -lswiftCore on configure stage because compiler checking fails
@@ -26,10 +27,7 @@ pushd $SWIFT_SOURCE/swift-corelibs-libdispatch
 
     sed -ie "s@$placeholder@-lswiftCore@" src/Makefile
 
-    make && make install || {
-        echo "$0 failed with code $?"
-        exit 1
-    }
+    make && make install
 
     rsync -av $SWIFT_SOURCE/swift-corelibs-libdispatch/src/swift/Dispatch.swift{doc,module} $SWIFT_INSTALL/usr/lib/swift/android/armv7/
 popd

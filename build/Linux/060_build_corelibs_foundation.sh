@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 export SYSROOT=$STANDALONE_TOOLCHAIN/sysroot
 export PATH=$STANDALONE_TOOLCHAIN/bin:$PATH
@@ -34,7 +35,7 @@ pushd $SWIFT_SOURCE/swift-corelibs-foundation
             --sysroot=$SYSROOT \
             -DXCTEST_BUILD_DIR=$SWIFT_BUILD/xctest-linux-x86_64 \
             -DLIBDISPATCH_SOURCE_DIR=$SWIFT_SOURCE/swift-corelibs-libdispatch \
-            -DLIBDISPATCH_BUILD_DIR=$SWIFT_SOURCE/swift-corelibs-libdispatch &&
+            -DLIBDISPATCH_BUILD_DIR=$SWIFT_SOURCE/swift-corelibs-libdispatch
 
     # Prepend SYSROOT env variable to ninja.build script
     # SYSROOT is not being passed from build.py / script.py to the ninja file yet
@@ -43,10 +44,7 @@ pushd $SWIFT_SOURCE/swift-corelibs-foundation
     sed 's%\-rpath \\\$\$ORIGIN %%g' build.ninja.new > build.ninja
     rm build.ninja.new
 
-    /usr/bin/ninja || {
-        echo "$0 failed with code $?"
-        exit 1
-    }
+    ninja
 
     # Undo those nasty changes
     unlink $SYSROOT/usr/include/curl/curl

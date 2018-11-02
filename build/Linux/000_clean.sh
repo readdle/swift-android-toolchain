@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 rm -rf $LIBICONV_ANDROID
 rm -rf $SWIFT_SOURCE

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 function print_help {
     echo    "Usage: $0 [-f] [-h]" >&2

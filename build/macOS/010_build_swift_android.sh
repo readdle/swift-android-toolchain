@@ -1,11 +1,12 @@
 #!/bin/bash
+set -e
+
+unset TOOLCHAINS
 
 BASE_DIR=`pwd`
-
-export SWIFT_SOURCE=$BASE_DIR/vagrant/out/swift-source
+SWIFT_SOURCE=$BASE_DIR/vagrant/out/swift-source
 
 pushd $SWIFT_SOURCE/swift
-    unset TOOLCHAINS
     utils/build-script \
         --release \
         --assertions \

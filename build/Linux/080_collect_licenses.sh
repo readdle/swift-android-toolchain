@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 SYSROOT=$STANDALONE_TOOLCHAIN/sysroot
 

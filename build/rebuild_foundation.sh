@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 SELF_DIR=$(dirname $0)
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2-latest.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
@@ -50,10 +51,7 @@ pushd $SYSROOT
             make buildinf.h
         popd
 
-        make depend build_crypto build_ssl -j 4 || {
-            echo "$0 failed with code $?"
-            exit 1
-        }
+        make depend build_crypto build_ssl -j 4
 
         # This subproject is causing issues with install_sw target. We don't need the binaries.
         rm -r apps
@@ -74,10 +72,7 @@ pushd $SYSROOT
         autoreconf -i
         ./configure --host=arm-linux-androideabi --enable-shared --disable-static --disable-dependency-tracking --with-zlib=$SYSROOT/usr --with-ssl=$SYSROOT/usr --without-ca-bundle --without-ca-path --enable-ipv6 --enable-http --enable-ftp --disable-file --disable-ldap --disable-ldaps --disable-rtsp --disable-proxy --disable-dict --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smtp --disable-gopher --disable-sspi --disable-manual --target=arm-linux-androideabi --build=x86_64-unknown-linux-gnu --prefix=$SYSROOT/usr
 
-        make && make install || {
-            echo "$0 failed with code $?"
-            exit 1
-        }
+        make && make install
     popd
 
     # Download and compile libxml2
@@ -90,10 +85,7 @@ pushd $SYSROOT
         autoreconf -i
         ./configure --with-sysroot=$SYSROOT --with-zlib=$SYSROOT/usr --prefix=$SYSROOT/usr --host=$CHOST --without-lzma --disable-static --enable-shared --without-http --with-html --without-ftp
 
-        make libxml2.la && make install-libLTLIBRARIES || {
-            echo "$0 failed with code $?"
-            exit 1
-        }
+        make libxml2.la && make install-libLTLIBRARIES
 
         pushd include
             make install
