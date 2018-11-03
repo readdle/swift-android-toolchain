@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 GIT_URL_SWIFT=https://github.com/readdle/swift.git
 TOOLCHAIN_VERSION=`cat /vagrant/config/version`

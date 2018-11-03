@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 export SYSROOT=$STANDALONE_TOOLCHAIN/sysroot
 export PATH=$STANDALONE_TOOLCHAIN/bin:$PATH

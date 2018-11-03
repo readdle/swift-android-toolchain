@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 SELF_DIR=$(dirname $0)
 BASE_DIR=$SELF_DIR/../

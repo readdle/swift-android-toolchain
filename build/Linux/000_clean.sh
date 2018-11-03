@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 rm -rf $LIBICONV_ANDROID
 rm -rf $SWIFT_SOURCE

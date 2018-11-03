@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 TOOLCHAIN_VERSION=`cat build/config/version`
 NAME=swift-android-$TOOLCHAIN_VERSION

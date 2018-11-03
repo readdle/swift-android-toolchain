@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 git clone https://github.com/readdle/libiconv-libicu-android.git $LIBICONV_ANDROID
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 unset DEVELOPER_DIR
 export TOOLCHAINS=swift

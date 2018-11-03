@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 rm -rf vagrant/out
 rm -rf out

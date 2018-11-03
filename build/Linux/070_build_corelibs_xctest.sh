@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 module_name=XCTest
 build_dir=$SWIFT_BUILD/xctest-linux-x86_64

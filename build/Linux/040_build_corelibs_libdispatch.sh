@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # hack for configure
 # it is impossible to pass -lswiftCore on configure stage because compiler checking fails

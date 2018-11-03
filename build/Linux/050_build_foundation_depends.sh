@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2-latest.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git

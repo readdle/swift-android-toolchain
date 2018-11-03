@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 sudo rm -f /usr/bin/armv7-none-linux-android-ld.gold
 sudo rm -f /usr/bin/armv7-none-linux-androideabi-ld.gold
