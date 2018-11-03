@@ -60,7 +60,7 @@ Install vagrant plugins
 #### macOS build tools
 Install cmake and ninja
 
-    brew install cmake ninja
+    brew install cmake ninja pkg-config
     
 #### Android NDK
 Install Android NDK 15c from [android-ndk-r15c-darwin-x86_64.zip](https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip) and define ANDROID_NDK_HOME env variable
