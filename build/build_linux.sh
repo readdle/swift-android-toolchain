@@ -16,4 +16,6 @@ pushd $BASE_DIR/vagrant
     vagrant ssh -c /vagrant/scripts/070_build_corelibs_xctest.sh
     vagrant ssh -c /vagrant/scripts/080_collect_licenses.sh
     vagrant ssh -c /vagrant/scripts/090_install.sh
+
+    vagrant halt
 popd
