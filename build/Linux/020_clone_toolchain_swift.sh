@@ -23,8 +23,8 @@ pushd $SWIFT_SOURCE
     rm -rf llvm                       && git clone https://github.com/SwiftJava/swift-llvm.git llvm
     cd llvm                           && git checkout android-toolchain-1.0.3 && cd -
 
-    rm -rf swift-corelibs-libdispatch && git clone https://github.com/SwiftJava/swift-corelibs-libdispatch.git
-    cd swift-corelibs-libdispatch     && git checkout android-toolchain-1.0 && cd -
+    rm -rf swift-corelibs-libdispatch && git clone https://github.com/readdle/swift-corelibs-libdispatch.git
+    cd swift-corelibs-libdispatch     && git checkout $SWIFT_TAG && cd -
 
     rm -rf swift-corelibs-foundation  && git clone https://github.com/readdle/swift-corelibs-foundation.git
     cd swift-corelibs-foundation      && git checkout $SWIFT_TAG && cd -
