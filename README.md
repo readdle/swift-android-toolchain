@@ -8,43 +8,108 @@ Based on:
 # Instalation
 Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain)
 
-## System Requirements
-Swift Android toolchain depends on **exactly** Xcode 9.2 and Android NDK 15c  
-Xcode 9.2 should be selected as default with `sudo xcode-select --switch /path/to/xcode-9.2`  
-Environment variables shoud be named `ANDROID_NDK_HOME` and `SWIFT_ANDROID_HOME`
+### Prepare environment
 
-## Download Android NDK 15c
+1. Install JDK 8 if needed. Call javac from terminal and macOS will guide you.
+2. Install Swift 4.0.3 toolchain for Xcode https://swift.org/builds/swift-4.0.3-release/xcode/swift-4.0.3-RELEASE/swift-4.0.3-RELEASE-osx.pkg
+3. Install Android Studio 3.3 or higher (optional)
+4. Install [brew](https://brew.sh/) if needed
+5. Install tools, NDK and Swift Android Toolchain
 
-    wget https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
-    unzip android-ndk-r15c-darwin-x86_64.zip
-    rm android-ndk-r15c-darwin-x86_64.zip
-    
-    export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
-    # Replace with ~/.zshrc with ~/.bashrc for bash
-    echo "export ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> ~/.zshrc
+```
+# install system tools
+brew install coreutils cmake wget
+ 
+cd ~
+mkdir android
+cd android
+ 
+NDK=15c
+SWIFT_ANDROID=4.0k
+ 
+# install ndk
+wget https://dl.google.com/android/repository/android-ndk-r$NDK-darwin-x86_64.zip
+unzip android-ndk-r$NDK-darwin-x86_64.zip
+rm -rf android-ndk-r$NDK-darwin-x86_64.zip
+unset NDK
+ 
+# instal swift android toolchain
+wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-$SWIFT_ANDROID.zip
+unzip swift-android-$SWIFT_ANDROID.zip
+rm -rf swift-android-$SWIFT_ANDROID.zip
+unset SWIFT_ANDROID
+```
 
-## Download toolchain
+6. Setup environment variables by putting this to .profile 
 
-    wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-4.0b.zip
-    unzip swift-android-4.0b.zip
-    rm swift-android-4.0b.zip
-    
-    export SWIFT_ANDROID_HOME=$PWD/swift-android-4.0b
-    # Replace with ~/.zshrc with ~/.bashrc for bash
-    echo "export SWIFT_ANDROID_HOME=$SWIFT_ANDROID_HOME" >> ~/.zshrc
-    
-## Setup build tools (optional)
-To build and test swift projects from command line dowload command line tools  
-It is not required if you dont use comand line to build swift directly
+```
+NDK=15c
+SWIFT_ANDROID=4.0k
+ 
+export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
+# Uncomment if you install Android Studio
+# export ANDROID_HOME=$HOME/Library/Android/sdk
+export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
+export SWIFT_ANDROID_HOME=$HOME/android/swift-android-$SWIFT_ANDROID
+export TOOLCHAINS=swift
+ 
+export PATH=$ANDROID_NDK_HOME:$PATH
+export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
+ 
+unset NDK
+unset SWIFT_ANDROID
+```
 
-    export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
-    # Replace with ~/.zshrc with ~/.bashrc for bash
-    echo 'export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH' >> ~/.zshrc
-    
-    swift-android tools --update
+7. Include .profile to your .bashrc or .zshrc if needed by adding this line
 
-# Build 
-## System Requirements
+```
+source $HOME/.profile
+```
+
+8. Install Swift Android Build tools(optional). If you want to run swift compiler from command line reload your environment from step 4 and run following command
+
+```
+swift android tools --update
+```
+
+### Build and Test swift modules
+
+Our current swift build system is tiny wrapper over Swift PM. See [Swift PM](https://github.com/apple/swift-package-manager/blob/master/Documentation/Usage.md) docs for more info.
+
+| Command                      | Description                  |
+|------------------------------|------------------------------|
+| swift package clean          | Clean build folder           |
+| swift package update         | Update dependencies          |
+| swift-build                  | Build all products           |
+| swift-build  --build-tests   | Build all products and tests |
+ 
+swift-build wrapper scripts works as swift build from swift package manager but configuresd for android.
+So you can add any extra params like -Xswiftc -DDEBUG , -Xswiftc -suppress-warnings or --configuration release
+
+Example of compilation flags:
+
+Debug
+```
+swift-build --configuration debug \
+    -Xswiftc -DDEBUG \
+    -Xswiftc -Xfrontend -Xswiftc -experimental-disable-objc-attr
+```
+
+Release
+```
+    swift-build --configuration release \
+    -Xswiftc -Xfrontend -Xswiftc -experimental-disable-objc-attr \
+    -Xswiftc -Xllvm -Xswiftc -sil-disable-pass=array-specialize
+```
+  
+### Build swift modules with Android Studio
+
+[This plugin integrates Swift Android Toolchain to Gradle](https://github.com/readdle/swift-android-gradle)
+
+---
+
+# Build Toolchain
+### System Requirements
 
 Building stdlib require Linux and building macOS compiler requires macOS
 So building scripts uses vagrant to automate eentire process on macOS host
@@ -71,7 +136,7 @@ Install Android NDK 15c from [android-ndk-r15c-darwin-x86_64.zip](https://dl.goo
     rm android-ndk-r15c-darwin-x86_64.zip
     export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
 
-## Building
+### Building
 
 Run `build/build.sh` from project root. 
 Resulting toolchain will be generated in `out/swift-android-$VERSION.zip`
