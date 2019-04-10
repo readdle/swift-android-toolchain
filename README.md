@@ -5,7 +5,7 @@ Based on:
  - https://github.com/SwiftJava/swifty-robot-environment
  - https://github.com/zayass/swift-android-vagrant
 
-# Instalation
+# Installation
 Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain)
 
 ### Prepare environment
@@ -24,19 +24,21 @@ cd ~
 mkdir android
 cd android
  
-NDK=15c
-SWIFT_ANDROID=4.0k
- 
 # install ndk
+NDK=15c
 wget https://dl.google.com/android/repository/android-ndk-r$NDK-darwin-x86_64.zip
 unzip android-ndk-r$NDK-darwin-x86_64.zip
 rm -rf android-ndk-r$NDK-darwin-x86_64.zip
 unset NDK
  
 # instal swift android toolchain
+SWIFT_ANDROID=$(curl -fsSL https://raw.githubusercontent.com/readdle/swift-android-toolchain/master/build/config/version)
 wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-$SWIFT_ANDROID.zip
 unzip swift-android-$SWIFT_ANDROID.zip
 rm -rf swift-android-$SWIFT_ANDROID.zip
+
+swift-android-$SWIFT_ANDROID/bin/swift-android tools --update
+ln -sfn swift-android-$SWIFT_ANDROID swift-android-current
 unset SWIFT_ANDROID
 ```
 
@@ -44,13 +46,12 @@ unset SWIFT_ANDROID
 
 ```
 NDK=15c
-SWIFT_ANDROID=4.0k
  
 export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
 # Uncomment if you install Android Studio
 # export ANDROID_HOME=$HOME/Library/Android/sdk
 export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
-export SWIFT_ANDROID_HOME=$HOME/android/swift-android-$SWIFT_ANDROID
+export SWIFT_ANDROID_HOME=$HOME/android/swift-android-current
 export TOOLCHAINS=swift
  
 export PATH=$ANDROID_NDK_HOME:$PATH
@@ -64,12 +65,6 @@ unset SWIFT_ANDROID
 
 ```
 source $HOME/.profile
-```
-
-8. Install Swift Android Build tools(optional). If you want to run swift compiler from command line reload your environment from step 4 and run following command
-
-```
-swift android tools --update
 ```
 
 ### Build and Test swift modules
