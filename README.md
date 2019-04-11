@@ -1,3 +1,5 @@
+[ ![Download](https://api.bintray.com/packages/readdle/swift-android-toolchain/swift-android-toolchain/images/download.svg) ](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain/_latestVersion)
+
 # Swift Android toolchain build scripts
 Automated scripts to build Swift Android cross compilation toolchain for macOS
 
