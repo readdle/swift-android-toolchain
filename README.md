@@ -34,7 +34,7 @@ rm -rf android-ndk-r$NDK-darwin-x86_64.zip
 unset NDK
  
 # instal swift android toolchain
-SWIFT_ANDROID=$(curl -fsSL https://raw.githubusercontent.com/readdle/swift-android-toolchain/master/build/config/version)
+SWIFT_ANDROID=$(curl -fsSL https://api.bintray.com/packages/readdle/swift-android-toolchain/swift-android-toolchain/versions/_latest | python -c 'import json,sys;print(json.load(sys.stdin))["name"]')
 wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-$SWIFT_ANDROID.zip
 unzip swift-android-$SWIFT_ANDROID.zip
 rm -rf swift-android-$SWIFT_ANDROID.zip
