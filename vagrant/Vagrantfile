@@ -8,9 +8,13 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder '../build/Linux',  "/vagrant/scripts"
   config.vm.synced_folder '../build/config', "/vagrant/config"
 
+  host_memory = `sysctl -n hw.memsize`.to_i / 1024 / 1024
+  host_cpus = `sysctl -n hw.physicalcpu`.to_i 
+  client_memory = [host_memory / 2, 80192].min
+
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "8096"
-    vb.cpus = `sysctl -n hw.physicalcpu`.to_i # use all available
+    vb.memory = client_memory.to_s
+    vb.cpus = host_cpus # use all available
   end
 
   config.vm.provision "shell", path: "provision/010_install_dependencies.sh"
