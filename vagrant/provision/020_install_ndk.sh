@@ -1,38 +1,37 @@
 #!/bin/bash
 
-NDK=android-ndk-r14b
-NDK_ZIP=$NDK-linux-x86_64.zip
+for version in 16b 17c 20
+do
+    ndk=android-ndk-r$version
+    ndk_zip=$ndk-linux-x86_64.zip
 
-wget --progress=bar:force https://dl.google.com/android/repository/$NDK_ZIP
+    wget --progress=bar:force https://dl.google.com/android/repository/$ndk_zip
 
-unzip $NDK_ZIP -x \
-    "$NDK/toolchains/aarch64-linux-android-4.9*" \
-    "$NDK/toolchains/mips64el-linux-android-4.9*" \
-    "$NDK/toolchains/mipsel-linux-android-4.9*" \
-    "$NDK/toolchains/x86-4.9*" \
-    "$NDK/toolchains/x86_64-4.9*" \
-    \
-    "$NDK/platforms/android-9*" \
-    "$NDK/platforms/android-12*" \
-    "$NDK/platforms/android-13*" \
-    "$NDK/platforms/android-15*" \
-    "$NDK/platforms/android-17*" \
-    "$NDK/platforms/android-18*" \
-    "$NDK/platforms/android-19*" \
-    "$NDK/platforms/android-22*" \
-    "$NDK/platforms/android-23*" \
-    "$NDK/platforms/android-24*" > /dev/null
+    unzip $ndk_zip -x \
+        "$ndk/toolchains/mips64el-linux-android-4.9*" \
+        "$ndk/toolchains/mipsel-linux-android-4.9*" \
+        \
+        "$ndk/platforms/android-9*" \
+        "$ndk/platforms/android-12*" \
+        "$ndk/platforms/android-13*" \
+        "$ndk/platforms/android-15*" \
+        "$ndk/platforms/android-17*" \
+        "$ndk/platforms/android-18*" \
+        "$ndk/platforms/android-19*" \
+        "$ndk/platforms/android-22*" \
+        "$ndk/platforms/android-23*" \
+        "$ndk/platforms/android-24*" > /dev/null
 
-rm $NDK_ZIP
+    rm $ndk_zip
+done
 
-# Create Android toolchain
-STANDALON_TOOLCHAIN=android-standalone-toolchain
-$NDK/build/tools/make_standalone_toolchain.py --api 21 --arch arm --stl libc++ --install-dir $STANDALON_TOOLCHAIN --force -v
+cp -r android-ndk-r17c android-ndk-r17c-original
+cp -r android-ndk-r20/toolchains/llvm android-ndk-r17c/toolchains
 
 # exports
-NDK=`realpath $NDK`
-STANDALONE_TOOLCHAIN=`realpath $STANDALON_TOOLCHAIN`
+echo "export ANDROID_NDK16=\$HOME/android-ndk-r16b" >> .build_env
+echo "export ANDROID_NDK17=\$HOME/android-ndk-r17c" >> .build_env
+echo "export ANDROID_NDK17_ORIGINAL=\$HOME/android-ndk-r17c-original" >> .build_env
+echo "export ANDROID_NDK20=\$HOME/android-ndk-r20" >> .build_env
 
-echo "export ANDROID_NDK_HOME=$NDK" >> .profile
-echo "export STANDALONE_TOOLCHAIN=$STANDALONE_TOOLCHAIN" >> .profile
-echo "export PATH=\$ANDROID_NDK_HOME:\$PATH" >> .profile
+echo "export STANDALONE_TOOLCHAIN=\$HOME/android-standalone-toolchain" >> .build_env

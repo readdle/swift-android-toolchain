@@ -6,7 +6,6 @@ Vagrant.configure("2") do |config|
   config.disksize.size = '100GB'
 
   config.vm.synced_folder '../build/Linux',  "/vagrant/scripts"
-  config.vm.synced_folder '../build/config', "/vagrant/config"
 
   host_memory = `sysctl -n hw.memsize`.to_i / 1024 / 1024
   host_cpus = `sysctl -n hw.physicalcpu`.to_i 

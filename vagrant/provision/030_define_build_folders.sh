@@ -1,18 +1,21 @@
 #!/bin/bash
 
-LIBICONV_ANDROID=libiconv-libicu-android
-SWIFT_SOURCE=swift-source
-SWIFT_INSTALL=swift-install
+icu_libs=libiconv-libicu-android
+swift_source=swift-source
+swift_install=out/swift-android-5.0
 
-mkdir $LIBICONV_ANDROID
-mkdir $SWIFT_SOURCE
-mkdir $SWIFT_INSTALL
+mkdir -p $icu_libs
+mkdir -p $swift_source
+mkdir -p $swift_install
 
-LIBICONV_ANDROID=`realpath $LIBICONV_ANDROID`
-SWIFT_SOURCE=`realpath $SWIFT_SOURCE`
-SWIFT_INSTALL=`realpath $SWIFT_INSTALL`
+icu_libs=`realpath $icu_libs`
+swift_source=`realpath $swift_source`
+swift_install=`realpath $swift_install`
 
-echo "export LIBICONV_ANDROID=$LIBICONV_ANDROID" >> .profile
-echo "export SWIFT_SOURCE=$SWIFT_SOURCE" >> .profile
-echo "export SWIFT_BUILD=\$SWIFT_SOURCE/build/Ninja-ReleaseAssert+stdlib-Release" >> .profile
-echo "export SWIFT_INSTALL=$SWIFT_INSTALL" >> .profile
+echo "export ICU_LIBS=$icu_libs" >> .build_env
+echo "export DST_ROOT=$swift_install" >> .build_env
+echo "export SWIFT_SRC=$swift_source" >> .build_env
+
+echo "export DISPATCH_SRC=\$SWIFT_SRC/swift-corelibs-libdispatch" >> .build_env
+echo "export FOUNDATION_SRC=\$SWIFT_SRC/swift-corelibs-foundation" >> .build_env
+echo "export XCTEST_SRC=\$SWIFT_SRC/swift-corelibs-xctest" >> .build_env
