@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-source $HOME/.profile
+source $HOME/.build_env
 
 export ANDROID_NDK=$ANDROID_NDK17
 
