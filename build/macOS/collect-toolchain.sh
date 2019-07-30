@@ -2,7 +2,7 @@
 set -ex
 
 unset TOOLCHAINS
-xcode_toolchain=$(dirname dirname $(dirname $(dirname $(xcrun --find swift))))
+xcode_toolchain=$(dirname $(dirname $(dirname $(xcrun --find swift))))
 
 name=swift-android-5.0
 
@@ -23,7 +23,7 @@ pushd $linux_out
     mkdir -p usr/bin
     mkdir -p ndk-android-21
 
-    rsync -av swift-nightly-install/ $out_toolchain \
+    rsync -av $name/swift-nightly-install/ $out_toolchain \
         --include '/usr/lib/' \
         --include '/usr/lib/clang/***' \
         --include '/usr/lib/swift/***' \
@@ -31,8 +31,9 @@ pushd $linux_out
         --exclude '/usr/lib/swift/migrator' \
         --exclude '/usr/**'
 
-    cp /usr/local/bin/pkg-config $out_bin
-    cp /usr/local/bin/ninja $out_bin
+    # using -f here to just overwrite if the binaries are already in $out_bin
+    cp -f /usr/local/bin/pkg-config $out_bin
+    cp -f /usr/local/bin/ninja $out_bin
 
     rsync -av swift-source/build/Ninja-ReleaseAssert+stdlib-Release/swift-macosx-x86_64/bin/ $out_bin \
         --include swift \
@@ -43,19 +44,23 @@ pushd $linux_out
         --include swiftc \
         --exclude '*'
 
-    cp swift-source/swiftpm/.build/x86_64-apple-macosx10.10/release/swift-build $out_bin
+    # the build architecture is different on my machine than what the original code called for (x86_64-apple-macosx10.10)
+    # mine is: x86_64-apple-macosx
+    cp swift-source/swiftpm/.build/x86_64-apple-macosx/release/swift-build $out_bin
     cp -r $xcode_toolchain/usr/lib/swift/pm $out_toolchain/usr/lib/swift
     cp -r $xcode_toolchain/usr/lib/swift/macosx $out_toolchain/usr/lib/swift
 
     cp -r $ANDROID_NDK_HOME/sysroot ndk-android-21
 
+    rsync -av ndk-android-21 $out_toolchain
+
     for arch in $out_toolchain/usr/lib/swift/android/*
-    do 
+    do
         glibc_modulemap="$arch/glibc.modulemap"
         if [[ ! -f "$glibc_modulemap.orig" ]]; then
             cp "$glibc_modulemap" "$glibc_modulemap.orig"
         fi &&
-      
+
         sed -e 's@/home/vagrant/android-ndk-r17c/sysroot@../../../../../ndk-android-21/sysroot@' < "$glibc_modulemap.orig" > "$glibc_modulemap"
     done
 popd
