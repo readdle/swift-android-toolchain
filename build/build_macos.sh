@@ -5,7 +5,7 @@ SELF_DIR=$(dirname $0)
 BASE_DIR=$SELF_DIR/../
 
 pushd $BASE_DIR
-    build/macOS/build-swift.sh
-    build/macOS/build-swiftpm.sh
-    build/macOS/collect-toolchain.sh
+    build/macOS/010-build-swift.sh
+    build/macOS/020-build-swiftpm.sh
+    build/macOS/030-collect-toolchain.sh
 popd
