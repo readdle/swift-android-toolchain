@@ -46,7 +46,7 @@ do
 
     pushd $foundation_build_dir
         # Search path for curl seems to be wrong in foundation
-        ln -s $sysroot/usr/include/curl $sysroot/usr/include/curl/curl
+        ln -sfn $sysroot/usr/include/curl $sysroot/usr/include/curl/curl
 
         cmake $FOUNDATION_SRC \
             -G Ninja \
@@ -68,9 +68,6 @@ do
             -DLIBXML2_INCLUDE_DIR=$sysroot/usr/include/libxml2
 
         cmake --build $foundation_build_dir
-
-        # Undo those nasty changes
-        unlink $SYSROOT/usr/include/curl/curl
     popd
 
     pushd $xctest_build_dir
@@ -99,4 +96,11 @@ do
     cmake --build $dispatch_build_dir --target install
     cmake --build $foundation_build_dir --target install
     cmake --build $xctest_build_dir --target install
+done
+
+for arch in "${!abis[@]}"
+do
+    sysroot=$STANDALONE_TOOLCHAIN/$arch/sysroot
+    # Undo those nasty changes
+    unlink $sysroot/usr/include/curl/curl
 done
