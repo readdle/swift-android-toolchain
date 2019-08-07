@@ -68,7 +68,7 @@ do
             ;;
             "x86_64")
                 target_host="x86_64-linux-android"
-                openssl_configure_platform="linux-generic64" 
+                openssl_configure_platform="linux-generic64"
                 arch_flags=
                 arch_link=
             ;;
@@ -102,7 +102,9 @@ do
 
             ./Configure.new \
                 $openssl_configure_platform \
+                no-hw \
                 no-asm \
+                no-engine \
                 no-shared \
                 zlib \
                 --static \
