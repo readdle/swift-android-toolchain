@@ -30,6 +30,7 @@ pushd $linux_out
         --include '/usr/lib/clang/**' \
         \
         --include '/usr/lib/swift/' \
+        --exclude '/usr/lib/swift/pm' \
         --exclude '/usr/lib/swift/linux' \
         --exclude '/usr/lib/swift/macosx' \
         --exclude '/usr/lib/swift/migrator' \
@@ -52,16 +53,17 @@ pushd $linux_out
     cp -r $xcode_toolchain/usr/lib/swift/macosx $out_toolchain/usr/lib/swift
 
     mkdir -p $out_toolchain/ndk-android-21/usr
-    rsync -av $ANDROID_NDK_HOME/platforms/android-21/arch-arm/usr/include $out_toolchain/ndk-android-21/usr
+    rsync -av $ANDROID_NDK_HOME/sysroot/usr/include $out_toolchain/ndk-android-21/usr
 
     for arch in $out_toolchain/usr/lib/swift/android/*
     do
         glibc_modulemap="$arch/glibc.modulemap"
-        if [[ ! -f "$glibc_modulemap.orig" ]]; then
+        if [[ ! -f "$glibc_modulemap.orig" ]]
+        then
             cp "$glibc_modulemap" "$glibc_modulemap.orig"
-        fi &&
+        fi
 
-        sed -e 's@/home/vagrant/android-ndk-r17c/sysroot@../../../../../ndk-android-21/sysroot@' < "$glibc_modulemap.orig" > "$glibc_modulemap"
+        sed -e 's@/home/vagrant/android-ndk-r17c/sysroot@../../../../../ndk-android-21@' < "$glibc_modulemap.orig" > "$glibc_modulemap"
     done
 popd
 
