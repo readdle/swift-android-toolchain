@@ -149,7 +149,7 @@ do
                 --disable-imap   --disable-smtp  --disable-gopher \
                 --disable-sspi   --disable-manual \
                 \
-                --target=arm-linux-androideabi \
+                --target=$CHOST \
                 --build=x86_64-unknown-linux-gnu \
                 --prefix=$SYSROOT/usr
 

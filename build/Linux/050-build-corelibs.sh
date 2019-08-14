@@ -8,7 +8,7 @@ export ANDROID_NDK=$ANDROID_NDK17
 self_dir=$(realpath $(dirname $0))
 
 declare -A abis
-abis=(["arm64"]="arm64-v8a" ["arm"]="armeabi-v7a" ["x86_64"]="x86_64")
+abis=(["arm64"]="arm64-v8a" ["arm"]="armeabi-v7a" ["x86_64"]="x86_64" ["x86"]="x86")
 
 $self_dir/051-uninstall-libdispatch.sh
 

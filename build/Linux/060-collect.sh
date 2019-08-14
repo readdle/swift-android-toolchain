@@ -8,8 +8,8 @@ swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift
 declare -A swift_archs
 declare -A abis
 
-swift_archs=(["arm64"]="aarch64" ["arm"]="armv7" ["x86_64"]="x86_64")
-abis=(["arm64"]="arm64-v8a" ["arm"]="armeabi-v7a" ["x86_64"]="x86_64")
+swift_archs=(["arm64"]="aarch64" ["arm"]="armv7" ["x86_64"]="x86_64" ["x86"]="i686")
+abis=(["arm64"]="arm64-v8a" ["arm"]="armeabi-v7a" ["x86_64"]="x86_64" ["x86"]="x86")
 
 for arch in "${!swift_archs[@]}"
 do
