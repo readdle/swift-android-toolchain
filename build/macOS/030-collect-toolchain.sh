@@ -71,6 +71,6 @@ rsync -av shims/`uname`/ $out_toolchain
 rsync -av src/tools/ $out
 
 pushd $(dirname $out)
-    zip -r $name.zip $name
+    zip -y -r $name.zip $name
 popd
 
