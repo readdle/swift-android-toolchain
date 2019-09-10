@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for version in 16b 17c 20
+for version in 16b 17c
 do
     ndk=android-ndk-r$version
     ndk_zip=$ndk-linux-x86_64.zip
@@ -25,13 +25,8 @@ do
     rm $ndk_zip
 done
 
-cp -r android-ndk-r17c android-ndk-r17c-original
-cp -r android-ndk-r20/toolchains/llvm android-ndk-r17c/toolchains
-
 # exports
 echo "export ANDROID_NDK16=\$HOME/android-ndk-r16b" >> .build_env
 echo "export ANDROID_NDK17=\$HOME/android-ndk-r17c" >> .build_env
-echo "export ANDROID_NDK17_ORIGINAL=\$HOME/android-ndk-r17c-original" >> .build_env
-echo "export ANDROID_NDK20=\$HOME/android-ndk-r20" >> .build_env
 
 echo "export STANDALONE_TOOLCHAIN=\$HOME/android-standalone-toolchain" >> .build_env

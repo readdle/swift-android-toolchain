@@ -17,7 +17,7 @@ mkdir -p $STANDALONE_TOOLCHAIN
 
 for arch in ${archs[*]}
 do
-    $ANDROID_NDK17_ORIGINAL/build/tools/make_standalone_toolchain.py --api 21 --arch $arch --stl libc++ --install-dir $STANDALONE_TOOLCHAIN/$arch --force -v
+    $ANDROID_NDK17/build/tools/make_standalone_toolchain.py --api 21 --arch $arch --stl libc++ --install-dir $STANDALONE_TOOLCHAIN/$arch --force -v
 done
 
 pushd $STANDALONE_TOOLCHAIN

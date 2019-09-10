@@ -20,7 +20,7 @@ do
     sysroot=$STANDALONE_TOOLCHAIN/$arch/sysroot
     icu_libs=$ICU_LIBS/$abi
 
-    rsync -av $ANDROID_NDK17_ORIGINAL/sources/cxx-stl/llvm-libc++/libs/$abi/libc++_shared.so $dst_libs
+    rsync -av $ANDROID_NDK17/sources/cxx-stl/llvm-libc++/libs/$abi/libc++_shared.so $dst_libs
     rsync -av $icu_libs/libicu{uc,i18n,data}swift.so $dst_libs
     rsync -av $sysroot/usr/lib/libcrypto.a $dst_libs
     rsync -av $sysroot/usr/lib/libssl.a $dst_libs
