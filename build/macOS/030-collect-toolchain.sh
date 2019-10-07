@@ -1,10 +1,10 @@
 #!/bin/bash
 set -ex
 
-unset TOOLCHAINS
 xcode_toolchain=$(dirname $(dirname $(dirname $(xcrun --find swift))))
 
-name=swift-android-5.0
+toolchain_version=`cat build/config/version`
+name=swift-android-$toolchain_version
 
 out=out/$name
 out_toolchain=$out/toolchain
@@ -48,10 +48,10 @@ pushd $linux_out
         --include swiftc \
         --exclude '*'
 
+    ## Bundle SwiftPM
     cp swift-source/swiftpm/.build/release/swift-build $out_bin
-    cp -r $xcode_toolchain/usr/lib/swift/pm $out_toolchain/usr/lib/swift
-    cp -r $xcode_toolchain/usr/lib/swift/macosx $out_toolchain/usr/lib/swift
 
+    ## Bundle NDK headers and patch glibc
     mkdir -p $out_toolchain/ndk-android-21/usr
     rsync -av $ANDROID_NDK_HOME/sysroot/usr/include $out_toolchain/ndk-android-21/usr
 
@@ -69,6 +69,8 @@ popd
 
 rsync -av shims/`uname`/ $out_toolchain
 rsync -av src/tools/ $out
+
+echo $toolchain_version > $out/VERSION
 
 pushd $(dirname $out)
     zip -y -r $name.zip $name

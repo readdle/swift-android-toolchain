@@ -1,8 +1,6 @@
 #!/bin/bash
 set -ex
 
-unset TOOLCHAINS
-
 BASE_DIR=`pwd`
 SWIFT_SOURCE=$BASE_DIR/vagrant/out/swift-source
 
