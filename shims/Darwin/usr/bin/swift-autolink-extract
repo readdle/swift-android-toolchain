@@ -1,3 +1,0 @@
-#!/bin/bash
-$(xcrun --find swift) --driver-mode=swift-autolink-extract "$@"
-exit $?

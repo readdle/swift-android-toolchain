@@ -50,22 +50,35 @@ def link(version):
     os.chdir(cwd)
 
 def most_recent_version(versions):
+    import re
     from distutils.version import StrictVersion
 
-    def predicat(version):
+    swift_version = "swift5"
+    def map_versions(version):
+        swift_version_regexp = re.compile(r'^(?P<version>.*)-{}$'.format(swift_version))
+        matches = swift_version_regexp.match(version)
+
+        if matches is None:
+            return None
+
+        return matches.group("version")
+
+    versions = filter(lambda v: v is not None, map(map_versions, versions))
+
+    def tools_version_predicate(version):
         try:
             v = StrictVersion(version)
             return True
         except:
             return False
 
-    filtered = filter(predicat, versions)
+    filtered = filter(tools_version_predicate, versions)
     ranged = sorted(filtered, key=StrictVersion)
 
     if len(ranged) == 0:
         return None
 
-    return ranged[-1]
+    return "{}-{}".format(ranged[-1], swift_version)
 
 # Git
 

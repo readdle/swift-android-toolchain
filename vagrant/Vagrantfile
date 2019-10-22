@@ -4,9 +4,7 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.disksize.size = '100GB'
-
-  config.vm.synced_folder '../build/Linux',  "/vagrant/scripts"
-  config.vm.synced_folder '../build/config', "/vagrant/config"
+  config.ssh.forward_agent = true
 
   host_memory = `sysctl -n hw.memsize`.to_i / 1024 / 1024
   host_cpus = `sysctl -n hw.physicalcpu`.to_i 
@@ -16,6 +14,8 @@ Vagrant.configure("2") do |config|
     vb.memory = client_memory.to_s
     vb.cpus = host_cpus # use all available
   end
+
+  config.vm.synced_folder '../build/Linux',  "/vagrant/scripts"
 
   config.vm.provision "shell", path: "provision/010_install_dependencies.sh"
   config.vm.provision "shell", path: "provision/020_install_ndk.sh", privileged: false

@@ -38,10 +38,10 @@ pushd $BASE_DIR/vagrant
         vagrant destroy -f
     else
         vagrant up
-        vagrant ssh -c /vagrant/scripts/000_clean.sh
+        vagrant ssh -c /vagrant/scripts/000-clean.sh
     fi
 popd
 
 pushd $BASE_DIR
-    build/macOS/000_clean.sh
+    build/macOS/000-clean.sh
 popd

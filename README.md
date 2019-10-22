@@ -13,8 +13,8 @@ Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-andro
 ### Prepare environment
 
 1. Install JDK 8 if needed. Call javac from terminal and macOS will guide you.
-2. Install Swift 4.0.3 toolchain for Xcode https://swift.org/builds/swift-4.0.3-release/xcode/swift-4.0.3-RELEASE/swift-4.0.3-RELEASE-osx.pkg
-3. Install Android Studio 3.3 or higher (optional)
+2. Install Swift 5.0.3 toolchain for Xcode https://swift.org/builds/swift-5.0.3-release/xcode/swift-5.0.3-RELEASE/swift-5.0.3-RELEASE-osx.pkg
+3. Install Android Studio 3.5 or higher (optional)
 4. Install [brew](https://brew.sh/) if needed
 5. Install tools, NDK and Swift Android Toolchain
 
@@ -27,7 +27,7 @@ mkdir android
 cd android
  
 # install ndk
-NDK=15c
+NDK=17c
 wget https://dl.google.com/android/repository/android-ndk-r$NDK-darwin-x86_64.zip
 unzip android-ndk-r$NDK-darwin-x86_64.zip
 rm -rf android-ndk-r$NDK-darwin-x86_64.zip
@@ -128,8 +128,8 @@ Install cmake and ninja
 Install Android NDK 15c from [android-ndk-r15c-darwin-x86_64.zip](https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip) and define ANDROID_NDK_HOME env variable
 
     cd $somewhere
-    wget https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
-    unzip android-ndk-r15c-darwin-x86_64.zip
+    wget https://dl.google.com/android/repository/android-ndk-r17c-darwin-x86_64.zip
+    unzip android-ndk-r17c-darwin-x86_64.zip
     rm android-ndk-r15c-darwin-x86_64.zip
     export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
 
