@@ -47,7 +47,7 @@ unset SWIFT_ANDROID
 6. Setup environment variables by putting this to .profile 
 
 ```
-NDK=15c
+NDK=17c
  
 export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
 # Uncomment if you install Android Studio
@@ -101,7 +101,7 @@ Release
   
 ### Build swift modules with Android Studio
 
-[This plugin integrates Swift Android Toolchain to Gradle](https://github.com/readdle/swift-android-gradle)
+This [plugin](https://github.com/readdle/swift-android-gradle) integrates Swift Android Toolchain to Gradle
 
 ---
 
@@ -125,13 +125,13 @@ Install cmake and ninja
     brew install cmake ninja pkg-config
     
 #### Android NDK
-Install Android NDK 15c from [android-ndk-r15c-darwin-x86_64.zip](https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip) and define ANDROID_NDK_HOME env variable
+Install Android NDK 17c from [android-ndk-r17c-darwin-x86_64.zip](https://dl.google.com/android/repository/android-ndk-r17c-darwin-x86_64.zip) and define ANDROID_NDK_HOME env variable
 
     cd $somewhere
     wget https://dl.google.com/android/repository/android-ndk-r17c-darwin-x86_64.zip
     unzip android-ndk-r17c-darwin-x86_64.zip
-    rm android-ndk-r15c-darwin-x86_64.zip
-    export ANDROID_NDK_HOME=$PWD/android-ndk-r15c
+    rm android-ndk-r17c-darwin-x86_64.zip
+    export ANDROID_NDK_HOME=$PWD/android-ndk-r17c
 
 ### Building
 
