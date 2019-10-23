@@ -47,14 +47,20 @@ unset SWIFT_ANDROID
 6. Setup environment variables by putting this to .profile 
 
 ```
-NDK=17c
- 
 export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
+export TOOLCHAINS=org.swift.50320190830a
+
+NDK=17c
+export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
+# Stranger things
+export NDK_ROOT=$ANDROID_NDK_HOME
+export ANDROID_NDK=$ANDROID_NDK_HOME
+export ANDROID_NDK_ROOT=$ANDROID_NDK_HOME
+
 # Uncomment if you install Android Studio
 # export ANDROID_HOME=$HOME/Library/Android/sdk
-export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
+
 export SWIFT_ANDROID_HOME=$HOME/android/swift-android-current
-export TOOLCHAINS=swift
  
 export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
