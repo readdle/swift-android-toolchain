@@ -13,7 +13,7 @@ Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-andro
 ### Prepare environment
 
 1. Install JDK 8 if needed. Call javac from terminal and macOS will guide you.
-2. Install Swift 5.0.3 toolchain for Xcode https://swift.org/builds/swift-5.0.3-release/xcode/swift-5.0.3-RELEASE/swift-5.0.3-RELEASE-osx.pkg
+2. [**IMPORTANT**] Install Swift 5.0.3 toolchain for Xcode https://swift.org/builds/swift-5.0.3-release/xcode/swift-5.0.3-RELEASE/swift-5.0.3-RELEASE-osx.pkg
 3. Install Android Studio 3.5 or higher (optional)
 4. Install [brew](https://brew.sh/) if needed
 5. Install tools, NDK and Swift Android Toolchain
