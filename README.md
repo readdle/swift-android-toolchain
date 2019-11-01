@@ -100,7 +100,7 @@ swift-build --configuration debug \
 
 Release
 ```
-    swift-build --configuration release \
+swift-build --configuration release \
     -Xswiftc -Xfrontend -Xswiftc -experimental-disable-objc-attr \
     -Xswiftc -Xllvm -Xswiftc -sil-disable-pass=array-specialize
 ```
