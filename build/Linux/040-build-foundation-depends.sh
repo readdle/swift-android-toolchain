@@ -3,7 +3,7 @@ set -ex
 
 source $HOME/.build_env
 
-DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2-latest.tar.gz
+DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2u.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
 GIT_URL_LIBXML2=https://gitlab.gnome.org/GNOME/libxml2.git
 
