@@ -142,12 +142,13 @@ do
                 --without-ca-bundle \
                 --without-ca-path \
                 \
-                --enable-ipv6    --enable-http   --enable-ftp \
-                --disable-file   --disable-ldap  --disable-ldaps \
-                --disable-rtsp   --disable-proxy --disable-dict \
-                --disable-telnet --disable-tftp  --disable-pop3 \
-                --disable-imap   --disable-smtp  --disable-gopher \
-                --disable-sspi   --disable-manual \
+                --enable-ipv6  --enable-http    --enable-ftp \
+                --enable-proxy \
+                --disable-file --disable-ldap   --disable-ldaps \
+                --disable-rtsp --disable-dict   --disable-telnet \
+                --disable-tftp --disable-pop3   --disable-imap \
+                --disable-smtp --disable-gopher --disable-sspi \
+                --disable-manual \
                 \
                 --target=$CHOST \
                 --build=x86_64-unknown-linux-gnu \
