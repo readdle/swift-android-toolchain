@@ -26,7 +26,7 @@
 
 * [Fix parsing long numbers from json](https://github.com/readdle/swift-corelibs-foundation/commit/a2685e4315f1a69c8ce2af259576ec0cf2f10d12) Allow to parse long long and unsigned long long even on 32bit platforms. Fixes overflow crash when casting big double to Int. **Waiting for merge [PR](https://github.com/apple/swift-corelibs-foundation/pull/1483)**
 
-* [Fix deadlocks in OperationQueue with dequeueIfReady](https://github.com/readdle/swift-corelibs-foundation/commit/41a5f321d3cd684a29a6c8c82ac9ee68676f89fa) **Waiting for merge [PR](https://github.com/apple/swift-corelibs-foundation/pull/1538)**
+* [Fix deadlocks in OperationQueue with dequeueIfReady](https://github.com/readdle/swift-corelibs-foundation/commit/41a5f321d3cd684a29a6c8c82ac9ee68676f89fa) **Already fixed in Swift 5.3**
 
 * [Fix URLRequest copying](https://github.com/readdle/swift-corelibs-foundation/commit/5519a405bfe4b9d97ba14bef0ace1e13cb41e182) **Already merged in Swift 4.2**
 
@@ -34,17 +34,17 @@
 
 * [Add @discardableResult to NSArray.write* methods](https://github.com/readdle/swift-corelibs-foundation/commit/08a695f2213d55f25343df110c65132287ece554), [Add @discardableResult to Scanner](https://github.com/readdle/swift-corelibs-foundation/commit/18f39bc695141b914c09578cd35b50727a799f9f), [Marked UserDefaults.synchronize() as @discardableResult](https://github.com/readdle/swift-corelibs-foundation/commit/70ede439d3f52b7bc86e7a7a3a0fd757d27d604a) **Already merged in Swift 5**
 
-* [URLSessionTask implement InputStream](https://github.com/apple/swift-corelibs-foundation/pull/1629) **Waiting for merge**
+* [URLSessionTask implement InputStream](https://github.com/apple/swift-corelibs-foundation/pull/1629) **Already merged in Swift 5.1**
 
 * [URLSessionTask implement setCredentials](https://github.com/readdle/swift-corelibs-foundation/commit/578aa76882ac2da62ae932a9a581bd4f4bff68db) **TODO: Create PR**
 
 * [URLSessionTask implement setTrustAllCertificates](https://github.com/readdle/swift-corelibs-foundation/commit/84c9fdba69e939788f52cd70c120452b56eb7bbe) **TODO: Create PR**
 
-* [URLSession implement invalidateAndCancel](https://github.com/readdle/swift-corelibs-foundation/commit/d924e48f3f2bbe031a4e35806b361d4c930001b3) **TODO: Create PR**
+* [URLSession implement invalidateAndCancel](https://github.com/readdle/swift-corelibs-foundation/commit/d924e48f3f2bbe031a4e35806b361d4c930001b3) **Already fixed in Swift 5.3**
 
-* [fix NSError isEqual](https://github.com/readdle/swift-corelibs-foundation/commit/e99b9698e3f618e7981185dfe1db578658636312) **TODO: Create PR**
+* [fix NSError isEqual](https://github.com/readdle/swift-corelibs-foundation/commit/e99b9698e3f618e7981185dfe1db578658636312) **Already fixed in Swift 5.3**
 
-* [Rewrite OperationQueue](https://github.com/readdle/swift-corelibs-foundation/commit/05286234e8e4cb1c050ea7fb68abe1a9e37fd8a3) **TODO: Create PR**
+* [Rewrite OperationQueue](https://github.com/readdle/swift-corelibs-foundation/commit/05286234e8e4cb1c050ea7fb68abe1a9e37fd8a3) **Already fixed in Swift 5.3**
 
 
 ## [swift-corelibs-libdispatch](https://github.com/SwiftJava/swift-corelibs-libdispatch)
