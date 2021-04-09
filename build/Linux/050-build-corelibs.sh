@@ -2,6 +2,13 @@
 set -ex
 
 source $HOME/.build_env
+function finish {
+    exit_code=$?
+    set +e
+    unlink $DST_ROOT/swift-nightly-install/usr/lib/swift
+    exit $exit_code
+}
+trap finish EXIT
 
 self_dir=$(realpath $(dirname $0))
 
@@ -98,5 +105,3 @@ do
     cmake --build $foundation_build_dir --target install
     cmake --build $xctest_build_dir --target install
 done
-
-unlink $DST_ROOT/swift-nightly-install/usr/lib/swift

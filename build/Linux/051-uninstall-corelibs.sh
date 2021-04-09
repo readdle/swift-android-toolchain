@@ -3,6 +3,14 @@ set -ex
 
 source $HOME/.build_env
 
+function finish {
+    exit_code=$?
+    set +e
+    unlink $DST_ROOT/swift-nightly-install/usr/lib/swift
+    exit $exit_code
+}
+trap finish EXIT
+
 declare -A swift_archs
 declare -A abis
 
@@ -31,5 +39,3 @@ do
         fi
     done
 done
-
-unlink $DST_ROOT/swift-nightly-install/usr/lib/swift
