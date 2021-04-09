@@ -3,8 +3,6 @@ set -ex
 
 source $HOME/.build_env
 
-swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift
-
 declare -A swift_archs
 declare -A abis
 
@@ -16,23 +14,27 @@ do
     swift_arch=${swift_archs[$arch]}
     abi=${abis[$arch]}
 
-    dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift/android/$swift_arch
+    swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch
+    dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
     sysroot=$STANDALONE_TOOLCHAIN/$arch/sysroot
+    foundation_dependencies=$FOUNDATION_DEPENDENCIES/$arch
     icu_libs=$ICU_LIBS/$abi
 
-    rsync -av $ANDROID_NDK17/sources/cxx-stl/llvm-libc++/libs/$abi/libc++_shared.so $dst_libs
+    rsync -av $ANDROID_NDK/sources/cxx-stl/llvm-libc++/libs/$abi/libc++_shared.so $dst_libs
+
     rsync -av $icu_libs/libicu{uc,i18n,data}swift.so $dst_libs
-    rsync -av $sysroot/usr/lib/libcrypto.a $dst_libs
-    rsync -av $sysroot/usr/lib/libssl.a $dst_libs
-    rsync -av $sysroot/usr/lib/libxml2.* $dst_libs
-    rsync -av $sysroot/usr/lib/libxml2.* $dst_libs
-    rsync -av $sysroot/usr/lib/libcurl.* $dst_libs
+    rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
+    rsync -av $foundation_dependencies/lib/libssl.a $dst_libs
+    rsync -av $foundation_dependencies/lib/libcurl.* $dst_libs
+    rsync -av $foundation_dependencies/lib/libxml2.* $dst_libs
+
+    cp -r $icu_libs/include/unicode $swift_include
+    cp -r $foundation_dependencies/include/openssl $swift_include
+    cp -r $foundation_dependencies/include/libxml2/libxml $swift_include
+    cp -r $foundation_dependencies/include/curl $swift_include
 done
 
-cp -r $ICU_LIBS/armeabi-v7a/include/unicode $swift_include
-cp -r $STANDALONE_TOOLCHAIN/arm/sysroot/usr/include/openssl $swift_include
-cp -r $STANDALONE_TOOLCHAIN/arm/sysroot/usr/include/libxml2/libxml $swift_include
-cp -r $STANDALONE_TOOLCHAIN/arm/sysroot/usr/include/curl $swift_include
+
 
 # copy to host
 mkdir -p /vagrant/out
