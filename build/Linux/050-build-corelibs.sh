@@ -20,10 +20,10 @@ abis=(["arm64"]="arm64-v8a" ["arm"]="armeabi-v7a" ["x86_64"]="x86_64" ["x86"]="x
 
 $self_dir/051-uninstall-corelibs.sh
 
-for arch in "${!abis[@]}"
+for arch in "${!swift_archs[@]}"
 do
-    abi=${abis[$arch]}
     swift_arch=${swift_archs[$arch]}
+    abi=${abis[$arch]}
 
     dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
     foundation_build_dir=/tmp/foundation-$arch
@@ -92,8 +92,10 @@ do
     popd
 done
 
-for arch in "${!abis[@]}"
+for arch in "${!swift_archs[@]}"
 do
+    swift_arch=${swift_archs[$arch]}
+
     dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
     foundation_build_dir=/tmp/foundation-$arch
     xctest_build_dir=/tmp/xctest-$arch

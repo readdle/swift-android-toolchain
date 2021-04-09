@@ -12,14 +12,10 @@ function finish {
 trap finish EXIT
 
 declare -A swift_archs
-declare -A abis
-
 swift_archs=(["arm64"]="aarch64" ["arm"]="armv7" ["x86_64"]="x86_64" ["x86"]="i686")
-abis=(["arm64"]="arm64-v8a" ["arm"]="armeabi-v7a" ["x86_64"]="x86_64" ["x86"]="x86")
 
-for arch in "${!abis[@]}"
+for arch in "${!swift_archs[@]}"
 do
-    abi=${abis[$arch]}
     swift_arch=${swift_archs[$arch]}
 
     ln -sfn $DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch $DST_ROOT/swift-nightly-install/usr/lib/swift
@@ -27,7 +23,6 @@ do
     dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
     foundation_build_dir=/tmp/foundation-$arch
     xctest_build_dir=/tmp/xctest-$arch
-
 
     for build_dir in $dispatch_build_dir $foundation_build_dir $xctest_build_dir
     do 
