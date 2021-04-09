@@ -53,9 +53,10 @@ pushd $linux_out
     mkdir -p $out_toolchain/ndk-android-21/usr
     rsync -av $ANDROID_NDK_HOME/sysroot/usr/include $out_toolchain/ndk-android-21/usr
 
-    for arch in $out_toolchain/usr/lib/swift-*/android
+    for swift_arch in aarch64 armv7 x86_64 i686
     do
-        glibc_modulemap="$arch/glibc.modulemap"
+        glibc_modulemap="$out_toolchain/usr/lib/swift-$swift_arch/android/$swift_arch/glibc.modulemap"
+
         if [[ ! -f "$glibc_modulemap.orig" ]]
         then
             cp "$glibc_modulemap" "$glibc_modulemap.orig"
