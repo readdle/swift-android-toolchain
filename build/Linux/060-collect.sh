@@ -16,7 +16,6 @@ do
 
     swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch
     dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
-    sysroot=$STANDALONE_TOOLCHAIN/$arch/sysroot
     foundation_dependencies=$FOUNDATION_DEPENDENCIES/$arch
     icu_libs=$ICU_LIBS/$abi
 

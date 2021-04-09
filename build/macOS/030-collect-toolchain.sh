@@ -1,8 +1,6 @@
 #!/bin/bash
 set -ex
 
-xcode_toolchain=$(dirname $(dirname $(dirname $(xcrun --find swift))))
-
 toolchain_version=`cat build/config/version`
 name=swift-android-$toolchain_version
 
@@ -22,19 +20,19 @@ linux_out=`realpath vagrant/out`
 pushd $linux_out
     mkdir -p usr/bin
 
-    rsync -av swift-android-5.0/swift-nightly-install/ $out_toolchain \
+    rsync -av swift-android-5.4/swift-nightly-install/ $out_toolchain \
         --include '/usr/lib/' \
         \
         --include '/usr/lib/clang/' \
         --exclude '/usr/lib/clang/lib' \
         --include '/usr/lib/clang/**' \
         \
-        --include '/usr/lib/swift/' \
-        --exclude '/usr/lib/swift/pm' \
-        --exclude '/usr/lib/swift/linux' \
-        --exclude '/usr/lib/swift/macosx' \
-        --exclude '/usr/lib/swift/migrator' \
-        --include '/usr/lib/swift/**' \
+        --include '/usr/lib/swift-*/' \
+        --exclude '/usr/lib/swift-*/pm' \
+        --exclude '/usr/lib/swift-*/linux' \
+        --exclude '/usr/lib/swift-*/macosx' \
+        --exclude '/usr/lib/swift-*/migrator' \
+        --include '/usr/lib/swift-*/**' \
         \
         --exclude '/usr/**'
 
@@ -55,7 +53,7 @@ pushd $linux_out
     mkdir -p $out_toolchain/ndk-android-21/usr
     rsync -av $ANDROID_NDK_HOME/sysroot/usr/include $out_toolchain/ndk-android-21/usr
 
-    for arch in $out_toolchain/usr/lib/swift/android/*
+    for arch in $out_toolchain/usr/lib/swift-*/android
     do
         glibc_modulemap="$arch/glibc.modulemap"
         if [[ ! -f "$glibc_modulemap.orig" ]]

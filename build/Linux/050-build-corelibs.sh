@@ -91,7 +91,7 @@ do
     foundation_build_dir=/tmp/foundation-$arch
     xctest_build_dir=/tmp/xctest-$arch
 
-    ln -sfn $DST_ROOT/swift-nightly-install/usr/lib/swift-$arch $DST_ROOT/swift-nightly-install/usr/lib/swift
+    ln -sfn $DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch $DST_ROOT/swift-nightly-install/usr/lib/swift
 
     # We need to install dispatch at the end because it is impossible to build foundation after dispatch installed
     cmake --build $dispatch_build_dir --target install
