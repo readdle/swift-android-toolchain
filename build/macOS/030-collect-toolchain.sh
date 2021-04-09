@@ -44,6 +44,7 @@ pushd $linux_out
         --include swift-autolink-extract \
         --include swift-stdlib-tool \
         --include swiftc \
+        --include swift-frontend \
         --exclude '*'
 
     ## Bundle SwiftPM
@@ -62,7 +63,7 @@ pushd $linux_out
             cp "$glibc_modulemap" "$glibc_modulemap.orig"
         fi
 
-        sed -e 's@/home/vagrant/android-ndk-r17c/sysroot@../../../../../ndk-android-21@' < "$glibc_modulemap.orig" > "$glibc_modulemap"
+        sed -e 's@/home/vagrant/android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/sysroot@../../../../../ndk-android-21@' < "$glibc_modulemap.orig" > "$glibc_modulemap"
     done
 popd
 
