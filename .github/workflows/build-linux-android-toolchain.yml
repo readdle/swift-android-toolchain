@@ -1,0 +1,21 @@
+name: Build Linux Android Toolchain
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run build-linux-android-toolchain.sh
+      run: ./.build-scripts/build-linux-android-toolchain.sh
