@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd $HOME
+
 icu_libs=libiconv-libicu-android
 swift_source=swift-source
 swift_install=out/swift-android-5.4

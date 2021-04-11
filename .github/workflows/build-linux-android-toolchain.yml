@@ -17,5 +17,21 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: Run build-linux-android-toolchain.sh
-      run: ./.build-scripts/build-linux-android-toolchain.sh
+    - name: Install dependencies
+      run: ./vagrant/provision/010_install_dependencies.sh
+    - name: Install NDK
+      run: ./vagrant/provision/020_install_ndk.sh
+    - name: Define build folders
+      run: ./vagrant/provision/030_define_build_folders.sh
+    - name: Build ICU
+      run: ./build/Linux/010-build-icu.sh
+    - name: Clone Swift
+      run: ./build/Linux/020-clone-swift.sh
+    - name: Build Swift
+      run: ./build/Linux/030-build-swift.sh
+    - name: Build Foundation dependencies
+      run: ./build/Linux/040-build-foundation-depends.sh
+    - name: Build Core libs
+      run: ./build/Linux/050-build-corelibs.sh
+    - name: Collect
+      run: ./build/Linux/060-collect.sh

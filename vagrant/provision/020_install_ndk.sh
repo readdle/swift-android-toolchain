@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd $HOME
+
 for version in 16b 21e
 do
     ndk=android-ndk-r$version
