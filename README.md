@@ -1,14 +1,14 @@
-[ ![Download](https://api.bintray.com/packages/readdle/swift-android-toolchain/swift-android-toolchain/images/download.svg) ](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain/_latestVersion)
+# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest)
 
-# Swift Android toolchain build scripts
 Automated scripts to build Swift Android cross compilation toolchain for macOS
 
 Based on:
+
  - https://github.com/SwiftJava/swifty-robot-environment
  - https://github.com/zayass/swift-android-vagrant
 
 # Installation
-Prebuilt toolchain can be located [here](https://bintray.com/readdle/swift-android-toolchain/swift-android-toolchain)
+Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/swift-android-toolchain/releases)
 
 ### Prepare environment
 
@@ -34,8 +34,8 @@ rm -rf android-ndk-r$NDK-darwin-x86_64.zip
 unset NDK
  
 # instal swift android toolchain
-SWIFT_ANDROID=$(curl -fsSL https://api.bintray.com/packages/readdle/swift-android-toolchain/swift-android-toolchain/versions/_latest | python -c 'import json,sys;print(json.load(sys.stdin))["name"]')
-wget https://dl.bintray.com/readdle/swift-android-toolchain/swift-android-$SWIFT_ANDROID.zip
+SWIFT_ANDROID=$(curl --silent "https://api.github.com/repos/readdle/swift-android-toolchain/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+wget https://github.com/readdle/swift-android-toolchain/releases/latest/download/swift-android-$SWIFT_ANDROID.zip
 unzip swift-android-$SWIFT_ANDROID.zip
 rm -rf swift-android-$SWIFT_ANDROID.zip
 
