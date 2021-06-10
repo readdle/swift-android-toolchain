@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for version in 16b 21e
+cd $HOME
+
+for version in 21e
 do
     ndk=android-ndk-r$version
     ndk_zip=$ndk-linux-x86_64.zip
@@ -34,6 +36,5 @@ do
 done
 
 # exports
-echo "export ANDROID_NDK16=\$HOME/android-ndk-r16b" >> .build_env
 echo "export ANDROID_NDK21=\$HOME/android-ndk-r21e" >> .build_env
 echo "export ANDROID_NDK=\$ANDROID_NDK21" >> .build_env
