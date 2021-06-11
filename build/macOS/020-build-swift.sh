@@ -1,13 +1,12 @@
 #!/bin/bash
 set -ex
 
-BASE_DIR=`pwd`
-SWIFT_SOURCE=$BASE_DIR/vagrant/out/swift-source
+source $HOME/.build_env
 
 export SKIP_XCODE_VERSION_CHECK=1
 unset TOOLCHAINS
 
-pushd $SWIFT_SOURCE/swift
+pushd $SWIFT_SRC/swift
     utils/build-script \
         --release \
         --assertions \
