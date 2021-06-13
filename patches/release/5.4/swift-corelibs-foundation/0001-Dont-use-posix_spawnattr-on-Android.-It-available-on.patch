@@ -1,0 +1,45 @@
+From 7965f54fad02b2dae4cb393411876793dd3448b5 Mon Sep 17 00:00:00 2001
+From: Anton Pogonets <apogonets@readdle.com>
+Date: Fri, 9 Apr 2021 13:38:14 +0300
+Subject: [PATCH] Dont use posix_spawnattr on Android. It available only from
+ API>=28
+
+---
+ Sources/Foundation/Process.swift | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Sources/Foundation/Process.swift b/Sources/Foundation/Process.swift
+index 21615c19..154f5b20 100644
+--- a/Sources/Foundation/Process.swift
++++ b/Sources/Foundation/Process.swift
+@@ -949,6 +949,8 @@ open class Process: NSObject {
+ #else
+         var spawnAttrs: posix_spawnattr_t = posix_spawnattr_t()
+ #endif
++
++#if !os(Android)
+         try _throwIfPosixError(posix_spawnattr_init(&spawnAttrs))
+         try _throwIfPosixError(posix_spawnattr_setflags(&spawnAttrs, .init(POSIX_SPAWN_SETPGROUP)))
+ #if canImport(Darwin)
+@@ -963,6 +965,7 @@ open class Process: NSObject {
+             }
+             try _throwIfPosixError(_CFPosixSpawnFileActionsAddClose(fileActions, fd))
+         }
++#endif
+ #endif
+ 
+         let fileManager = FileManager()
+@@ -981,8 +984,9 @@ open class Process: NSObject {
+         guard _CFPosixSpawn(&pid, launchPath, fileActions, &spawnAttrs, argv, envp) == 0 else {
+             throw _NSErrorWithErrno(errno, reading: true, path: launchPath)
+         }
++#if !os(Android)
+         posix_spawnattr_destroy(&spawnAttrs)
+-
++#endif
+         // Close the write end of the input and output pipes.
+         if let pipe = standardInput as? Pipe {
+             pipe.fileHandleForReading.closeFile()
+-- 
+2.29.2
+
