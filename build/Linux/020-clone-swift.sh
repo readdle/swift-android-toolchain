@@ -10,6 +10,10 @@ pushd $SWIFT_SRC
     git clone https://github.com/apple/swift.git --branch $BRANCH --single-branch
     swift/utils/update-checkout --clone --scheme $BRANCH
 
+    # Replace Apple foundation with Readdle's fork
+    rm -rf swift-corelibs-foundation
+    git clone https://github.com/readdle/swift-corelibs-foundation.git --branch readdle/$BRANCH --single-branch
+
     # Construct .swift.sum based on repositories that take part in release build
     echo "cmark-$(git -C ./cmark rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "llvm-project-$(git -C ./llvm-project rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
