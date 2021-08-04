@@ -1,0 +1,12 @@
+diff --git a/cmake/modules/AddSwift.cmake b/cmake/modules/AddSwift.cmake
+index fb4ba732dc7..0dd85ec915c 100644
+--- a/cmake/modules/AddSwift.cmake
++++ b/cmake/modules/AddSwift.cmake
+@@ -332,6 +332,7 @@ function(_add_host_variant_link_flags target)
+       "SHELL:-Xlinker -Bsymbolic")
+   elseif(SWIFT_HOST_VARIANT_SDK STREQUAL ANDROID)
+     target_link_libraries(${target} PRIVATE
++      atomic
+       dl
+       log
+       # We need to add the math library, which is linked implicitly by libc++
