@@ -1,0 +1,19 @@
+diff --git a/stdlib/public/core/CMakeLists.txt b/stdlib/public/core/CMakeLists.txt
+index 2b10c2e9cdc..790e280d39f 100644
+--- a/stdlib/public/core/CMakeLists.txt
++++ b/stdlib/public/core/CMakeLists.txt
+@@ -294,6 +294,14 @@ if(SWIFT_CHECK_ESSENTIAL_STDLIB)
+   target_link_libraries(swift_stdlib_essential ${RUNTIME_DEPENDENCY})
+ endif()
+ 
++# Linux requires us to link an atomic library to use atomics.
++# Frustratingly, in many cases this isn't necessary because the
++# sequence is inlined, but we have some code that's just subtle
++# enough to turn into runtime calls.
++if(SWIFT_HOST_VARIANT STREQUAL "android")
++  list(APPEND swift_core_private_link_libraries -latomic)
++endif()
++
+ add_swift_target_library(swiftCore
+                   ${SWIFT_STDLIB_LIBRARY_BUILD_TYPES} IS_STDLIB IS_STDLIB_CORE
+                     ${SWIFTLIB_SOURCES}
