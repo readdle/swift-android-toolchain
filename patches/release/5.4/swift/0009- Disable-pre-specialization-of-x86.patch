@@ -1,0 +1,13 @@
+diff --git a/lib/IRGen/IRGenModule.cpp b/lib/IRGen/IRGenModule.cpp
+index 37c4c998557..c22b5f7e045 100644
+--- a/lib/IRGen/IRGenModule.cpp
++++ b/lib/IRGen/IRGenModule.cpp
+@@ -1610,7 +1610,7 @@ bool IRGenModule::useDllStorage() { return ::useDllStorage(Triple); }
+ bool IRGenModule::shouldPrespecializeGenericMetadata() {
+   auto canPrespecializeTarget =
+       (Triple.isOSDarwin() || Triple.isTvOS() ||
+-       (Triple.isOSLinux() && !(Triple.isARM() && Triple.isArch32Bit())));
++       (Triple.isOSLinux() && !(Triple.isArch32Bit())));
+   if (canPrespecializeTarget && isStandardLibrary()) {
+     return true;
+   }
