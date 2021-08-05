@@ -7,24 +7,19 @@ DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2u.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
 GIT_URL_LIBXML2=https://gitlab.gnome.org/GNOME/libxml2.git
 
-CURL_VERSION=curl-7_59_0
-LIBXML2_VERSION=v2.9.7
+CURL_VERSION=curl-7_76_0
+LIBXML2_VERSION=v2.9.10
 
 archs=(arm arm64 x86 x86_64)
 
-rm -rf $STANDALONE_TOOLCHAIN
-mkdir -p $STANDALONE_TOOLCHAIN
+rm -rf $FOUNDATION_DEPENDENCIES
+mkdir -p $FOUNDATION_DEPENDENCIES
 
-for arch in ${archs[*]}
-do
-    $ANDROID_NDK17/build/tools/make_standalone_toolchain.py --api 21 --arch $arch --stl libc++ --install-dir $STANDALONE_TOOLCHAIN/$arch --force -v
-done
-
-pushd $STANDALONE_TOOLCHAIN
+pushd $FOUNDATION_DEPENDENCIES
     mkdir downloads src
 
     mkdir src/openssl
-    wget $DOWNLOAD_URL_OPENSSL -O downloads/openssl.tar.gz # 1.0.2h was the current version at the moment where this script has been written
+    wget $DOWNLOAD_URL_OPENSSL -O downloads/openssl.tar.gz
     tar -xvf downloads/openssl.tar.gz -C src/openssl --strip-components=1
 
     git clone $GIT_URL_CURL src/curl
@@ -38,61 +33,69 @@ pushd $STANDALONE_TOOLCHAIN
     popd
 popd
 
-
 ORIGINAL_PATH=$PATH
 
 for arch in ${archs[*]}
 do
-    export SYSROOT=$STANDALONE_TOOLCHAIN/$arch/sysroot
-    export PATH=$STANDALONE_TOOLCHAIN/$arch/bin:$ORIGINAL_PATH
+    install_dir=$FOUNDATION_DEPENDENCIES/$arch
+    mkdir -p $install_dir
 
-    pushd $SYSROOT
+    pushd $install_dir
+        api=21
+        toolchain=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
+
         case ${arch} in
             "arm")
-                target_host="arm-linux-androideabi"
+                target_host="armv7a-linux-androideabi"
+                tool_prefix="arm-linux-androideabi"
                 openssl_configure_platform="android-armv7"
                 arch_flags="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
                 arch_link=" -march=armv7-a -Wl,--fix-cortex-a8"
             ;;
             "arm64")
                 target_host="aarch64-linux-android"
+                tool_prefix="$target_host"
                 openssl_configure_platform="android64-aarch64"
                 arch_flags=
                 arch_link=
             ;;
             "x86")
                 target_host="i686-linux-android"
+                tool_prefix="$target_host"
                 openssl_configure_platform="android-x86"
                 arch_flags=
                 arch_link=
             ;;
             "x86_64")
                 target_host="x86_64-linux-android"
+                tool_prefix="$target_host"
                 openssl_configure_platform="linux-generic64"
                 arch_flags=
                 arch_link=
             ;;
         esac
 
-        # Set cross-compilation env variables (taken from https://gist.github.com/VictorLaskin/1c45245d4cdeab033956)
+        export PATH=$toolchain/$tool_prefix/bin:$ORIGINAL_PATH
 
-        export CC=$target_host-clang
-        export CXX=$target_host-clang++
-        export AR=$target_host-ar
-        export AS=$target_host-as
-        export LD=$target_host-ld
-        export RANLIB=$target_host-ranlib
-        export NM=$target_host-nm
-        export STRIP=$target_host-strip
+        export CC=$toolchain/bin/$target_host$api-clang
+        export CXX=$toolchain/bin/$target_host$api-clang++
+        export AR=$toolchain/bin/llvm-ar
+        export AS=$CC
+        export LD=$toolchain/bin/$tool_prefix-ld
+        export RANLIB=$toolchain/bin/llvm-ranlib
+        export NM=$toolchain/bin/llvm-nm
+        export STRIP=$toolchain/bin/llvm-strip
+
         export CHOST=$target_host
         export CPPFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
         export CXXFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -frtti -fexceptions -std=c++11 -Wno-error=unused-command-line-argument "
         export CFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
         export LDFLAGS=" ${arch_link} "
 
+
         # Create destination directories
 
-        cp -r $STANDALONE_TOOLCHAIN/src src
+        cp -r $FOUNDATION_DEPENDENCIES/src src
 
         # Compile openssl
 
@@ -108,10 +111,7 @@ do
                 no-shared \
                 zlib \
                 --static \
-                --with-zlib-include=$SYSROOT/usr \
-                --with-zlib-lib=$SYSROOT/usr \
-                --prefix=$SYSROOT/usr \
-                --sysroot=$SYSROOT
+                --prefix=$install_dir
 
             pushd crypto
                 make buildinf.h
@@ -137,8 +137,8 @@ do
                 --enable-shared \
                 --disable-static \
                 --disable-dependency-tracking \
-                --with-zlib=$SYSROOT/usr \
-                --with-ssl=$SYSROOT/usr \
+                --with-zlib \
+                --with-ssl=$install_dir \
                 --without-ca-bundle \
                 --without-ca-path \
                 \
@@ -152,7 +152,7 @@ do
                 \
                 --target=$CHOST \
                 --build=x86_64-unknown-linux-gnu \
-                --prefix=$SYSROOT/usr
+                --prefix=$install_dir
 
             make && make install
         popd
@@ -163,9 +163,8 @@ do
             autoreconf -i
             ./configure \
                 --host=$CHOST \
-                --with-sysroot=$SYSROOT \
-                --with-zlib=$SYSROOT/usr \
-                --prefix=$SYSROOT/usr \
+                --with-zlib \
+                --prefix=$install_dir \
                 --disable-static \
                 --enable-shared \
                 --without-lzma \
