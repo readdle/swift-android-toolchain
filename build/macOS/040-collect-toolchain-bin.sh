@@ -3,8 +3,7 @@ set -ex
 
 source $HOME/.build_env
 
-toolchain_version=`cat build/config/version`
-name=swift-android-$toolchain_version
+name=swift-android-5.4
 
 out_bin=~/bin
 mkdir -p $out_bin
