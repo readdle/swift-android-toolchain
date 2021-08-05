@@ -5,10 +5,10 @@ on:
   # but only for the master branch
   push:
     branches:
-      - swift-android-5.4-branch
+      - master
   pull_request:
     branches:
-      - swift-android-5.4-branch
+      - master
 
 jobs:
 
