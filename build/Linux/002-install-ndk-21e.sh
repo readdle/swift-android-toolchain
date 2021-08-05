@@ -35,6 +35,12 @@ do
     rm $ndk_zip
 done
 
+# libatomic >_<
+cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/aarch64-linux-android/lib64/libatomic.a" "$ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/aarch64-linux-android/4.9.x"
+cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/x86_64-linux-android/lib64/libatomic.a" "$ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x"
+cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/arm-linux-androideabi/lib/libatomic.a" "$ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/arm-linux-androideabi/4.9.x"
+cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/i686-linux-android/lib/libatomic.a" "$ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x"
+
 # exports
 echo "export ANDROID_NDK21=\$HOME/android-ndk-r21e" >> .build_env
 echo "export ANDROID_NDK=\$ANDROID_NDK21" >> .build_env
