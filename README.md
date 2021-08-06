@@ -1,4 +1,5 @@
-# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest)
+# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest) [![CI](https://img.shields.io/github/checks-status/readdle/swift-android-toolchain/master?label=swift%205.4)](https://github.com/readdle/swift-android-toolchain/releases/latest)
+
 
 Automated scripts to build Swift Android cross compilation toolchain for macOS
 
@@ -13,7 +14,7 @@ Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/
 ### Prepare environment
 
 1. Install JDK 8 if needed. Call javac from terminal and macOS will guide you.
-2. [**IMPORTANT**] Install Swift 5.0.3 toolchain for Xcode https://swift.org/builds/swift-5.0.3-release/xcode/swift-5.0.3-RELEASE/swift-5.0.3-RELEASE-osx.pkg
+2. [**IMPORTANT**] Install Swift 5.4.2 toolchain for Xcode https://swift.org/builds/swift-5.4.2-release/xcode/swift-5.4.2-RELEASE/swift-5.4.2-RELEASE-osx.pkg
 3. Install Android Studio 3.5 or higher (optional)
 4. Install [brew](https://brew.sh/) if needed
 5. Install tools, NDK and Swift Android Toolchain
@@ -27,7 +28,7 @@ mkdir android
 cd android
  
 # install ndk
-NDK=17c
+NDK=21e
 wget https://dl.google.com/android/repository/android-ndk-r$NDK-darwin-x86_64.zip
 unzip android-ndk-r$NDK-darwin-x86_64.zip
 rm -rf android-ndk-r$NDK-darwin-x86_64.zip
@@ -48,9 +49,9 @@ unset SWIFT_ANDROID
 
 ```
 export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
-export TOOLCHAINS=org.swift.50320190830a
+export TOOLCHAINS=org.swift.540202104261a
 
-NDK=17c
+NDK=21e
 export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
 # Stranger things
 export NDK_ROOT=$ANDROID_NDK_HOME
@@ -109,41 +110,8 @@ swift-build --configuration release \
 
 This [plugin](https://github.com/readdle/swift-android-gradle) integrates Swift Android Toolchain to Gradle
 
----
+### Other swift releated projects
 
-# Build Toolchain
-### System Requirements
-
-Building stdlib require Linux and building macOS compiler requires macOS
-So building scripts uses vagrant to automate eentire process on macOS host
-
-#### Vagrant
-Install [virtualbox](https://www.virtualbox.org/wiki/Downloads)  
-Install [vagrant](https://www.vagrantup.com/)  
-Install vagrant plugins
-
-    vagrant plugin install vagrant-disksize
-    vagrant plugin install vagrant-scp
-
-#### macOS build tools
-Install cmake and ninja
-
-    brew install cmake ninja pkg-config
-    
-#### Android NDK
-Install Android NDK 17c from [android-ndk-r17c-darwin-x86_64.zip](https://dl.google.com/android/repository/android-ndk-r17c-darwin-x86_64.zip) and define ANDROID_NDK_HOME env variable
-
-    cd $somewhere
-    wget https://dl.google.com/android/repository/android-ndk-r17c-darwin-x86_64.zip
-    unzip android-ndk-r17c-darwin-x86_64.zip
-    rm android-ndk-r17c-darwin-x86_64.zip
-    export ANDROID_NDK_HOME=$PWD/android-ndk-r17c
-
-### Building
-
-Run `build/build.sh` from project root. 
-Resulting toolchain will be generated in `out/swift-android-$VERSION.zip`
-
-To clean building directory run `build/clean.sh` in project root
-
-It usually take around 2 hours on top MacBook Pro
+1. [Anotation Processor for generating JNI code](https://github.com/readdle/swift-java-codegen)
+2. [Sample todo app](https://github.com/readdle/swift-android-architecture)
+3. [Cross-platform swift weather app](https://github.com/andriydruk/swift-weather-app)
