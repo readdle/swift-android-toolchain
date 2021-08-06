@@ -3,11 +3,6 @@
 
 Automated scripts to build Swift Android cross compilation toolchain for macOS
 
-Based on:
-
- - https://github.com/SwiftJava/swifty-robot-environment
- - https://github.com/zayass/swift-android-vagrant
-
 # Installation
 Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/swift-android-toolchain/releases)
 
