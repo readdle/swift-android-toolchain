@@ -44,7 +44,6 @@ unset SWIFT_ANDROID
 
 ```
 export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
-export TOOLCHAINS=org.swift.540202104261a
 
 NDK=21e
 export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
@@ -58,6 +57,7 @@ export ANDROID_NDK_ROOT=$ANDROID_NDK_HOME
 
 export SWIFT_ANDROID_HOME=$HOME/android/swift-android-current
  
+export PATH=/Library/Developer/Toolchains/swift-5.4.2-RELEASE.xctoolchain/usr/bin:"${PATH}"
 export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
  
