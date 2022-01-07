@@ -48,33 +48,24 @@ do
             "arm")
                 TARGET_HOST="arm-linux-androideabi"
                 COMPILER_TARGET_HOST="armv7a-linux-androideabi"
-                arch_flags="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
-                arch_link="-march=armv7-a -Wl,--fix-cortex-a8"
             ;;
             "arm64")
                 TARGET_HOST="aarch64-linux-android"
                 COMPILER_TARGET_HOST="$TARGET_HOST"
-                arch_flags=""
-                arch_link=""
             ;;
             "x86")
                 TARGET_HOST="i686-linux-android"
                 COMPILER_TARGET_HOST="$TARGET_HOST"
-                arch_flags=""
-                arch_link=""
             ;;
             "x86_64")
                 TARGET_HOST="x86_64-linux-android"
                 COMPILER_TARGET_HOST="$TARGET_HOST"
-                arch_flags=""
-                arch_link=""
             ;;
         esac
 
-        export CPPFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
-        export CXXFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -frtti -fexceptions -std=c++11 -Wno-error=unused-command-line-argument "
-        export CFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
-        export LDFLAGS=" ${arch_link} "
+        export CPPFLAGS=" -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
+        export CXXFLAGS=" -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -frtti -fexceptions -std=c++11 -Wno-error=unused-command-line-argument "
+        export CFLAGS=" -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
 
         # Create destination directories
         cp -r $FOUNDATION_DEPENDENCIES/src src
