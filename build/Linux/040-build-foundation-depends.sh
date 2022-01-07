@@ -3,12 +3,13 @@ set -ex
 
 source $HOME/.build_env
 
-DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-1.0.2u.tar.gz
+OPENSSL_VERSION=1.1.1m
+CURL_VERSION=curl-7_81_0
+LIBXML2_VERSION=v2.9.12
+
+DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
 GIT_URL_LIBXML2=https://gitlab.gnome.org/GNOME/libxml2.git
-
-CURL_VERSION=curl-7_76_0
-LIBXML2_VERSION=v2.9.10
 
 archs=(arm arm64 x86 x86_64)
 
@@ -32,8 +33,10 @@ pushd $FOUNDATION_DEPENDENCIES
         git checkout $LIBXML2_VERSION
     popd
 popd
-
-ORIGINAL_PATH=$PATH
+ 
+API=21
+HOST=linux-x86_64
+TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 
 for arch in ${archs[*]}
 do
@@ -41,128 +44,96 @@ do
     mkdir -p $install_dir
 
     pushd $install_dir
-        api=21
-        toolchain=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
-
         case ${arch} in
             "arm")
-                target_host="armv7a-linux-androideabi"
-                tool_prefix="arm-linux-androideabi"
-                openssl_configure_platform="android-armv7"
+                TARGET_HOST="arm-linux-androideabi"
+                COMPILER_TARGET_HOST="armv7a-linux-androideabi"
                 arch_flags="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
-                arch_link=" -march=armv7-a -Wl,--fix-cortex-a8"
+                arch_link="-march=armv7-a -Wl,--fix-cortex-a8"
             ;;
             "arm64")
-                target_host="aarch64-linux-android"
-                tool_prefix="$target_host"
-                openssl_configure_platform="android64-aarch64"
-                arch_flags=
-                arch_link=
+                TARGET_HOST="aarch64-linux-android"
+                COMPILER_TARGET_HOST="$TARGET_HOST"
+                arch_flags=""
+                arch_link=""
             ;;
             "x86")
-                target_host="i686-linux-android"
-                tool_prefix="$target_host"
-                openssl_configure_platform="android-x86"
-                arch_flags=
-                arch_link=
+                TARGET_HOST="i686-linux-android"
+                COMPILER_TARGET_HOST="$TARGET_HOST"
+                arch_flags=""
+                arch_link=""
             ;;
             "x86_64")
-                target_host="x86_64-linux-android"
-                tool_prefix="$target_host"
-                openssl_configure_platform="linux-generic64"
-                arch_flags=
-                arch_link=
+                TARGET_HOST="x86_64-linux-android"
+                COMPILER_TARGET_HOST="$TARGET_HOST"
+                arch_flags=""
+                arch_link=""
             ;;
         esac
 
-        export PATH=$toolchain/$tool_prefix/bin:$ORIGINAL_PATH
-
-        export CC=$toolchain/bin/$target_host$api-clang
-        export CXX=$toolchain/bin/$target_host$api-clang++
-        export AR=$toolchain/bin/llvm-ar
-        export AS=$CC
-        export LD=$toolchain/bin/$tool_prefix-ld
-        export RANLIB=$toolchain/bin/llvm-ranlib
-        export NM=$toolchain/bin/llvm-nm
-        export STRIP=$toolchain/bin/llvm-strip
-
-        export CHOST=$target_host
         export CPPFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
         export CXXFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -frtti -fexceptions -std=c++11 -Wno-error=unused-command-line-argument "
         export CFLAGS=" ${arch_flags} -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
         export LDFLAGS=" ${arch_link} "
 
-
         # Create destination directories
-
         cp -r $FOUNDATION_DEPENDENCIES/src src
 
-        # Compile openssl
-
+        # Compile openssl https://github.com/openssl/openssl/blob/master/NOTES-ANDROID.md
         pushd src/openssl
-            # -mandroid option seems to be only for gcc compilers. It was causing troubles with clang
-            sed "s/-mandroid //g" Configure > Configure.new && chmod +x Configure.new
+            # Save current PATH
+            ORIGINAL_PATH=$PATH
+            PATH=$TOOLCHAIN/bin:$ANDROID_NDK/toolchains/$TARGET_HOST-4.9/prebuilt/linux-x86_64/bin:$PATH
 
-            ./Configure.new \
-                $openssl_configure_platform \
-                no-hw \
-                no-asm \
-                no-engine \
+            ./Configure android-$arch -D__ANDROID_API__=$API \
                 no-shared \
+                no-engine \
                 zlib \
-                --static \
                 --prefix=$install_dir
 
-            pushd crypto
-                make buildinf.h
-            popd
+            make && make install_sw
 
-            make depend build_crypto build_ssl -j 4
-
-            # This subproject is causing issues with install_sw target. We don't need the binaries.
-            rm -r apps
-
-            # Create fake empty files to complete installation succesfully
-            touch libcrypto.pc libssl.pc openssl.pc
-
-            make install_sw
+            # Restore PATH
+            PATH=$ORIGINAL_PATH
         popd
 
-        # Compile curl
+        export AR=$TOOLCHAIN/bin/$TARGET_HOST-ar
+        export AS=$TOOLCHAIN/bin/$TARGET_HOST-as
+        export CC=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang
+        export CXX=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang++
+        export LD=$TOOLCHAIN/bin/$TARGET_HOST-ld
+        export RANLIB=$TOOLCHAIN/bin/$TARGET_HOST-ranlib
+        export STRIP=$TOOLCHAIN/bin/$TARGET_HOST-strip
 
-        pushd src/curl
+        # Compile curl
+        pushd src/curl            
             autoreconf -i
             ./configure \
-                --host=$CHOST \
+                --host $TARGET_HOST \
+                --with-ssl="$install_dir" \
+                --prefix=$install_dir \
                 --enable-shared \
                 --disable-static \
                 --disable-dependency-tracking \
                 --with-zlib \
-                --with-ssl=$install_dir \
                 --without-ca-bundle \
                 --without-ca-path \
-                \
                 --enable-ipv6  --enable-http    --enable-ftp \
                 --enable-proxy \
                 --disable-file --disable-ldap   --disable-ldaps \
                 --disable-rtsp --disable-dict   --disable-telnet \
                 --disable-tftp --disable-pop3   --disable-imap \
                 --disable-smtp --disable-gopher --disable-sspi \
-                --disable-manual \
-                \
-                --target=$CHOST \
-                --build=x86_64-unknown-linux-gnu \
-                --prefix=$install_dir
+                --disable-manual
 
             make && make install
         popd
 
         # Compile libxml2
-
         pushd src/libxml2
             autoreconf -i
             ./configure \
-                --host=$CHOST \
+                --host=$TARGET_HOST \
                 --with-zlib \
                 --prefix=$install_dir \
                 --disable-static \
