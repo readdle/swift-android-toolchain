@@ -44,3 +44,4 @@ cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/i686-linux-android/lib/libatomic.
 # exports
 echo "export ANDROID_NDK21=\$HOME/android-ndk-r21e" >> .build_env
 echo "export ANDROID_NDK=\$ANDROID_NDK21" >> .build_env
+echo "export ANDROID_NDK_HOME=\$ANDROID_NDK21" >> .build_env
