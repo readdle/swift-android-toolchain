@@ -44,12 +44,12 @@ index 5a8cfcfaecb..a54261be0d5 100644
    HelpText<"Automatically import declared cross-import overlays.">;
  def disable_cross_import_overlays : Flag<["-"], "disable-cross-import-overlays">,
 diff --git a/lib/Driver/ToolChains.cpp b/lib/Driver/ToolChains.cpp
-index 22e87dbcec1..8a7a2d65949 100644
+index a0bcf27b322..3410ad4aa85 100644
 --- a/lib/Driver/ToolChains.cpp
 +++ b/lib/Driver/ToolChains.cpp
-@@ -218,6 +218,7 @@ void ToolChain::addCommonFrontendArgs(const OutputInfo &OI,
-                        options::OPT_warn_swift3_objc_inference_minimal,
-                        options::OPT_warn_swift3_objc_inference_complete);
+@@ -237,6 +237,7 @@ void ToolChain::addCommonFrontendArgs(const OutputInfo &OI,
+   inputArgs.AddLastArg(arguments, options::OPT_warn_concurrency);
+   inputArgs.AddLastArg(arguments, options::OPT_strict_concurrency);
    inputArgs.AddLastArg(arguments, options::OPT_warn_implicit_overrides);
 +  inputArgs.AddLastArg(arguments, options::OPT_experimental_disable_objc_attr);
    inputArgs.AddLastArg(arguments, options::OPT_typo_correction_limit);
