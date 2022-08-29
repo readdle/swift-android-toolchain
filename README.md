@@ -8,7 +8,7 @@ Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/
 
 ### Prepare environment (macOS x86_64 or macOS arm64)
 
-1. [**IMPORTANT**] Install XCode 13.0 and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
+1. [**IMPORTANT**] Install [XCode 13.0](https://xcodereleases.com/) and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
 2. Install [brew](https://brew.sh/) if needed
 3. Install tools, NDK and Swift Android Toolchain
 
