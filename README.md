@@ -63,7 +63,7 @@ Our current swift build system is tiny wrapper over Swift PM. See [Swift PM](htt
 | swift-build                  | Build all products           |
 | swift-build  --build-tests   | Build all products and tests |
  
-swift-build wrapper scripts works as swift build from swift package manager but configuresd for android.
+swift-build wrapper scripts works as swift build from swift package manager but configured for android.
 So you can add any extra params like -Xswiftc -DDEBUG , -Xswiftc -suppress-warnings or --configuration release
 
 Example of compilation flags:
