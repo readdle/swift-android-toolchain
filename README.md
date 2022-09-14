@@ -6,13 +6,11 @@ Automated scripts to build Swift Android cross compilation toolchain for macOS
 # Installation
 Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/swift-android-toolchain/releases)
 
-### Prepare environment
+### Prepare environment (macOS x86_64 or macOS arm64)
 
-1. Install JDK 8 if needed. Call javac from terminal and macOS will guide you.
-2. [**IMPORTANT**] Install Swift 5.4.2 toolchain for Xcode https://swift.org/builds/swift-5.4.2-release/xcode/swift-5.4.2-RELEASE/swift-5.4.2-RELEASE-osx.pkg
-3. Install Android Studio 3.5 or higher (optional)
-4. Install [brew](https://brew.sh/) if needed
-5. Install tools, NDK and Swift Android Toolchain
+1. [**IMPORTANT**] Install [XCode 13.0](https://xcodereleases.com/) and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
+2. Install [brew](https://brew.sh/) if needed
+3. Install tools, NDK and Swift Android Toolchain
 
 ```
 # install system tools
@@ -23,11 +21,9 @@ mkdir android
 cd android
  
 # install ndk
-NDK=21e
-wget https://dl.google.com/android/repository/android-ndk-r$NDK-darwin-x86_64.zip
-unzip android-ndk-r$NDK-darwin-x86_64.zip
-rm -rf android-ndk-r$NDK-darwin-x86_64.zip
-unset NDK
+wget https://dl.google.com/android/repository/android-ndk-r21e-darwin-x86_64.zip
+unzip android-ndk-r21e-darwin-x86_64.zip
+rm -rf android-ndk-r21e-darwin-x86_64.zip
  
 # instal swift android toolchain
 SWIFT_ANDROID=$(curl --silent "https://api.github.com/repos/readdle/swift-android-toolchain/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
@@ -43,26 +39,11 @@ unset SWIFT_ANDROID
 6. Setup environment variables by putting this to .profile 
 
 ```
-export JAVA_HOME=$(/usr/libexec/java_home --version 1.8)
-export TOOLCHAINS=org.swift.540202104261a
-
-NDK=21e
-export ANDROID_NDK_HOME=$HOME/android/android-ndk-r$NDK
-# Stranger things
-export NDK_ROOT=$ANDROID_NDK_HOME
-export ANDROID_NDK=$ANDROID_NDK_HOME
-export ANDROID_NDK_ROOT=$ANDROID_NDK_HOME
-
-# Uncomment if you install Android Studio
-# export ANDROID_HOME=$HOME/Library/Android/sdk
-
+export ANDROID_NDK_HOME=$HOME/android/android-ndk-r21e
 export SWIFT_ANDROID_HOME=$HOME/android/swift-android-current
  
 export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
- 
-unset NDK
-unset SWIFT_ANDROID
 ```
 
 7. Include .profile to your .bashrc or .zshrc if needed by adding this line
@@ -82,7 +63,7 @@ Our current swift build system is tiny wrapper over Swift PM. See [Swift PM](htt
 | swift-build                  | Build all products           |
 | swift-build  --build-tests   | Build all products and tests |
  
-swift-build wrapper scripts works as swift build from swift package manager but configuresd for android.
+swift-build wrapper scripts works as swift build from swift package manager but configured for android.
 So you can add any extra params like -Xswiftc -DDEBUG , -Xswiftc -suppress-warnings or --configuration release
 
 Example of compilation flags:

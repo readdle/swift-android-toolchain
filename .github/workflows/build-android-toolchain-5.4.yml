@@ -238,7 +238,7 @@ jobs:
           ~/foundation-dependencies/arm
           ~/foundation-dependencies/x86_64
           ~/foundation-dependencies/x86
-        key: openssl-1.0.2u-curl-7_76_0-libxmlv2.9.10
+        key: openssl-1.1.1m-curl-7_81_0-libxmlv2.9.12
     - name: Build Foundation Dependenncies
       if: steps.cache-foundation-dependencies.outputs.cache-hit != 'true'
       run: ./build/Linux/040-build-foundation-depends.sh
@@ -485,4 +485,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: swift-android-5.4
-        path: ~/out/swift-android-5.4-r1.zip
+        path: ~/out/swift-android-5.4-r3.zip
