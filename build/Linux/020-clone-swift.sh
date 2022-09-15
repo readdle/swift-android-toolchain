@@ -33,16 +33,6 @@ pushd $SWIFT_SRC
     done
 
     # Try to keep sources as small as possible
-    rm -rf indexstore-db
-    rm -rf sourcekit-lsp
-    rm -rf swift-argument-parser
-    rm -rf swift-format
-    rm -rf swift-integration-tests
-    rm -rf swift-stress-tester
-    rm -rf swift-syntax
-    rm -rf swift-xcode-playground-support
-    rm -rf yams
-
     rm -rf llbuild/.git
     rm -rf cmark/.git
     rm -rf llvm-project/.git
