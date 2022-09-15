@@ -5,7 +5,7 @@ cd $HOME
 for version in 23c
 do
     ndk=android-ndk-r$version
-    ndk_zip=$ndk-linux-x86_64.zip
+    ndk_zip=$ndk-linux.zip
 
     wget --progress=bar:force https://dl.google.com/android/repository/$ndk_zip
 
