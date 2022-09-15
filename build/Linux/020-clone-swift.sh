@@ -36,7 +36,6 @@ pushd $SWIFT_SRC
     rm -rf indexstore-db
     rm -rf sourcekit-lsp
     rm -rf swift-argument-parser
-    rm -rf swift-driver
     rm -rf swift-format
     rm -rf swift-integration-tests
     rm -rf swift-stress-tester
