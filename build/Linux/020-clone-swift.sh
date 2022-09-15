@@ -40,7 +40,6 @@ pushd $SWIFT_SRC
     rm -rf swift-integration-tests
     rm -rf swift-stress-tester
     rm -rf swift-syntax
-    rm -rf swift-tools-support-core
     rm -rf swift-xcode-playground-support
     rm -rf yams
 
