@@ -79,7 +79,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -116,7 +116,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -153,7 +153,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -190,7 +190,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -226,7 +226,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - name: Cache foundation dependencies
@@ -277,7 +277,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -316,7 +316,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -351,7 +351,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -386,7 +386,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -453,7 +453,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-21e.sh
+      run: ./build/Linux/002-install-ndk.sh
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-5.4-bin
