@@ -2,7 +2,7 @@
 
 cd $HOME
 
-for version in 23c
+for version in 23b
 do
     ndk=android-ndk-r$version
     ndk_zip=$ndk-linux.zip
@@ -42,6 +42,6 @@ cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/arm-linux-androideabi/lib/libatom
 cp "$ndk/toolchains/llvm/prebuilt/linux-x86_64/i686-linux-android/lib/libatomic.a" "$ndk/toolchains/llvm/prebuilt/linux-x86_64/lib/gcc/i686-linux-android/4.9.x"
 
 # exports
-echo "export ANDROID_NDK23=\$HOME/android-ndk-r23c" >> .build_env
+echo "export ANDROID_NDK23=\$HOME/android-ndk-r23b" >> .build_env
 echo "export ANDROID_NDK=\$ANDROID_NDK23" >> .build_env
 echo "export ANDROID_NDK_HOME=\$ANDROID_NDK23" >> .build_env
