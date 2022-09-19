@@ -30,7 +30,7 @@ apt-get install -y      \
 apt-get install -y \
     autoconf automake libtool curl wget unzip vim rpl python3-pip
 
-pip3 install --upgrade cmake==3.18.4
+pip3 install --upgrade cmake==3.20.2
 
 ln -s /usr/bin/perl /usr/local/bin/perl
 
