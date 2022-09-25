@@ -226,7 +226,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/Linux/002-install-ndk-25b.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - name: Cache foundation dependencies
@@ -277,7 +277,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/Linux/002-install-ndk-25b.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -316,7 +316,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/Linux/002-install-ndk-25b.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -351,7 +351,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/Linux/002-install-ndk-25b.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
@@ -386,7 +386,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/Linux/002-install-ndk-25b.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - uses: actions/download-artifact@v2
