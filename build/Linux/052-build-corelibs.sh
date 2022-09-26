@@ -97,7 +97,7 @@ cmake --build $xctest_build_dir --target install
 swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch
 dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 
-rsync -av $ANDROID_NDK/sources/cxx-stl/llvm-libc++/libs/$abi/libc++_shared.so $dst_libs
+rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${swift_arch}-linux-android/libc++_shared.so $dst_libs
 
 rsync -av $icu_libs/libicu{uc,i18n,data}swift.so $dst_libs
 rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
