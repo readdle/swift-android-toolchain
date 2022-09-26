@@ -13,8 +13,9 @@ trap finish EXIT
 self_dir=$(realpath $(dirname $0))
 
 arch=$1 # arm64 arm x86 x86_64
-swift_arch=$2 # aarch64 armv7 x86 i686
-abi=$3 # arm64-v8a armeabi-v7a x86 x86_64
+swift_arch=$2 # aarch64 armv7 i686 x86_64
+clang_arch=$3 # aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android 
+abi=$4 # arm64-v8a armeabi-v7a x86 x86_64
 
 dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
 foundation_build_dir=/tmp/foundation-$arch
@@ -97,7 +98,7 @@ cmake --build $xctest_build_dir --target install
 swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch
 dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 
-rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${swift_arch}-linux-android/libc++_shared.so $dst_libs
+rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
 rsync -av $icu_libs/libicu{uc,i18n,data}swift.so $dst_libs
 rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
