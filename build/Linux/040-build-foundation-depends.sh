@@ -74,9 +74,9 @@ do
         pushd src/openssl
             # Save current PATH
             ORIGINAL_PATH=$PATH
-            PATH=$TOOLCHAIN/bin:$ANDROID_NDK/toolchains/$TARGET_HOST-4.9/prebuilt/linux-x86_64/bin:$PATH
+            PATH=$TOOLCHAIN/bin:$PATH
 
-            ./Configure android-$arch -D__ANDROID_API__=$API \
+            ./Configure android-$arch \
                 no-shared \
                 no-engine \
                 zlib \
@@ -88,13 +88,13 @@ do
             PATH=$ORIGINAL_PATH
         popd
 
-        export AR=$TOOLCHAIN/bin/$TARGET_HOST-ar
-        export AS=$TOOLCHAIN/bin/$TARGET_HOST-as
+        export AR=$TOOLCHAIN/bin/llvm-ar
+        export AS=$TOOLCHAIN/bin/llvm-as
         export CC=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang
         export CXX=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang++
-        export LD=$TOOLCHAIN/bin/$TARGET_HOST-ld
-        export RANLIB=$TOOLCHAIN/bin/$TARGET_HOST-ranlib
-        export STRIP=$TOOLCHAIN/bin/$TARGET_HOST-strip
+        export LD=$TOOLCHAIN/bin/ld
+        export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+        export STRIP=$TOOLCHAIN/bin/llvm-strip
 
         # Compile curl
         pushd src/curl            
