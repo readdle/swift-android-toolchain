@@ -3,9 +3,9 @@ set -ex
 
 source $HOME/.build_env
 
-OPENSSL_VERSION=1.1.1m
-CURL_VERSION=curl-7_81_0
-LIBXML2_VERSION=v2.9.12
+OPENSSL_VERSION=1.1.1s
+CURL_VERSION=curl-7_87_0
+LIBXML2_VERSION=v2.9.14
 
 DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
@@ -76,7 +76,7 @@ do
             ORIGINAL_PATH=$PATH
             PATH=$TOOLCHAIN/bin:$PATH
 
-            ./Configure android-$arch \
+            ./Configure android-$arch -D__ANDROID_API__=$API \
                 no-shared \
                 no-engine \
                 zlib \
