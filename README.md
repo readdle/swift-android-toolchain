@@ -1,4 +1,4 @@
-# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest) [![CI](https://img.shields.io/github/workflow/status/readdle/swift-android-toolchain/Build%20Android%20Toolchain%205.4?label=Swift%205.4)](https://github.com/readdle/swift-android-toolchain/releases/latest)
+# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest)
 
 
 Automated scripts to build Swift Android cross compilation toolchain for macOS

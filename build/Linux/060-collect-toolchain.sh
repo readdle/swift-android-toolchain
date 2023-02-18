@@ -4,7 +4,7 @@ set -ex
 source $HOME/.build_env
 
 toolchain_version=`cat build/config/version`
-name=swift-android-$toolchain_version
+name=swift-android
 
 out=$HOME/out/$name
 out_toolchain=$out/toolchain
@@ -21,7 +21,7 @@ pushd $out
     rsync -av $input_bin $out_toolchain/usr
 
     # Copy platform libs
-    rsync -av $input_libs $out_toolchain/usr --exclude 'lib/clang/10.0.0/lib'
+    rsync -av $input_libs $out_toolchain/usr --exclude 'lib/clang/13.0.0/lib'
 popd
 
 # Move libIndexStore.dylib from bin to lib

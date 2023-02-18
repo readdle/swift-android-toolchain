@@ -35,7 +35,7 @@ pushd $FOUNDATION_DEPENDENCIES
 popd
  
 API=21
-HOST=linux-x86_64
+HOST=darwin-x86_64
 TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 
 for arch in ${archs[*]}
