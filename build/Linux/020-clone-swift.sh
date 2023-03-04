@@ -22,6 +22,7 @@ pushd $SWIFT_SRC
     echo "ninja-$(git -C ./ninja rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "llbuild-$(git -C ./llbuild rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "NDK=$ANDROID_NDK_HOME" >> $ROOT_DIR/.swift.sum
+    echo "ICU=none" >> $ROOT_DIR/.swift.sum
 
     # Apply patches for $BRANCH if exist
     for REPO in */; do

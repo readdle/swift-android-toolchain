@@ -12,66 +12,7 @@ on:
 
 jobs:
 
-  build-icu-android:
-    runs-on: ubuntu-20.04
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
-    - name: Install NDK
-      run: ./build/Linux/001-install-ndk-16b.sh
-    - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
-    - name: Cache ICU
-      id: cache-icu
-      uses: actions/cache@v2
-      with:
-        path: |
-          /home/runner/libiconv-libicu-android/arm64-v8a
-          /home/runner/libiconv-libicu-android/armeabi-v7a
-          /home/runner/libiconv-libicu-android/x86_64
-          /home/runner/libiconv-libicu-android/x86
-        key: libiconv-1.15-icu4c-59_1-icu-le-hb-1.0.3-harfbuzz-1.4.6-ndk_16b
-    - name: Build ICU
-      if: steps.cache-icu.outputs.cache-hit != 'true'
-      run: ./build/Linux/010-build-icu.sh
-    - uses: actions/upload-artifact@v2
-      with:
-        name: icu-arm64-v8a
-        path: |
-          /home/runner/libiconv-libicu-android/arm64-v8a
-          !/home/runner/libiconv-libicu-android/arm64-v8a/icu
-          !/home/runner/libiconv-libicu-android/arm64-v8a/android_support
-          /home/runner/libiconv-libicu-android/arm64-v8a/icu/**/*.h
-    - uses: actions/upload-artifact@v2
-      with:
-        name: icu-armeabi-v7a
-        path: |
-          /home/runner/libiconv-libicu-android/armeabi-v7a
-          !/home/runner/libiconv-libicu-android/armeabi-v7a/icu
-          !/home/runner/libiconv-libicu-android/armeabi-v7a/android_support
-          /home/runner/libiconv-libicu-android/armeabi-v7a/icu/**/*.h
-    - uses: actions/upload-artifact@v2
-      with:
-        name: icu-x86_64
-        path: |
-          /home/runner/libiconv-libicu-android/x86_64
-          !/home/runner/libiconv-libicu-android/x86_64/icu
-          !/home/runner/libiconv-libicu-android/x86_64/android_support
-          /home/runner/libiconv-libicu-android/x86_64/icu/**/*.h
-    - uses: actions/upload-artifact@v2
-      with:
-        name: icu-x86
-        path: |
-          /home/runner/libiconv-libicu-android/x86
-          !/home/runner/libiconv-libicu-android/x86/icu
-          !/home/runner/libiconv-libicu-android/x86/android_support
-          /home/runner/libiconv-libicu-android/x86/icu/**/*.h
-
-
   build-swift-android-arm-64:
-    needs: build-icu-android
     runs-on: ubuntu-20.04
     
     steps:
@@ -79,13 +20,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-arm64-v8a
-        path: /home/runner/libiconv-libicu-android/arm64-v8a
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Cache Swift Arm64
@@ -108,7 +45,6 @@ jobs:
 
 
   build-swift-android-armeabi-v7a:
-    needs: build-icu-android
     runs-on: ubuntu-20.04
     
     steps:
@@ -116,13 +52,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-armeabi-v7a
-        path: /home/runner/libiconv-libicu-android/armeabi-v7a
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Cache Swift Arm 32
@@ -145,7 +77,6 @@ jobs:
 
 
   build-swift-android-x86:
-    needs: build-icu-android
     runs-on: ubuntu-20.04
     
     steps:
@@ -153,13 +84,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-x86
-        path: /home/runner/libiconv-libicu-android/x86
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Cache Swift x86
@@ -182,7 +109,6 @@ jobs:
 
 
   build-swift-android-x86_64:
-    needs: build-icu-android
     runs-on: ubuntu-20.04
     
     steps:
@@ -190,13 +116,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-x86_64
-        path: /home/runner/libiconv-libicu-android/x86_64
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Cache Swift x86_64
@@ -226,7 +148,7 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
     - name: Cache foundation dependencies
@@ -269,7 +191,7 @@ jobs:
 
 
   build-swift-corelibs-android-arm-64:
-    needs: [build-icu-android, build-swift-android-arm-64, build-foundation-dependecies-android]
+    needs: [build-swift-android-arm-64, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
     
     steps:
@@ -277,13 +199,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-arm64-v8a
-        path: ~/libiconv-libicu-android/arm64-v8a
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-arm64-v8a
@@ -308,7 +226,7 @@ jobs:
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-aarch64
 
   build-swift-corelibs-android-armeabi-v7a:
-    needs: [build-icu-android, build-swift-android-armeabi-v7a, build-foundation-dependecies-android]
+    needs: [build-swift-android-armeabi-v7a, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
     
     steps:
@@ -316,13 +234,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-armeabi-v7a
-        path: ~/libiconv-libicu-android/armeabi-v7a
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-armeabi-v7a
@@ -343,7 +257,7 @@ jobs:
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-armv7
 
   build-swift-corelibs-android-x86:
-    needs: [build-icu-android, build-swift-android-x86, build-foundation-dependecies-android]
+    needs: [build-swift-android-x86, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
     
     steps:
@@ -351,13 +265,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-x86
-        path: ~/libiconv-libicu-android/x86
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-x86
@@ -378,7 +288,7 @@ jobs:
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-i686
 
   build-swift-corelibs-android-x86_64:
-    needs: [build-icu-android, build-swift-android-x86_64, build-foundation-dependecies-android]
+    needs: [build-swift-android-x86_64, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
     
     steps:
@@ -386,13 +296,9 @@ jobs:
     - name: Install dependencies
       run: sudo ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
-      with:
-        name: icu-x86_64
-        path: ~/libiconv-libicu-android/x86_64
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-x86_64
@@ -453,7 +359,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk-25b.sh
+      run: ./build/Linux/002-install-ndk.sh
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-bin
