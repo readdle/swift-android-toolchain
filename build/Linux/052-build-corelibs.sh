@@ -16,12 +16,14 @@ arch=$1 # arm64 arm x86 x86_64
 swift_arch=$2 # aarch64 armv7 i686 x86_64
 clang_arch=$3 # aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android 
 abi=$4 # arm64-v8a armeabi-v7a x86 x86_64
+ndk_arch=$5 # aarch64-linux-android armv7a-linux-androideabi i686-linux-android x86_64-linux-android 
 
 dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
 foundation_build_dir=/tmp/foundation-$arch
 xctest_build_dir=/tmp/xctest-$arch
 
 foundation_dependencies=$FOUNDATION_DEPENDENCIES/$arch
+icu_libs=$ICU_LIBS/build-$ndk_arch
 
 rm -rf $dispatch_build_dir
 rm -rf $foundation_build_dir
@@ -51,6 +53,12 @@ pushd $foundation_build_dir
         -C $self_dir/common-flags-$arch.cmake \
         \
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
+        \
+        -DICU_INCLUDE_DIR=$icu_libs/include \
+        -DICU_UC_LIBRARY=$icu_libs/libicuucswift.so \
+        -DICU_UC_LIBRARY_RELEASE=$icu_libs/libicuucswift.so \
+        -DICU_I18N_LIBRARY=$icu_libs/libicui18nswift.so \
+        -DICU_I18N_LIBRARY_RELEASE=$icu_libs/libicui18nswift.so \
         \
         -DCURL_LIBRARY=$foundation_dependencies/lib/libcurl.so \
         -DCURL_INCLUDE_DIR=$foundation_dependencies/include \
@@ -93,11 +101,13 @@ dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
+rsync -av $icu_libs/libicu{uc,i18n,data}swift.so $dst_libs
 rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
 rsync -av $foundation_dependencies/lib/libssl.a $dst_libs
 rsync -av $foundation_dependencies/lib/libcurl.* $dst_libs
 rsync -av $foundation_dependencies/lib/libxml2.* $dst_libs
 
+cp -r $icu_libs/include/unicode $swift_include
 cp -r $foundation_dependencies/include/openssl $swift_include
 cp -r $foundation_dependencies/include/libxml2/libxml $swift_include
 cp -r $foundation_dependencies/include/curl $swift_include
