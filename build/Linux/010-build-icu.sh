@@ -32,7 +32,7 @@ pushd $ICU_LIBS
         mkdir build-$target -p
         pushd build-$target
             # Setup toolchain for current target    
-            export API=21
+            export API=24
             export AR=$TOOLCHAIN/bin/llvm-ar
             export CC=$TOOLCHAIN/bin/$TARGET$API-clang
             export AS=$CC
@@ -45,7 +45,6 @@ pushd $ICU_LIBS
             $ICU_SOURCE/icu4c/source/configure \
                 --host $TARGET \
                 --with-cross-build=$HOST_BUILD \
-                --with-library-suffix=swift \
                 --enable-static=yes \
                 --enable-shared=yes
             make -j8

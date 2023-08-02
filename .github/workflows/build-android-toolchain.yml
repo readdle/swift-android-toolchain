@@ -23,18 +23,7 @@ jobs:
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - name: Cache ICU
-      id: cache-icu
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/icu/build-aarch64-linux-android/lib
-          ~/icu/build-armv7a-linux-androideabi/lib
-          ~/icu/build-x86_64-linux-android/lib
-          ~/icu/build-i686-linux-android/lib
-        key: icu-73-2
     - name: Build ICU
-      if: steps.cache-icu.outputs.cache-hit != 'true'
       run: ./build/Linux/010-build-icu.sh
     - uses: actions/upload-artifact@v2
       with:

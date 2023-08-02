@@ -34,7 +34,7 @@ pushd $FOUNDATION_DEPENDENCIES
     popd
 popd
  
-API=21
+API=24
 HOST=linux-x86_64
 TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 

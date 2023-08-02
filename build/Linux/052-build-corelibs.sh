@@ -55,10 +55,10 @@ pushd $foundation_build_dir
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
         \
         -DICU_INCLUDE_DIR=$icu_libs/include \
-        -DICU_UC_LIBRARY=$icu_libs/libicuucswift.so \
-        -DICU_UC_LIBRARY_RELEASE=$icu_libs/libicuucswift.so \
-        -DICU_I18N_LIBRARY=$icu_libs/libicui18nswift.so \
-        -DICU_I18N_LIBRARY_RELEASE=$icu_libs/libicui18nswift.so \
+        -DICU_UC_LIBRARY=$icu_libs/libicuuc.so \
+        -DICU_UC_LIBRARY_RELEASE=$icu_libs/libicuuc.so \
+        -DICU_I18N_LIBRARY=$icu_libs/libicui18n.so \
+        -DICU_I18N_LIBRARY_RELEASE=$icu_libs/libicui18n.so \
         \
         -DCURL_LIBRARY=$foundation_dependencies/lib/libcurl.so \
         -DCURL_INCLUDE_DIR=$foundation_dependencies/include \
@@ -101,7 +101,7 @@ dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
-rsync -av $icu_libs/libicu{uc,i18n,data}swift.so $dst_libs
+rsync -av $icu_libs/*.so $dst_libs
 rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
 rsync -av $foundation_dependencies/lib/libssl.a $dst_libs
 rsync -av $foundation_dependencies/lib/libcurl.* $dst_libs
