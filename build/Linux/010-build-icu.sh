@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+ROOT_DIR=$(realpath $(dirname $0))/../../
 ICU_VERSION=release-73-2
 
 source $HOME/.build_env
@@ -14,6 +15,9 @@ export ICU_SOURCE=$ICU_LIBS
 pushd $ICU_LIBS
     # Checkout version
     git checkout $ICU_VERSION
+
+    # Apply patches for icu
+    git apply $ROOT_DIR/patches/icu/*.patch
 
     # Build ICU for host
     mkdir build-host

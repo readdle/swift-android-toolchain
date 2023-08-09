@@ -2,6 +2,8 @@
 set -ex
 
 source $HOME/.build_env
+export ICU_VERSION=73
+
 function finish {
     exit_code=$?
     set +e
@@ -101,7 +103,7 @@ dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
-rsync -av $icu_libs/*.so $dst_libs
+rsync -av $icu_libs/*$ICU_VERSION.so $dst_libs
 rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
 rsync -av $foundation_dependencies/lib/libssl.a $dst_libs
 rsync -av $foundation_dependencies/lib/libcurl.* $dst_libs
