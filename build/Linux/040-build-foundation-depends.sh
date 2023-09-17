@@ -3,8 +3,8 @@ set -ex
 
 source $HOME/.build_env
 
-OPENSSL_VERSION=1.1.1s
-CURL_VERSION=curl-7_87_0
+OPENSSL_VERSION=1.1.1w
+CURL_VERSION=curl-7_88_1
 LIBXML2_VERSION=v2.9.14
 
 DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz

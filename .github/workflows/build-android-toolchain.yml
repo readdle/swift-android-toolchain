@@ -23,28 +23,39 @@ jobs:
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
+    - name: Cache ICU
+      id: cache-icu
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/icu/build-aarch64-linux-android/lib
+          ~/icu/build-armv7a-linux-androideabi/lib
+          ~/icu/build-x86_64-linux-android/lib
+          ~/icu/build-i686-linux-android/lib
+        key: icu-73-2
     - name: Build ICU
+      if: steps.cache-icu.outputs.cache-hit != 'true'
       run: ./build/Linux/010-build-icu.sh
     - uses: actions/upload-artifact@v2
       with:
         name: icu-arm64-v8a
         path: |
-          /home/runner/icu/build-aarch64-linux-android/lib
+          ~/icu/build-aarch64-linux-android/lib
     - uses: actions/upload-artifact@v2
       with:
         name: icu-armeabi-v7a
         path: |
-          /home/runner/icu/build-armv7a-linux-androideabi/lib
+          ~/icu/build-armv7a-linux-androideabi/lib
     - uses: actions/upload-artifact@v2
       with:
         name: icu-x86_64
         path: |
-          /home/runner/icu/build-x86_64-linux-android/lib
+          ~/icu/build-x86_64-linux-android/lib
     - uses: actions/upload-artifact@v2
       with:
         name: icu-x86
         path: |
-          /home/runner/icu/build-i686-linux-android/lib
+          ~/icu/build-i686-linux-android/lib
 
 
   build-swift-android-arm-64:
@@ -64,14 +75,16 @@ jobs:
       id: cache-swift-arm-64
       uses: actions/cache@v2
       with:
-        path: /home/runner/out/swift-android
+        path: ~/out/swift-android-arm64-v8a.tar
         key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: ./build/Linux/031-build-swift-arm64.sh
     - name: Clean sources
+      if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
+      if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: pushd ~/out; tar -cvf swift-android-arm64-v8a.tar swift-android; popd
     - uses: actions/upload-artifact@v2
       with:
@@ -96,14 +109,16 @@ jobs:
       id: cache-swift-arm-32
       uses: actions/cache@v2
       with:
-        path: /home/runner/out/swift-android
+        path: ~/out/swift-android-armeabi-v7a.tar
         key: ${{ runner.os }}-arm32-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: ./build/Linux/032-build-swift-arm.sh
     - name: Clean sources
+      if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
+      if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: pushd ~/out; tar -cvf swift-android-armeabi-v7a.tar swift-android; popd
     - uses: actions/upload-artifact@v2
       with:
@@ -128,14 +143,16 @@ jobs:
       id: cache-swift-x86
       uses: actions/cache@v2
       with:
-        path: /home/runner/out/swift-android
+        path: ~/out/swift-android-x86.tar
         key: ${{ runner.os }}-x86-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86.outputs.cache-hit != 'true'
       run: ./build/Linux/034-build-swift-x86.sh
     - name: Clean sources
+      if: steps.cache-swift-x86.outputs.cache-hit != 'true'
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
+      if: steps.cache-swift-x86.outputs.cache-hit != 'true'
       run: pushd ~/out; tar -cvf swift-android-x86.tar swift-android; popd
     - uses: actions/upload-artifact@v2
       with:
@@ -160,14 +177,16 @@ jobs:
       id: cache-swift-x86_64
       uses: actions/cache@v2
       with:
-        path: /home/runner/out/swift-android
+        path: ~/out/swift-android-x86_64.tar
         key: ${{ runner.os }}-x86_64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: ./build/Linux/033-build-swift-x86_64.sh
     - name: Clean sources
+      if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
+      if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: pushd ~/out; tar -cvf swift-android-x86_64.tar swift-android; popd
     - uses: actions/upload-artifact@v2
       with:
@@ -195,7 +214,7 @@ jobs:
           ~/foundation-dependencies/arm
           ~/foundation-dependencies/x86_64
           ~/foundation-dependencies/x86
-        key: openssl-1.1.1m-curl-7_81_0-libxmlv2.9.12
+        key: openssl-1.1.1w-curl-7_88_1-libxmlv2.9.14
     - name: Build Foundation Dependenncies
       if: steps.cache-foundation-dependencies.outputs.cache-hit != 'true'
       run: ./build/Linux/040-build-foundation-depends.sh
@@ -382,12 +401,7 @@ jobs:
       id: cache-swift-mac
       uses: actions/cache@v2
       with:
-        path: |
-          ~/swift-source/build/Ninja-ReleaseAssert+stdlib-Release/swift-macosx-x86_64
-          ~/swift-source/build/Ninja-ReleaseAssert+stdlib-Release/llvm-macosx-x86_64
-          ~/swift-source/swiftpm/.build/release/swift-build
-          /usr/local/bin/pkg-config
-          /usr/local/bin/ninja
+        path: ~/swift-android-bin.tar
         key: ${{ runner.os }}-x86_64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-mac.outputs.cache-hit != 'true'
@@ -396,6 +410,7 @@ jobs:
       if: steps.cache-swift-mac.outputs.cache-hit != 'true'
       run: ./build/macOS/030-build-swiftpm.sh
     - name: Collect toolchain bin
+      if: steps.cache-swift-mac.outputs.cache-hit != 'true'
       run: ./build/macOS/040-collect-toolchain-bin.sh
     - uses: actions/upload-artifact@v2
       with:
