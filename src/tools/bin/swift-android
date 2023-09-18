@@ -53,7 +53,7 @@ def most_recent_version(versions):
     import re
     from distutils.version import StrictVersion
 
-    swift_version = "swift5.4"
+    swift_version = "swift5.7"
     def map_versions(version):
         swift_version_regexp = re.compile(r'^(?P<version>.*)-{}$'.format(swift_version))
         matches = swift_version_regexp.match(version)
