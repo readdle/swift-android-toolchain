@@ -3,7 +3,7 @@ set -ex
 
 source $HOME/.build_env
 
-name=swift-android-5.4
+name=swift-android
 
 out_bin=~/bin
 mkdir -p $out_bin

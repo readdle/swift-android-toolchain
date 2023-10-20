@@ -2,7 +2,7 @@
 set -ex
 
 ROOT_DIR=$(realpath $(dirname $0))/../../
-BRANCH="release/5.4"
+BRANCH="release/5.7"
 
 source $HOME/.build_env
 
@@ -21,6 +21,7 @@ pushd $SWIFT_SRC
     echo "swiftpm-$(git -C ./swiftpm rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "ninja-$(git -C ./ninja rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "llbuild-$(git -C ./llbuild rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
+    echo "NDK=$ANDROID_NDK_HOME" >> $ROOT_DIR/.swift.sum
 
     # Apply patches for $BRANCH if exist
     for REPO in */; do
@@ -33,18 +34,6 @@ pushd $SWIFT_SRC
     done
 
     # Try to keep sources as small as possible
-    rm -rf indexstore-db
-    rm -rf sourcekit-lsp
-    rm -rf swift-argument-parser
-    rm -rf swift-driver
-    rm -rf swift-format
-    rm -rf swift-integration-tests
-    rm -rf swift-stress-tester
-    rm -rf swift-syntax
-    rm -rf swift-tools-support-core
-    rm -rf swift-xcode-playground-support
-    rm -rf yams
-
     rm -rf llbuild/.git
     rm -rf cmark/.git
     rm -rf llvm-project/.git

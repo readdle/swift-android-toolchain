@@ -1,4 +1,4 @@
-# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest) [![CI](https://img.shields.io/github/workflow/status/readdle/swift-android-toolchain/Build%20Android%20Toolchain%205.4?label=Swift%205.4)](https://github.com/readdle/swift-android-toolchain/releases/latest)
+# Swift Android Toolchain [![Download](https://img.shields.io/github/v/release/readdle/swift-android-toolchain?label=Download)](https://github.com/readdle/swift-android-toolchain/releases/latest)
 
 
 Automated scripts to build Swift Android cross compilation toolchain for macOS
@@ -21,9 +21,9 @@ mkdir android
 cd android
  
 # install ndk
-wget https://dl.google.com/android/repository/android-ndk-r21e-darwin-x86_64.zip
-unzip android-ndk-r21e-darwin-x86_64.zip
-rm -rf android-ndk-r21e-darwin-x86_64.zip
+wget https://dl.google.com/android/repository/android-ndk-r25c-darwin-x86_64.zip
+unzip android-ndk-r25c-darwin-x86_64.zip
+rm -rf android-ndk-r25c-darwin-x86_64.zip
  
 # instal swift android toolchain
 SWIFT_ANDROID=$(curl --silent "https://api.github.com/repos/readdle/swift-android-toolchain/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
@@ -39,7 +39,7 @@ unset SWIFT_ANDROID
 6. Setup environment variables by putting this to .profile 
 
 ```
-export ANDROID_NDK_HOME=$HOME/android/android-ndk-r21e
+export ANDROID_NDK_HOME=$HOME/android/android-ndk-r25c
 export SWIFT_ANDROID_HOME=$HOME/android/swift-android-current
  
 export PATH=$ANDROID_NDK_HOME:$PATH

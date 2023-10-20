@@ -1,0 +1,28 @@
+diff --git a/icu4c/source/config/mh-linux b/icu4c/source/config/mh-linux
+index 53d6780d68..c76a72b792 100644
+--- a/icu4c/source/config/mh-linux
++++ b/icu4c/source/config/mh-linux
+@@ -50,6 +50,9 @@ STATIC_O = ao
+ %.o: $(srcdir)/%.cpp
+ 	$(call SILENT_COMPILE,$(strip $(COMPILE.cc) $(DYNAMICCPPFLAGS) $(DYNAMICCXXFLAGS)) -o $@ $<)
+ 
++## Override Versioned target for a shared library.
++FINAL_SO_TARGET=  $(basename $(SO_TARGET)).$(SO_TARGET_VERSION).$(SO)
++MIDDLE_SO_TARGET= $(basename $(SO_TARGET)).$(SO_TARGET_VERSION_MAJOR).$(SO)
+ 
+ ## Dependency rules
+ %.d: $(srcdir)/%.c
+@@ -66,10 +69,10 @@ STATIC_O = ao
+ 
+ ## Versioned libraries rules
+ 
+-%.$(SO).$(SO_TARGET_VERSION_MAJOR): %.$(SO).$(SO_TARGET_VERSION)
++%.$(SO_TARGET_VERSION_MAJOR).$(SO): %.$(SO_TARGET_VERSION).$(SO)
+ 	$(RM) $@ && ln -s ${<F} $@
+-%.$(SO): %.$(SO).$(SO_TARGET_VERSION_MAJOR)
+-	$(RM) $@ && ln -s ${*F}.$(SO).$(SO_TARGET_VERSION) $@
++%.$(SO): %.$(SO_TARGET_VERSION_MAJOR).$(SO)
++	$(RM) $@ && ln -s ${*F}.$(SO_TARGET_VERSION).$(SO) $@
+ 
+ ##  Bind internal references
+ 

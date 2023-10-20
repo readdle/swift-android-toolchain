@@ -6,7 +6,7 @@ BASE_DIR=$SELF_DIR/../
 
 pushd $BASE_DIR
     build/Linux/000-install-dependencies.sh
-    build/Linux/002-install-ndk-21e.sh
+    build/Linux/002-install-ndk.sh
     build/Linux/003-define-build-folders.sh
     build/Linux/010-build-icu.sh
     build/Linux/020-clone-swift.sh

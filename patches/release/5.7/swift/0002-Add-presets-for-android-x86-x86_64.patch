@@ -9,25 +9,6 @@ Subject: [PATCH 2/7] Add presets for android x86 x86_64
 
 diff --git a/utils/build-presets.ini b/utils/build-presets.ini
 index 5d5b45c6413..46ad038f6dc 100644
---- a/utils/build-presets.ini
-+++ b/utils/build-presets.ini
-@@ -881,11 +881,11 @@ libcxx
- android
- android-ndk=%(ndk_path)s
- android-api-level=24
--android-icu-uc=%(arm_dir)s/libicuucswift.so
--android-icu-uc-include=%(arm_dir)s/icu/source/common
--android-icu-i18n=%(arm_dir)s/libicui18nswift.so
--android-icu-i18n-include=%(arm_dir)s/icu/source/i18n
--android-icu-data=%(arm_dir)s/libicudataswift.so
-+android-icu-uc=%(icu_dir)s/libicuuc.so
-+android-icu-uc-include=%(icu_dir)s/icu/source/common
-+android-icu-i18n=%(icu_dir)s/libicui18n.so
-+android-icu-i18n-include=%(icu_dir)s/icu/source/i18n
-+android-icu-data=%(icu_dir)s/libicudata.so
- 
- build-swift-static-stdlib
- build-swift-static-sdk-overlay
 @@ -917,6 +917,20 @@ mixin-preset=buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build
  
  android-arch=aarch64

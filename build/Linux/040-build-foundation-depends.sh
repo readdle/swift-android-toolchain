@@ -3,9 +3,9 @@ set -ex
 
 source $HOME/.build_env
 
-OPENSSL_VERSION=1.1.1m
-CURL_VERSION=curl-7_81_0
-LIBXML2_VERSION=v2.9.12
+OPENSSL_VERSION=1.1.1w
+CURL_VERSION=curl-7_88_1
+LIBXML2_VERSION=v2.9.14
 
 DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 GIT_URL_CURL=https://github.com/curl/curl.git
@@ -34,7 +34,7 @@ pushd $FOUNDATION_DEPENDENCIES
     popd
 popd
  
-API=21
+API=24
 HOST=linux-x86_64
 TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 
@@ -74,7 +74,7 @@ do
         pushd src/openssl
             # Save current PATH
             ORIGINAL_PATH=$PATH
-            PATH=$TOOLCHAIN/bin:$ANDROID_NDK/toolchains/$TARGET_HOST-4.9/prebuilt/linux-x86_64/bin:$PATH
+            PATH=$TOOLCHAIN/bin:$PATH
 
             ./Configure android-$arch -D__ANDROID_API__=$API \
                 no-shared \
@@ -88,13 +88,13 @@ do
             PATH=$ORIGINAL_PATH
         popd
 
-        export AR=$TOOLCHAIN/bin/$TARGET_HOST-ar
-        export AS=$TOOLCHAIN/bin/$TARGET_HOST-as
+        export AR=$TOOLCHAIN/bin/llvm-ar
+        export AS=$TOOLCHAIN/bin/llvm-as
         export CC=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang
         export CXX=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang++
-        export LD=$TOOLCHAIN/bin/$TARGET_HOST-ld
-        export RANLIB=$TOOLCHAIN/bin/$TARGET_HOST-ranlib
-        export STRIP=$TOOLCHAIN/bin/$TARGET_HOST-strip
+        export LD=$TOOLCHAIN/bin/ld
+        export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+        export STRIP=$TOOLCHAIN/bin/llvm-strip
 
         # Compile curl
         pushd src/curl            
