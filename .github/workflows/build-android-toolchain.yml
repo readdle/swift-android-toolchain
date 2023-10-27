@@ -14,11 +14,12 @@ jobs:
 
   build-icu-android:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
 
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -32,7 +33,7 @@ jobs:
           ~/icu/build-armv7a-linux-androideabi/lib
           ~/icu/build-x86_64-linux-android/lib
           ~/icu/build-i686-linux-android/lib
-        key: icu-73-2
+        key: container-icu-73-2
     - name: Build ICU
       if: steps.cache-icu.outputs.cache-hit != 'true'
       run: ./build/Linux/010-build-icu.sh
@@ -60,11 +61,12 @@ jobs:
 
   build-swift-android-arm-64:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -85,7 +87,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
-      run: pushd ~/out; tar -cvf swift-android-arm64-v8a.tar swift-android; popd
+      run: cd ~/out; tar -cvf swift-android-arm64-v8a.tar swift-android
     - uses: actions/upload-artifact@v2
       with:
         name: swift-android-arm64-v8a
@@ -94,11 +96,12 @@ jobs:
 
   build-swift-android-armeabi-v7a:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -119,7 +122,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
-      run: pushd ~/out; tar -cvf swift-android-armeabi-v7a.tar swift-android; popd
+      run: cd ~/out; tar -cvf swift-android-armeabi-v7a.tar swift-android
     - uses: actions/upload-artifact@v2
       with:
         name: swift-android-armeabi-v7a
@@ -128,11 +131,12 @@ jobs:
 
   build-swift-android-x86:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -153,7 +157,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-x86.outputs.cache-hit != 'true'
-      run: pushd ~/out; tar -cvf swift-android-x86.tar swift-android; popd
+      run: cd ~/out; tar -cvf swift-android-x86.tar swift-android
     - uses: actions/upload-artifact@v2
       with:
         name: swift-android-x86
@@ -162,11 +166,12 @@ jobs:
 
   build-swift-android-x86_64:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -187,7 +192,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
-      run: pushd ~/out; tar -cvf swift-android-x86_64.tar swift-android; popd
+      run: cd ~/out; tar -cvf swift-android-x86_64.tar swift-android
     - uses: actions/upload-artifact@v2
       with:
         name: swift-android-x86_64
@@ -196,11 +201,12 @@ jobs:
 
   build-foundation-dependecies-android:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -214,7 +220,7 @@ jobs:
           ~/foundation-dependencies/arm
           ~/foundation-dependencies/x86_64
           ~/foundation-dependencies/x86
-        key: openssl-1.1.1w-curl-7_88_1-libxmlv2.9.14
+        key: container-openssl-1.1.1w-curl-7_88_1-libxmlv2.9.14
     - name: Build Foundation Dependenncies
       if: steps.cache-foundation-dependencies.outputs.cache-hit != 'true'
       run: ./build/Linux/040-build-foundation-depends.sh
@@ -247,11 +253,12 @@ jobs:
   build-swift-corelibs-android-arm-64:
     needs: [build-icu-android, build-swift-android-arm-64, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -259,13 +266,13 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: icu-arm64-v8a
-        path: /home/runner/icu/build-aarch64-linux-android
+        path: ~/icu/build-aarch64-linux-android
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-arm64-v8a
         path: ~/out
     - name: Unarchive toolchain
-      run: pushd ~/out; tar -xvf swift-android-arm64-v8a.tar; popd
+      run: cd ~/out; tar -xvf swift-android-arm64-v8a.tar
     - uses: actions/download-artifact@v2
       with:
         name: foundation-dependecies-arm64-v8a
@@ -286,11 +293,12 @@ jobs:
   build-swift-corelibs-android-armeabi-v7a:
     needs: [build-icu-android, build-swift-android-armeabi-v7a, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -298,13 +306,13 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: icu-armeabi-v7a
-        path: /home/runner/icu/build-armv7a-linux-androideabi
+        path: ~/icu/build-armv7a-linux-androideabi
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-armeabi-v7a
         path: ~/out
     - name: Unarchive toolchain
-      run: pushd ~/out; tar -xvf swift-android-armeabi-v7a.tar; popd
+      run: cd ~/out; tar -xvf swift-android-armeabi-v7a.tar
     - uses: actions/download-artifact@v2
       with:
         name: foundation-dependecies-armeabi-v7a
@@ -321,11 +329,12 @@ jobs:
   build-swift-corelibs-android-x86:
     needs: [build-icu-android, build-swift-android-x86, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -333,13 +342,13 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: icu-x86
-        path: /home/runner/icu/build-i686-linux-android
+        path: ~/icu/build-i686-linux-android
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-x86
         path: ~/out
     - name: Unarchive toolchain
-      run: pushd ~/out; tar -xvf swift-android-x86.tar; popd
+      run: cd ~/out; tar -xvf swift-android-x86.tar
     - uses: actions/download-artifact@v2
       with:
         name: foundation-dependecies-x86
@@ -356,11 +365,12 @@ jobs:
   build-swift-corelibs-android-x86_64:
     needs: [build-icu-android, build-swift-android-x86_64, build-foundation-dependecies-android]
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -368,13 +378,13 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: icu-x86_64
-        path: /home/runner/icu/build-x86_64-linux-android
+        path: ~/icu/build-x86_64-linux-android
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-x86_64
         path: ~/out
     - name: Unarchive toolchain
-      run: pushd ~/out; tar -xvf swift-android-x86_64.tar; popd
+      run: cd ~/out; tar -xvf swift-android-x86_64.tar
     - uses: actions/download-artifact@v2
       with:
         name: foundation-dependecies-x86_64
@@ -431,7 +441,7 @@ jobs:
         name: swift-android-bin
         path: ~/
     - name: Unarchive bin
-      run: pushd ~/; tar -xvf swift-android-bin.tar; popd
+      run: cd ~/; tar -xvf swift-android-bin.tar
     - uses: actions/download-artifact@v2
       with:
         name: swift-android-arm64-v8a-libs

@@ -1,15 +1,12 @@
 #!/bin/bash
 set -ex
 
-apt-get update
-
-apt-get install -y      \
-  clang                 \
+# Copied from https://github.com/apple/swift-docker/blob/main/swift-ci/master/ubuntu/20.04/Dockerfile
+apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
+  build-essential       \
   cmake                 \
   git                   \
   icu-devtools          \
-  libblocksruntime-dev  \
-  libbsd-dev            \
   libcurl4-openssl-dev  \
   libedit-dev           \
   libicu-dev            \
@@ -21,39 +18,26 @@ apt-get install -y      \
   pkg-config            \
   python                \
   python-six            \
+  python2-dev           \
+  python3-six           \
+  python3-distutils     \
+  python3-pkg-resources \
+  python3-psutil        \
   rsync                 \
   swig                  \
   systemtap-sdt-dev     \
   tzdata                \
-  uuid-dev
+  uuid-dev              \
+  zip
 
-apt-get install -y \
-    autoconf automake libtool curl wget unzip vim rpl python3-pip
+apt-get install -y  \
+    clang           \
+    autoconf        \
+    automake        \
+    libtool         \
+    curl            \
+    wget            \
+    unzip           \
+    vim             \
+    rpl
 
-pip3 install --upgrade cmake==3.20.2
-
-ln -s /usr/bin/perl /usr/local/bin/perl
-
-# Starting from Ubuntu 20.04 Python 3 is default Python
-# https://wiki.ubuntu.com/FocalFossa/ReleaseNotes#Python3_by_default
-# But all swift build script rely on /usr/bin/python which should be Python2
-
-# Prinnt current version of /usr/bin/python
-/usr/bin/python --version
-
-# Install Python 2
-apt install python2
-
-# Print version of Python2 and Python3
-python2 --version
-python3 --version
-
-update-alternatives --install /usr/bin/python python /usr/bin/python2 1
-
-# Prinnt current version of /usr/bin/python
-/usr/bin/python --version
-
-# Install python packages
-curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-sudo python get-pip.py
-pip2 install six
