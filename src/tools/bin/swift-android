@@ -99,7 +99,7 @@ def get_git_tags():
 
     try:
         output = check_output(["git", "--no-pager", "--git-dir", repo_dir, "tag", "--list"])
-        return output.strip().split("\n")
+        return output.decode().strip().split("\n")
     except:
         return []
 
