@@ -8,48 +8,36 @@ Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/
 
 ### Prepare environment (macOS x86_64 or macOS arm64)
 
-1. [**IMPORTANT**] Install [XCode 13.0](https://xcodereleases.com/) and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
-2. Install [brew](https://brew.sh/) if needed
-3. Install tools, NDK and Swift Android Toolchain
-
+1. [**IMPORTANT**] Swift Android Toolchain uses the macOS Swift toolchain. That's why it will work ONLY with the proper version of the host toolchain. There are 2 options on how to switch the default toolchain to a proper version:
+* Install [XCode 14.2](https://xcodereleases.com/) and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
+* Or install [Swift toolchain 5.7.3](https://download.swift.org/swift-5.7.3-release/xcode/swift-5.7.3-RELEASE/swift-5.7.3-RELEASE-osx.pkg) in you current XCode and add `export TOOLCHAINS=swift` to enviroment
+2. Install NDK and Swift Android Toolchain. 
+* If you have [Android SDK Command-Line Tools](https://developer.android.com/tools#tools-sdk) installed:
 ```
-# install system tools
-brew install coreutils cmake wget
- 
-cd ~
-mkdir android
-cd android
- 
-# install ndk
-wget https://dl.google.com/android/repository/android-ndk-r25c-darwin-x86_64.zip
-unzip android-ndk-r25c-darwin-x86_64.zip
-rm -rf android-ndk-r25c-darwin-x86_64.zip
- 
-# instal swift android toolchain
-SWIFT_ANDROID=$(curl --silent "https://api.github.com/repos/readdle/swift-android-toolchain/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-wget https://github.com/readdle/swift-android-toolchain/releases/latest/download/swift-android-$SWIFT_ANDROID.zip
-unzip swift-android-$SWIFT_ANDROID.zip
-rm -rf swift-android-$SWIFT_ANDROID.zip
-
-swift-android-$SWIFT_ANDROID/bin/swift-android tools --update
-ln -sfn swift-android-$SWIFT_ANDROID swift-android-current
-unset SWIFT_ANDROID
+sdkmanager --install "ndk;25.2.9519653"
+```
+* otherwise:
+```
+curl -O https://dl.google.com/android/repository/android-ndk-r25c-darwin.dmg
+hdiutil attach android-ndk-r25c-darwin.dmg
+cp -r "/Volumes/Android NDK r25c/AndroidNDK9519653.app/Contents/NDK/" ./android-ndk-r25c
+hdiutil detach "/Volumes/Android NDK r25c"
+```
+3. Install Swift Android Toolchain
+```
+curl -L -O https://github.com/readdle/swift-android-toolchain/releases/latest/download/swift-android.zip
+unzip swift-android.zip
+swift-android/bin/swift-android tools --update
 ```
 
-6. Setup environment variables by putting this to .profile 
+4. Setup environment variables by adding: 
 
 ```
-export ANDROID_NDK_HOME=$HOME/android/android-ndk-r25c
-export SWIFT_ANDROID_HOME=$HOME/android/swift-android-current
+export ANDROID_NDK_HOME=<PATH_TO_NDK> 
+export SWIFT_ANDROID_HOME=<PATH_TO_SWIFT_ANDROID>
  
 export PATH=$ANDROID_NDK_HOME:$PATH
 export PATH=$SWIFT_ANDROID_HOME/bin:$SWIFT_ANDROID_HOME/build-tools/current:$PATH
-```
-
-7. Include .profile to your .bashrc or .zshrc if needed by adding this line
-
-```
-source $HOME/.profile
 ```
 
 ### Build and Test swift modules
@@ -62,6 +50,7 @@ Our current swift build system is tiny wrapper over Swift PM. See [Swift PM](htt
 | swift package update         | Update dependencies          |
 | swift-build                  | Build all products           |
 | swift-build  --build-tests   | Build all products and tests |
+| swift-test                   | Connect to Android device and run all tests |
  
 swift-build wrapper scripts works as swift build from swift package manager but configured for android.
 So you can add any extra params like -Xswiftc -DDEBUG , -Xswiftc -suppress-warnings or --configuration release
@@ -86,8 +75,8 @@ swift-build --configuration release \
 
 This [plugin](https://github.com/readdle/swift-android-gradle) integrates Swift Android Toolchain to Gradle
 
-### Other swift releated projects
+### Other swift releated projects and articles
 
-1. [Anotation Processor for generating JNI code](https://github.com/readdle/swift-java-codegen)
-2. [Sample todo app](https://github.com/readdle/swift-android-architecture)
+1. [Swift for Android: Our Experience and Tools](https://readdle.com/blog/swift-for-android-our-experience-and-tools) 
+2. [Anotation Processor for generating JNI code](https://github.com/readdle/swift-java-codegen)
 3. [Cross-platform swift weather app](https://github.com/andriydruk/swift-weather-app)
