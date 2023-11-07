@@ -47,25 +47,25 @@ do
         case ${arch} in
             "arm")
                 TARGET_HOST="arm-linux-androideabi"
-                COMPILER_TARGET_HOST="armv7a-linux-androideabi"
+                COMPILER_TARGET_HOST="armv7a-linux-androideabi$API"
             ;;
             "arm64")
                 TARGET_HOST="aarch64-linux-android"
-                COMPILER_TARGET_HOST="$TARGET_HOST"
+                COMPILER_TARGET_HOST="$TARGET_HOST$API"
             ;;
             "x86")
                 TARGET_HOST="i686-linux-android"
-                COMPILER_TARGET_HOST="$TARGET_HOST"
+                COMPILER_TARGET_HOST="$TARGET_HOST$API"
             ;;
             "x86_64")
                 TARGET_HOST="x86_64-linux-android"
-                COMPILER_TARGET_HOST="$TARGET_HOST"
+                COMPILER_TARGET_HOST="$TARGET_HOST$API"
             ;;
         esac
 
-        export CPPFLAGS=" -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
-        export CXXFLAGS=" -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing -frtti -fexceptions -std=c++11 -Wno-error=unused-command-line-argument "
-        export CFLAGS=" -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-strict-aliasing "
+        export CFLAGS="-O2 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer -flto"
+        export CXXFLAGS="-std=c++11 -fexceptions -frtti -O2 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer -flto"
+        export LDFLAGS="-Wl,--gc-sections"
 
         # Create destination directories
         cp -r $FOUNDATION_DEPENDENCIES/src src
@@ -90,8 +90,8 @@ do
 
         export AR=$TOOLCHAIN/bin/llvm-ar
         export AS=$TOOLCHAIN/bin/llvm-as
-        export CC=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang
-        export CXX=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST$API-clang++
+        export CC=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST-clang
+        export CXX=$TOOLCHAIN/bin/$COMPILER_TARGET_HOST-clang++
         export LD=$TOOLCHAIN/bin/ld
         export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
         export STRIP=$TOOLCHAIN/bin/llvm-strip

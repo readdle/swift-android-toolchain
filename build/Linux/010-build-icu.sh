@@ -45,6 +45,10 @@ pushd $ICU_LIBS
             export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
             export STRIP=$TOOLCHAIN/bin/llvm-strip
 
+            export CFLAGS="-O2 -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer -g -flto"
+            export CXXFLAGS="-fexceptions -frtti -O2 -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer -g -flto"
+            export LDFLAGS="-Wl,--gc-sections"
+
             # Build ICU for current target
             $ICU_SOURCE/icu4c/source/configure \
                 --host $TARGET \
