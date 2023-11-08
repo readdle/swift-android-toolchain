@@ -24,8 +24,10 @@ dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
 foundation_build_dir=/tmp/foundation-$arch
 xctest_build_dir=/tmp/xctest-$arch
 
-foundation_dependencies=$FOUNDATION_DEPENDENCIES/$arch
 icu_libs=$ICU_LIBS/build-$ndk_arch
+openssl_libs=$OPENSSL_LIBS/$arch
+curl_libs=$CURL_LIBS/$arch
+libxml_libs=$LIBXML_LIBS/$arch
 
 rm -rf $dispatch_build_dir
 rm -rf $foundation_build_dir
@@ -62,11 +64,11 @@ pushd $foundation_build_dir
         -DICU_I18N_LIBRARY=$icu_libs/libicui18n.so \
         -DICU_I18N_LIBRARY_RELEASE=$icu_libs/libicui18n.so \
         \
-        -DCURL_LIBRARY=$foundation_dependencies/lib/libcurl.so \
-        -DCURL_INCLUDE_DIR=$foundation_dependencies/include \
+        -DCURL_LIBRARY=$curl_libs/lib/libcurl.so \
+        -DCURL_INCLUDE_DIR=$curl_libs/include \
         \
-        -DLIBXML2_LIBRARY=$foundation_dependencies/lib/libxml2.so \
-        -DLIBXML2_INCLUDE_DIR=$foundation_dependencies/include/libxml2 \
+        -DLIBXML2_LIBRARY=$libxml_libs/lib/libxml2.so \
+        -DLIBXML2_INCLUDE_DIR=$libxml_libs/include/libxml2 \
         \
         -DCMAKE_HAVE_LIBC_PTHREAD=YES
 
@@ -104,12 +106,12 @@ dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
 rsync -av $icu_libs/*$ICU_VERSION.so $dst_libs
-rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
-rsync -av $foundation_dependencies/lib/libssl.a $dst_libs
-rsync -av $foundation_dependencies/lib/libcurl.* $dst_libs
-rsync -av $foundation_dependencies/lib/libxml2.* $dst_libs
+rsync -av $openssl_libs/lib/libcrypto.a $dst_libs
+rsync -av $openssl_libs/lib/libssl.a $dst_libs
+rsync -av $curl_libs/lib/libcurl.* $dst_libs
+rsync -av $libxml_libs/lib/libxml2.* $dst_libs
 
 cp -r $icu_libs/include/unicode $swift_include
-cp -r $foundation_dependencies/include/openssl $swift_include
-cp -r $foundation_dependencies/include/libxml2/libxml $swift_include
-cp -r $foundation_dependencies/include/curl $swift_include
+cp -r $openssl_libs/include/openssl $swift_include
+cp -r $curl_libs/include/curl $swift_include
+cp -r $libxml_libs/include/libxml2/libxml $swift_include
