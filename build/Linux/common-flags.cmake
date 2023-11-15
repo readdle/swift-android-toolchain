@@ -4,6 +4,7 @@ set(CMAKE_Swift_SDK "$ENV{DST_ROOT}/swift-nightly-install" CACHE STRING "")
 set(CMAKE_Swift_COMPILER "$ENV{DST_ROOT}/swift-nightly-install/usr/bin/swiftc" CACHE STRING "")
         
 set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "")
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_INSTALL_PREFIX "$ENV{DST_ROOT}/swift-nightly-install/usr" CACHE STRING "")
 
 set(ANDROID_NATIVE_API_LEVEL "24" CACHE STRING "")

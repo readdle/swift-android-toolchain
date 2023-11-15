@@ -29,6 +29,16 @@ openssl_libs=$OPENSSL_LIBS/$arch
 curl_libs=$CURL_LIBS/$arch
 libxml_libs=$LIBXML_LIBS/$arch
 
+# Install fresh version of CMake
+apt remove --purge --auto-remove -y cmake
+version=3.27
+build=7
+wget https://cmake.org/files/v$version/cmake-$version.$build-linux-x86_64.sh 
+mkdir /opt/cmake
+sh cmake-$version.$build-linux-x86_64.sh --prefix=/opt/cmake --skip-license
+ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+cmake --version
+
 rm -rf $dispatch_build_dir
 rm -rf $foundation_build_dir
 rm -rf $xctest_build_dir
@@ -47,7 +57,7 @@ pushd $dispatch_build_dir
         \
         -DENABLE_SWIFT=YES 
 
-    cmake --build $dispatch_build_dir
+    cmake --build $dispatch_build_dir --verbose
 popd
 
 pushd $foundation_build_dir
@@ -72,7 +82,7 @@ pushd $foundation_build_dir
         \
         -DCMAKE_HAVE_LIBC_PTHREAD=YES
 
-    cmake --build $foundation_build_dir
+    cmake --build $foundation_build_dir --verbose
 popd
 
 pushd $xctest_build_dir
@@ -85,7 +95,7 @@ pushd $xctest_build_dir
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
         -DFoundation_DIR=$foundation_build_dir/cmake/modules
 
-    cmake --build $xctest_build_dir
+    cmake --build $xctest_build_dir --verbose
 popd
 
 dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
