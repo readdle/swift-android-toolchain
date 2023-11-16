@@ -24,8 +24,7 @@ API=24
 HOST=linux-x86_64
 TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 
-export CFLAGS="-O3 -g -DNDEBUG -fno-semantic-interposition -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer -flto"
-export CXXFLAGS="-std=c++11 -fexceptions -frtti -O3 -g -DNDEBUG -fno-semantic-interposition -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer -flto"
+export CFLAGS="-O3 -g -DNDEBUG -fno-semantic-interposition -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer"
 export LDFLAGS="-Wl,--gc-sections"
 
 for arch in ${archs[*]}
