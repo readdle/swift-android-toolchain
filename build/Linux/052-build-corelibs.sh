@@ -24,8 +24,20 @@ dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
 foundation_build_dir=/tmp/foundation-$arch
 xctest_build_dir=/tmp/xctest-$arch
 
-foundation_dependencies=$FOUNDATION_DEPENDENCIES/$arch
 icu_libs=$ICU_LIBS/build-$ndk_arch
+openssl_libs=$OPENSSL_LIBS/$arch
+curl_libs=$CURL_LIBS/$arch
+libxml_libs=$LIBXML_LIBS/$arch
+
+# Install fresh version of CMake
+apt remove --purge --auto-remove -y cmake
+version=3.27
+build=7
+wget https://cmake.org/files/v$version/cmake-$version.$build-linux-x86_64.sh 
+mkdir /opt/cmake
+sh cmake-$version.$build-linux-x86_64.sh --prefix=/opt/cmake --skip-license
+ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+cmake --version
 
 rm -rf $dispatch_build_dir
 rm -rf $foundation_build_dir
@@ -45,7 +57,7 @@ pushd $dispatch_build_dir
         \
         -DENABLE_SWIFT=YES 
 
-    cmake --build $dispatch_build_dir
+    cmake --build $dispatch_build_dir --verbose
 popd
 
 pushd $foundation_build_dir
@@ -62,15 +74,15 @@ pushd $foundation_build_dir
         -DICU_I18N_LIBRARY=$icu_libs/libicui18n.so \
         -DICU_I18N_LIBRARY_RELEASE=$icu_libs/libicui18n.so \
         \
-        -DCURL_LIBRARY=$foundation_dependencies/lib/libcurl.so \
-        -DCURL_INCLUDE_DIR=$foundation_dependencies/include \
+        -DCURL_LIBRARY=$curl_libs/lib/libcurl.so \
+        -DCURL_INCLUDE_DIR=$curl_libs/include \
         \
-        -DLIBXML2_LIBRARY=$foundation_dependencies/lib/libxml2.so \
-        -DLIBXML2_INCLUDE_DIR=$foundation_dependencies/include/libxml2 \
+        -DLIBXML2_LIBRARY=$libxml_libs/lib/libxml2.so \
+        -DLIBXML2_INCLUDE_DIR=$libxml_libs/include/libxml2 \
         \
         -DCMAKE_HAVE_LIBC_PTHREAD=YES
 
-    cmake --build $foundation_build_dir
+    cmake --build $foundation_build_dir --verbose
 popd
 
 pushd $xctest_build_dir
@@ -83,7 +95,7 @@ pushd $xctest_build_dir
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
         -DFoundation_DIR=$foundation_build_dir/cmake/modules
 
-    cmake --build $xctest_build_dir
+    cmake --build $xctest_build_dir --verbose
 popd
 
 dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
@@ -104,12 +116,12 @@ dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
 rsync -av $icu_libs/*$ICU_VERSION.so $dst_libs
-rsync -av $foundation_dependencies/lib/libcrypto.a $dst_libs
-rsync -av $foundation_dependencies/lib/libssl.a $dst_libs
-rsync -av $foundation_dependencies/lib/libcurl.* $dst_libs
-rsync -av $foundation_dependencies/lib/libxml2.* $dst_libs
+rsync -av $openssl_libs/lib/libcrypto.a $dst_libs
+rsync -av $openssl_libs/lib/libssl.a $dst_libs
+rsync -av $curl_libs/lib/libcurl.* $dst_libs
+rsync -av $libxml_libs/lib/libxml2.* $dst_libs
 
 cp -r $icu_libs/include/unicode $swift_include
-cp -r $foundation_dependencies/include/openssl $swift_include
-cp -r $foundation_dependencies/include/libxml2/libxml $swift_include
-cp -r $foundation_dependencies/include/curl $swift_include
+cp -r $openssl_libs/include/openssl $swift_include
+cp -r $curl_libs/include/curl $swift_include
+cp -r $libxml_libs/include/libxml2/libxml $swift_include
