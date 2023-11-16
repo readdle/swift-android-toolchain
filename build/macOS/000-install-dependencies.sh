@@ -2,7 +2,12 @@
 set -ex
 
 # Install CoreUtils, Cmake, Ninja, Python3
-brew install coreutils cmake ninja pkg-config python
+brew install coreutils cmake ninja pkg-config pyenv
+
+pyenv install 3.11.5
+pyenv global 3.11.5
+echo 'eval "$(pyenv init --path)"' >> $HOME/.build_env
+pyenv init --path
 
 # Prepare Python
 python --version
