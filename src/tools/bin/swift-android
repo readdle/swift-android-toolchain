@@ -48,37 +48,6 @@ def link(version):
 
     os.chdir(cwd)
 
-def most_recent_version(versions):
-    import re
-    from distutils.version import StrictVersion
-
-    swift_version = "swift5.7"
-    def map_versions(version):
-        swift_version_regexp = re.compile(r'^(?P<version>.*)-{}$'.format(swift_version))
-        matches = swift_version_regexp.match(version)
-
-        if matches is None:
-            return None
-
-        return matches.group("version")
-
-    versions = [v for v in map(map_versions, versions) if v is not None]
-
-    def tools_version_predicate(version):
-        try:
-            v = StrictVersion(version)
-            return True
-        except:
-            return False
-
-    filtered = list(filter(tools_version_predicate, versions))
-    ranged = sorted(filtered, key=StrictVersion)
-
-    if len(ranged) == 0:
-        return None
-
-    return "{}-{}".format(ranged[-1], swift_version)
-
 # Git
 
 def git_clone():
@@ -92,16 +61,6 @@ def git_fetch():
 def git_checkout(version):
     path = os.path.join(build_tools_dir, version)
     sh(["git", "clone", "--shared", "--single-branch", "--branch", version, repo_dir, path])
-
-
-def get_git_tags():
-    from subprocess import check_output
-
-    try:
-        output = check_output(["git", "--no-pager", "--git-dir", repo_dir, "tag", "--list"])
-        return output.decode().strip().split("\n")
-    except:
-        return []
 
 
 def print_git_tags():
@@ -146,9 +105,7 @@ def update(version=None):
     ensure_git_repo()
 
     if version is None:
-        versions = get_git_tags()
-        version = most_recent_version(versions)
-
+        version = "1.9.8-swift5.7"
     if version is None:
         print("Cannot find version")
         sys.exit(127)
