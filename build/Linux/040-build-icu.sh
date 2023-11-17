@@ -30,9 +30,8 @@ pushd $ICU_LIBS
     popd
     export HOST_BUILD=$PWD/build-host
 
-    export CFLAGS="-O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer"
-    export CXXFLAGS="-fexceptions -frtti -O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes -Wformat -Werror=format-security -fvisibility=hidden -fomit-frame-pointer"
-    export LDFLAGS="-Wl,--gc-sections"
+    export CFLAGS="-O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
+    export CXXFLAGS="-fexceptions -frtti -O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
 
     targets=(armv7a-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android)
     for target in ${targets[*]}
