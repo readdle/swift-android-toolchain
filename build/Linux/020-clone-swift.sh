@@ -2,7 +2,7 @@
 set -ex
 
 ROOT_DIR=$(realpath $(dirname $0))/../../
-BRANCH="release/5.7"
+BRANCH="release/5.9"
 
 source $HOME/.build_env
 
