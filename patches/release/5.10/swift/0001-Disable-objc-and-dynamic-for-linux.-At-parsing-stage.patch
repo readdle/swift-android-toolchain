@@ -1,21 +1,8 @@
-From 7ec2726dfebcc6ce643a1bd87abb8179e673ac5b Mon Sep 17 00:00:00 2001
-From: Anton Pogonets <apogonets@readdle.com>
-Date: Tue, 30 Mar 2021 14:45:09 +0300
-Subject: [PATCH] Disable @objc and dynamic for linux. At parsing stage
-
----
- include/swift/Basic/LangOptions.h       |  5 +++++
- include/swift/Option/FrontendOptions.td |  5 +++++
- lib/Driver/ToolChains.cpp               |  1 +
- lib/Frontend/CompilerInvocation.cpp     |  2 ++
- lib/Parse/ParseDecl.cpp                 | 24 ++++++++++++++++++++++++
- 5 files changed, 37 insertions(+)
-
 diff --git a/include/swift/Basic/LangOptions.h b/include/swift/Basic/LangOptions.h
-index aea1bf77a44..2ab7ba64184 100644
+index e48e8891b39..719dfeb9c79 100644
 --- a/include/swift/Basic/LangOptions.h
 +++ b/include/swift/Basic/LangOptions.h
-@@ -211,6 +211,11 @@ namespace swift {
+@@ -342,6 +342,11 @@ namespace swift {
      /// was not compiled with -enable-testing.
      bool EnableTestableAttrRequiresTestableModule = true;
  
@@ -28,10 +15,10 @@ index aea1bf77a44..2ab7ba64184 100644
      /// Flags for developers
      ///
 diff --git a/include/swift/Option/FrontendOptions.td b/include/swift/Option/FrontendOptions.td
-index 5a8cfcfaecb..a54261be0d5 100644
+index 60213f1f2a5..07bb4f9bbd8 100644
 --- a/include/swift/Option/FrontendOptions.td
 +++ b/include/swift/Option/FrontendOptions.td
-@@ -126,6 +126,11 @@ def verify_syntax_tree : Flag<["-"], "verify-syntax-tree">,
+@@ -157,6 +157,11 @@ def verify_generic_signatures : Separate<["-"], "verify-generic-signatures">,
  def show_diagnostics_after_fatal : Flag<["-"], "show-diagnostics-after-fatal">,
    HelpText<"Keep emitting subsequent diagnostics after a fatal error">;
    
@@ -44,22 +31,22 @@ index 5a8cfcfaecb..a54261be0d5 100644
    HelpText<"Automatically import declared cross-import overlays.">;
  def disable_cross_import_overlays : Flag<["-"], "disable-cross-import-overlays">,
 diff --git a/lib/Driver/ToolChains.cpp b/lib/Driver/ToolChains.cpp
-index a290cc5e1d2..6931d2668e4 100644
+index 8c3b3d0e1d0..a39fac0334d 100644
 --- a/lib/Driver/ToolChains.cpp
 +++ b/lib/Driver/ToolChains.cpp
-@@ -254,6 +254,7 @@ void ToolChain::addCommonFrontendArgs(const OutputInfo &OI,
+@@ -250,6 +250,7 @@ void ToolChain::addCommonFrontendArgs(const OutputInfo &OI,
    inputArgs.AddAllArgs(arguments, options::OPT_enable_experimental_feature);
    inputArgs.AddAllArgs(arguments, options::OPT_enable_upcoming_feature);
    inputArgs.AddLastArg(arguments, options::OPT_warn_implicit_overrides);
 +  inputArgs.AddLastArg(arguments, options::OPT_experimental_disable_objc_attr);
    inputArgs.AddLastArg(arguments, options::OPT_typo_correction_limit);
    inputArgs.AddLastArg(arguments, options::OPT_enable_app_extension);
-   inputArgs.AddLastArg(arguments, options::OPT_enable_library_evolution);
+   inputArgs.AddLastArg(arguments, options::OPT_enable_app_extension_library);
 diff --git a/lib/Frontend/CompilerInvocation.cpp b/lib/Frontend/CompilerInvocation.cpp
-index b4e6ceb3dc8..05fcc8672a9 100644
+index f9350ef5c62..374d47f6982 100644
 --- a/lib/Frontend/CompilerInvocation.cpp
 +++ b/lib/Frontend/CompilerInvocation.cpp
-@@ -485,6 +485,8 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
+@@ -720,6 +720,8 @@ static bool ParseLangArgs(LangOptions &Opts, ArgList &Args,
  
    Opts.EnableThrowWithoutTry |= Args.hasArg(OPT_enable_throw_without_try);
  
@@ -69,10 +56,10 @@ index b4e6ceb3dc8..05fcc8672a9 100644
                                 OPT_disable_objc_attr_requires_foundation_module)) {
      Opts.EnableObjCAttrRequiresFoundation
 diff --git a/lib/Parse/ParseDecl.cpp b/lib/Parse/ParseDecl.cpp
-index 3341fcf45fe..4f9bdd7896b 100644
+index 4acf53c30ef..409a869c595 100644
 --- a/lib/Parse/ParseDecl.cpp
 +++ b/lib/Parse/ParseDecl.cpp
-@@ -4233,6 +4233,30 @@ Parser::parseDecl(ParseDeclOptions Flags,
+@@ -5924,6 +5924,30 @@ Parser::parseDecl(ParseDeclOptions Flags,
        return DeclResult;
    }
  
@@ -103,6 +90,3 @@ index 3341fcf45fe..4f9bdd7896b 100644
    if (DeclResult.isNonNull()) {
      Decl *D = DeclResult.get();
      if (!HandlerAlreadyCalled)
--- 
-2.29.2
-
