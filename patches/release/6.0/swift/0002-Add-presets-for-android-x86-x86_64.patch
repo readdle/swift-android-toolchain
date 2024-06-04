@@ -1,0 +1,35 @@
+From 86b27676cc71ecbe7bb4919605dc34636a711493 Mon Sep 17 00:00:00 2001
+From: Anton Pogonets <zayass@gmail.com>
+Date: Mon, 24 Jun 2019 20:54:23 +0000
+Subject: [PATCH 2/7] Add presets for android x86 x86_64
+
+---
+ utils/build-presets.ini | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/utils/build-presets.ini b/utils/build-presets.ini
+index 5d5b45c6413..46ad038f6dc 100644
+@@ -917,6 +917,20 @@ mixin-preset=buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build
+ 
+ android-arch=aarch64
+ 
++[preset: buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build,x86]
++mixin-preset=buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build
++
++dash-dash
++
++android-arch=i686
++
++[preset: buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build,x86_64]
++mixin-preset=buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build
++
++dash-dash
++
++android-arch=x86_64
++
+ # Ubuntu 18.04 preset for backwards compat and future customizations.
+ [preset: buildbot_linux_1804]
+ mixin-preset=buildbot_linux
+-- 
+2.29.2
+
