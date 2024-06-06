@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+cd $HOME
+
 # Copied from https://github.com/apple/swift-docker/blob/main/swift-ci/master/ubuntu/20.04/Dockerfile
 apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
   build-essential       \
@@ -53,3 +55,12 @@ update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-13 100
 update-alternatives --set clang /usr/bin/clang-13
 update-alternatives --set clang++ /usr/bin/clang++-13
 clang --version
+
+# Install swift for bootstraping
+wget https://download.swift.org/swift-5.10-release/ubuntu2004/swift-5.10-RELEASE/swift-5.10-RELEASE-ubuntu20.04.tar.gz
+tar -xvzf swift-5.10-RELEASE-ubuntu20.04.tar.gz
+export PATH=$HOME/swift-5.10-RELEASE-ubuntu20.04/usr/bin:$PATH
+echo "export PATH=\$HOME/swift-5.10-RELEASE-ubuntu20.04/usr/bin:\$PATH" >> .build_env
+
+swift --version
+  

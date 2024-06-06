@@ -3,6 +3,8 @@ set -ex
 
 source $HOME/.build_env
 
+swift --version
+
 $SWIFT_SRC/swift/utils/build-script --preset buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build,aarch64 \
     ndk_path=$ANDROID_NDK \
     install_destdir=$DST_ROOT/swift-nightly-install \
