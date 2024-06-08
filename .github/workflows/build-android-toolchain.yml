@@ -14,12 +14,12 @@ jobs:
 
   build-swift-android-arm-64:
     runs-on: ubuntu-20.04
-    container: ubuntu:focal
     
     steps:
-    - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+    - name: Clone scripts
+      uses: actions/checkout@v1
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -32,15 +32,18 @@ jobs:
       with:
         path: ~/out/swift-android-arm64-v8a.tar
         key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}
-    - name: Build Swift
+    - name: Build Swift (Docker)
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
-      run: ./build/Linux/031-build-swift-arm64.sh
-    - name: Clean sources
-      if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
-      run: rm -rf  ~/swift-source
-    - name: Archive toolchain
-      if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
-      run: cd ~/out; tar -cvf swift-android-arm64-v8a.tar swift-android
+      run: |
+        docker run --rm \
+          -v $HOME:/root \
+          ubuntu:focal \
+          /bin/bash -c "\
+            cd /root/work/swift-android-toolchain/swift-android-toolchain && \
+            ./build/Linux/000-install-dependencies.sh && \
+            ./build/Linux/031-build-swift-arm64.sh && \
+            cd ~/out && tar -cvf swift-android-arm64-v8a.tar swift-android \
+          "
     - uses: actions/upload-artifact@v2
       with:
         name: swift-android-arm64-v8a
