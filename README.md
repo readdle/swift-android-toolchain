@@ -9,8 +9,8 @@ Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/
 ### Prepare environment (macOS x86_64 or macOS arm64)
 
 1. [**IMPORTANT**] Swift Android Toolchain uses the macOS Swift toolchain. That's why it will work ONLY with the proper version of the host toolchain. There are 2 options on how to switch the default toolchain to a proper version:
-* Install [XCode 14.2](https://xcodereleases.com/) and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
-* Or install [Swift toolchain 5.7.3](https://download.swift.org/swift-5.7.3-release/xcode/swift-5.7.3-RELEASE/swift-5.7.3-RELEASE-osx.pkg) in you current XCode and add `export TOOLCHAINS=swift` to enviroment
+* Install [Xcode 14.2](https://xcodereleases.com/) and make it [default in Command Line](https://developer.apple.com/library/archive/technotes/tn2339/_index.html#//apple_ref/doc/uid/DTS40014588-CH1-HOW_DO_I_SELECT_THE_DEFAULT_VERSION_OF_XCODE_TO_USE_FOR_MY_COMMAND_LINE_TOOLS_)
+* Or install [Swift toolchain 5.7.3](https://download.swift.org/swift-5.7.3-release/xcode/swift-5.7.3-RELEASE/swift-5.7.3-RELEASE-osx.pkg) in you current Xcode and add `export TOOLCHAINS=swift` to enviroment
 2. Install NDK and Swift Android Toolchain. 
 * If you have [Android SDK Command-Line Tools](https://developer.android.com/tools#tools-sdk) installed:
 ```
