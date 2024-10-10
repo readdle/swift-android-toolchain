@@ -12,7 +12,7 @@ pushd $SWIFT_SRC
 
     # Replace Apple foundation with Readdle's fork
     rm -rf swift-corelibs-foundation
-    git clone https://github.com/swiftlang/swift-corelibs-foundation.git --branch readdle/$BRANCH --single-branch
+    git clone https://github.com/swiftlang/swift-corelibs-foundation.git --branch $BRANCH --single-branch
 
     # Construct .swift.sum based on repositories that take part in release build
     echo "cmark-$(git -C ./cmark rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
