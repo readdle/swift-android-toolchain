@@ -8,9 +8,6 @@ name=swift-android
 out_bin=~/bin
 mkdir -p $out_bin
 
-cp -f /usr/local/bin/pkg-config $out_bin
-cp -f /usr/local/bin/ninja $out_bin
-
 cp -f $SWIFT_SRC/swiftpm/.build/release/swift-build $out_bin
 cp -f $SWIFT_SRC/build/Ninja-ReleaseAssert+stdlib-Release/llvm-macosx-x86_64/lib/libIndexStore.dylib $out_bin
 
