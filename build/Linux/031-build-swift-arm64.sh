@@ -3,10 +3,18 @@ set -ex
 
 source $HOME/.build_env
 
-swift --version
-
-$SWIFT_SRC/swift/utils/build-script --preset buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build,aarch64 \
-    ndk_path=$ANDROID_NDK \
+$SWIFT_SRC/swift/utils/build-script \
+    -R \
+    --android \
+    --android-ndk $ANDROID_NDK \
+    --android-arch aarch64 \
+    --android-api-level 21 \
+    --stdlib-deployment-targets=android-aarch64 \
+    --native-swift-tools-path=$SWIFT_PATH \
+    --native-clang-tools-path=$SWIFT_PATH \
+    --build-swift-tools=0 \
+    --build-llvm=0 \
+    --skip-build-cmark \
     install_destdir=$DST_ROOT/swift-nightly-install \
     installable_package=$DST_ROOT/swift-android.tar.gz
 

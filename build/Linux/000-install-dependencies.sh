@@ -62,6 +62,7 @@ tar -xvzf swift-6.0.1-RELEASE-ubuntu20.04.tar.gz
 rm swift-6.0.1-RELEASE-ubuntu20.04.tar.gz
 export PATH=$HOME/swift-6.0.1-RELEASE-ubuntu20.04/usr/bin:$PATH
 echo "export PATH=\$HOME/swift-6.0.1-RELEASE-ubuntu20.04/usr/bin:\$PATH" >> .build_env
+echo "export SWIFT_PATH=\$HOME/swift-6.0.1-RELEASE-ubuntu20.04/usr/bin" >> .build_env
 
 swift --version
   
