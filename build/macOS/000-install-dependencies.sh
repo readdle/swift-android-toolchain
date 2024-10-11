@@ -11,7 +11,7 @@ pyenv init --path
 
 # Prepare Python
 python --version
-pip3 install six
+pip3 install six --break-system-packages
 
 # Define build folders
 swift_source=$HOME/swift-source
