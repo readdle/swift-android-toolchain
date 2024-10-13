@@ -14,9 +14,6 @@ $SWIFT_SRC/swift/utils/build-script \
     --native-clang-tools-path=$SWIFT_PATH \
     --build-swift-tools=0 \
     --build-llvm=0 \
-    --skip-build-cmark \
-    install_destdir=$DST_ROOT/swift-nightly-install \
-    installable_package=$DST_ROOT/swift-android.tar.gz 
+    --skip-build-cmark
 
-mv $DST_ROOT/swift-nightly-install/usr/lib/swift $DST_ROOT/swift-nightly-install/usr/lib/swift-armv7
-rm -rf $SWIFT_SRC/build/buildbot_linux/swift-linux-x86_64/stdlib
+mv $SWIFT_SRC/build/Ninja-ReleaseAssert/swift-linux-x86_64/lib $DST_ROOT/lib

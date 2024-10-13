@@ -42,7 +42,7 @@ jobs:
             cd /root/work/swift-android-toolchain/swift-android-toolchain && \
             ./build/Linux/000-install-dependencies.sh && \
             ./build/Linux/031-build-swift-arm64.sh && \
-            cd ~/out && tar -cvf swift-android-arm64-v8a.tar swift-android \
+            cd ~/out && tar -cvf swift-android-arm64-v8a.tar lib
           "
     - uses: actions/upload-artifact@v4
       with:
@@ -78,7 +78,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
-      run: cd ~/out; tar -cvf swift-android-armeabi-v7a.tar swift-android
+      run: cd ~/out; tar -cvf swift-android-armeabi-v7a.tar lib
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-armeabi-v7a
@@ -113,7 +113,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-x86.outputs.cache-hit != 'true'
-      run: cd ~/out; tar -cvf swift-android-x86.tar swift-android
+      run: cd ~/out; tar -cvf swift-android-x86.tar lib
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86
@@ -148,7 +148,7 @@ jobs:
       run: rm -rf  ~/swift-source
     - name: Archive toolchain
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
-      run: cd ~/out; tar -cvf swift-android-x86_64.tar swift-android
+      run: cd ~/out; tar -cvf swift-android-x86_64.tar lib
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86_64
