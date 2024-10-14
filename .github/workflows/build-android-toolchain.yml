@@ -30,8 +30,8 @@ jobs:
       id: cache-swift-arm-64
       uses: actions/cache@v2
       with:
-        path: ~/out/swift-android-arm64-v8a.tar
-        key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}
+        path: ~/out/swift-android/lib
+        key: ${{ runner.os }}-stdlib-arm64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: ./build/Linux/031-build-swift-arm64.sh
@@ -59,8 +59,8 @@ jobs:
       id: cache-swift-arm-32
       uses: actions/cache@v2
       with:
-        path: ~/out/swift-android-armeabi-v7a.tar
-        key: ${{ runner.os }}-arm32-${{ hashFiles('.swift.sum') }}
+        path: ~/out/swift-android/lib
+        key: ${{ runner.os }}-stdlib-arm32-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: ./build/Linux/032-build-swift-arm.sh
@@ -88,8 +88,8 @@ jobs:
       id: cache-swift-x86_64
       uses: actions/cache@v2
       with:
-        path: ~/out/swift-android-x86_64.tar
-        key: ${{ runner.os }}-x86_64-${{ hashFiles('.swift.sum') }}
+        path: ~/out/swift-android/lib
+        key: ${{ runner.os }}-stdlib-x86_64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: ./build/Linux/033-build-swift-x86_64.sh
