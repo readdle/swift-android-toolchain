@@ -2,7 +2,7 @@
 
 cd $HOME
 
-for version in 25c
+for version in 26c
 do
     ndk=android-ndk-r$version
     ndk_zip=$ndk-linux.zip
@@ -14,6 +14,5 @@ do
 done
 
 # exports
-echo "export ANDROID_NDK25=\$HOME/android-ndk-r25c" >> .build_env
-echo "export ANDROID_NDK=\$ANDROID_NDK25" >> .build_env
-echo "export ANDROID_NDK_HOME=\$ANDROID_NDK25" >> .build_env
+echo "export ANDROID_NDK=\$HOME/android-ndk-r26c" >> .build_env
+echo "export ANDROID_NDK_HOME=\$ANDROID_NDK" >> .build_env
