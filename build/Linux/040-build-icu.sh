@@ -32,6 +32,7 @@ pushd $ICU_LIBS
 
     export CFLAGS="-O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
     export CXXFLAGS="-fexceptions -frtti -O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
+    export LDFLAGS="$LDFLAGS -Wl,--build-id=sha1"
 
     targets=(armv7a-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android)
     for target in ${targets[*]}

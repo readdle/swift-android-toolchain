@@ -167,7 +167,7 @@ jobs:
           ~/icu/build-armv7a-linux-androideabi/lib
           ~/icu/build-x86_64-linux-android/lib
           ~/icu/build-i686-linux-android/lib
-        key: icu-73-2-r4
+        key: icu-73-2-r5
     - name: Install dependencies
       if: steps.cache-icu.outputs.cache-hit != 'true'
       run: ./build/Linux/000-install-dependencies.sh
@@ -260,7 +260,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-7_88_1-r9
+        key: curl-7_88_1-r10
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/Linux/000-install-dependencies.sh
@@ -326,7 +326,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.9.14-r4
+        key: libxmlv2.9.14-r5
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/Linux/000-install-dependencies.sh
