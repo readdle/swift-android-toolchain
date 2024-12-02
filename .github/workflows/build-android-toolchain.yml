@@ -41,7 +41,7 @@ jobs:
     - name: Archive toolchain
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: cd ~/out; tar -cvf swift-android-arm64-v8a.tar swift-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-arm64-v8a
         path: ~/out/swift-android-arm64-v8a.tar
@@ -76,7 +76,7 @@ jobs:
     - name: Archive toolchain
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: cd ~/out; tar -cvf swift-android-armeabi-v7a.tar swift-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-armeabi-v7a
         path: ~/out/swift-android-armeabi-v7a.tar
@@ -111,7 +111,7 @@ jobs:
     - name: Archive toolchain
       if: steps.cache-swift-x86.outputs.cache-hit != 'true'
       run: cd ~/out; tar -cvf swift-android-x86.tar swift-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86
         path: ~/out/swift-android-x86.tar
@@ -146,7 +146,7 @@ jobs:
     - name: Archive toolchain
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: cd ~/out; tar -cvf swift-android-x86_64.tar swift-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86_64
         path: ~/out/swift-android-x86_64.tar
@@ -167,7 +167,7 @@ jobs:
           ~/icu/build-armv7a-linux-androideabi/lib
           ~/icu/build-x86_64-linux-android/lib
           ~/icu/build-i686-linux-android/lib
-        key: icu-73-2-r4
+        key: icu-73-2-r5
     - name: Install dependencies
       if: steps.cache-icu.outputs.cache-hit != 'true'
       run: ./build/Linux/000-install-dependencies.sh
@@ -180,19 +180,19 @@ jobs:
     - name: Build ICU
       if: steps.cache-icu.outputs.cache-hit != 'true'
       run: ./build/Linux/040-build-icu.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: icu-arm64-v8a
         path: ~/icu/build-aarch64-linux-android/lib
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: icu-armeabi-v7a
         path: ~/icu/build-armv7a-linux-androideabi/lib
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: icu-x86_64
         path: ~/icu/build-x86_64-linux-android/lib
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: icu-x86
         path: ~/icu/build-i686-linux-android/lib
@@ -226,19 +226,19 @@ jobs:
     - name: Build OpenSSL
       if: steps.cache-openssl.outputs.cache-hit != 'true'
       run: ./build/Linux/041-build-openssl.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: openssl-arm64-v8a
         path: ~/openssl/arm64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: openssl-armeabi-v7a
         path: ~/openssl/arm
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: openssl-x86_64
         path: ~/openssl/x86_64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: openssl-x86
         path: ~/openssl/x86
@@ -260,7 +260,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-7_88_1-r9
+        key: curl-7_88_1-r10
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/Linux/000-install-dependencies.sh
@@ -270,22 +270,22 @@ jobs:
     - name: Define build folders
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       if: steps.cache-curl.outputs.cache-hit != 'true'
       with:
         name: openssl-arm64-v8a
         path: ~/openssl/arm64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       if: steps.cache-curl.outputs.cache-hit != 'true'
       with:
         name: openssl-armeabi-v7a
         path: ~/openssl/arm
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       if: steps.cache-curl.outputs.cache-hit != 'true'
       with:
         name: openssl-x86
         path: ~/openssl/x86
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       if: steps.cache-curl.outputs.cache-hit != 'true'
       with:
         name: openssl-x86_64
@@ -293,19 +293,19 @@ jobs:
     - name: Build cURL
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/Linux/042-build-curl.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: curl-arm64-v8a
         path: ~/curl/arm64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: curl-armeabi-v7a
         path: ~/curl/arm
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: curl-x86_64
         path: ~/curl/x86_64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: curl-x86
         path: ~/curl/x86
@@ -326,7 +326,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.9.14-r4
+        key: libxmlv2.9.14-r5
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/Linux/000-install-dependencies.sh
@@ -339,19 +339,19 @@ jobs:
     - name: Build libXML
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/Linux/043-build-libxml.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: libxml-arm64-v8a
         path: ~/libxml/arm64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: libxml-armeabi-v7a
         path: ~/libxml/arm
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: libxml-x86_64
         path: ~/libxml/x86_64
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: libxml-x86
         path: ~/libxml/x86
@@ -370,23 +370,23 @@ jobs:
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: icu-arm64-v8a
         path: ~/icu/build-aarch64-linux-android
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: openssl-arm64-v8a
         path: ~/openssl/arm64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: curl-arm64-v8a
         path: ~/curl/arm64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: libxml-arm64-v8a
         path: ~/libxml/arm64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-arm64-v8a
         path: ~/out
@@ -396,11 +396,11 @@ jobs:
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/Linux/052-build-corelibs.sh arm64 aarch64 aarch64-linux-android arm64-v8a aarch64-linux-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-clang-libs
         path: ~/out/swift-android/swift-nightly-install/usr/lib/clang
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-arm64-v8a-libs
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-aarch64
@@ -418,23 +418,23 @@ jobs:
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: icu-armeabi-v7a
         path: ~/icu/build-armv7a-linux-androideabi
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: openssl-armeabi-v7a
         path: ~/openssl/arm
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: curl-armeabi-v7a
         path: ~/curl/arm
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: libxml-armeabi-v7a
         path: ~/libxml/arm
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-armeabi-v7a
         path: ~/out
@@ -444,7 +444,7 @@ jobs:
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/Linux/052-build-corelibs.sh arm armv7 arm-linux-androideabi armeabi-v7a armv7a-linux-androideabi
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-armeabi-v7a-libs
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-armv7
@@ -462,23 +462,23 @@ jobs:
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: icu-x86
         path: ~/icu/build-i686-linux-android
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: openssl-x86
         path: ~/openssl/x86
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: curl-x86
         path: ~/curl/x86
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: libxml-x86
         path: ~/libxml/x86
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-x86
         path: ~/out
@@ -488,7 +488,7 @@ jobs:
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/Linux/052-build-corelibs.sh x86 i686 i686-linux-android x86 i686-linux-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86-libs
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-i686
@@ -506,23 +506,23 @@ jobs:
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
       run: ./build/Linux/003-define-build-folders.sh
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: icu-x86_64
         path: ~/icu/build-x86_64-linux-android
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: openssl-x86_64
         path: ~/openssl/x86_64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: curl-x86_64
         path: ~/curl/x86_64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: libxml-x86_64
         path: ~/libxml/x86_64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-x86_64
         path: ~/out
@@ -532,7 +532,7 @@ jobs:
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/Linux/052-build-corelibs.sh x86_64 x86_64 x86_64-linux-android x86_64 x86_64-linux-android
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86_64-libs
         path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-x86_64
@@ -561,7 +561,7 @@ jobs:
     - name: Collect toolchain bin
       if: steps.cache-swift-mac.outputs.cache-hit != 'true'
       run: ./build/macOS/040-collect-toolchain-bin.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android-bin
         path: ~/swift-android-bin.tar
@@ -575,35 +575,35 @@ jobs:
     - uses: actions/checkout@v1
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-bin
         path: ~/
     - name: Unarchive bin
       run: cd ~/; tar -xvf swift-android-bin.tar
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-arm64-v8a-libs
         path: ~/lib/swift-aarch64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-armeabi-v7a-libs
         path: ~/lib/swift-armv7
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-x86_64-libs
         path: ~/lib/swift-x86_64
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-x86-libs
         path: ~/lib/swift-i686
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: swift-android-clang-libs
         path: ~/lib/clang
     - name: Collect toolchain
       run: ./build/Linux/060-collect-toolchain.sh
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: swift-android
         path: ~/out/swift-android.zip

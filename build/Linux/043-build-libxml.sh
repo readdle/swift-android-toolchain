@@ -25,6 +25,7 @@ HOST=linux-x86_64
 TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 
 export CFLAGS="-O3 -g -DNDEBUG -fno-semantic-interposition -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
+export LDFLAGS="$LDFLAGS -Wl,--build-id=sha1"
 
 for arch in ${archs[*]}
 do
