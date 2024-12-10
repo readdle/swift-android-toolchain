@@ -47,8 +47,6 @@ mkdir -p $dispatch_build_dir
 mkdir -p $foundation_build_dir
 mkdir -p $xctest_build_dir
 
-ln -sfn $DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch $DST_ROOT/swift-nightly-install/usr/lib/swift
-
 pushd $dispatch_build_dir
     cmake $DISPATCH_SRC \
         -G Ninja \
@@ -67,12 +65,6 @@ pushd $foundation_build_dir
         -C $self_dir/common-flags-$arch.cmake \
         \
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
-        \
-        -DICU_INCLUDE_DIR=$icu_libs/include \
-        -DICU_UC_LIBRARY=$icu_libs/libicuuc.so \
-        -DICU_UC_LIBRARY_RELEASE=$icu_libs/libicuuc.so \
-        -DICU_I18N_LIBRARY=$icu_libs/libicui18n.so \
-        -DICU_I18N_LIBRARY_RELEASE=$icu_libs/libicui18n.so \
         \
         -DCURL_LIBRARY=$curl_libs/lib/libcurl.so \
         -DCURL_INCLUDE_DIR=$curl_libs/include \
@@ -101,8 +93,6 @@ popd
 dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
 foundation_build_dir=/tmp/foundation-$arch
 xctest_build_dir=/tmp/xctest-$arch
-
-ln -sfn $DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch $DST_ROOT/swift-nightly-install/usr/lib/swift
 
 # We need to install dispatch at the end because it is impossible to build foundation after dispatch installed
 cmake --build $dispatch_build_dir --target install
