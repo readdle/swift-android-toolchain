@@ -2,12 +2,12 @@ set(CMAKE_TOOLCHAIN_FILE "$ENV{ANDROID_NDK}/build/cmake/android.toolchain.cmake"
 
 include($ENV{ANDROID_NDK}/build/cmake/flags.cmake)
 
-set(CMAKE_Swift_SDK "$ENV{DST_ROOT}/swift-nightly-install" CACHE STRING "")
-set(CMAKE_Swift_COMPILER "$ENV{DST_ROOT}/swift-nightly-install/usr/bin/swiftc" CACHE STRING "")
+set(CMAKE_Swift_SDK "$ENV{HOME}/swift-toolchain" CACHE STRING "")
+set(CMAKE_Swift_COMPILER "$ENV{HOME}/swift-toolchain/usr/bin/swiftc" CACHE STRING "")
         
 set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "")
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_INSTALL_PREFIX "$ENV{DST_ROOT}/swift-nightly-install/usr" CACHE STRING "")
+set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/swift-toolchain/usr" CACHE STRING "")
 
 set(ANDROID_NATIVE_API_LEVEL "24" CACHE STRING "")
 set(CMAKE_Swift_FLAGS 

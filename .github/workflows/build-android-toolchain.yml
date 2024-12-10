@@ -346,11 +346,11 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-clang-libs
-        path: ~/out/swift-android/swift-nightly-install/usr/lib/clang
+        path: ~/swift-toolchain/usr/lib/clang
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-arm64-v8a-libs
-        path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-aarch64
+        path: ~/swift-toolchain/usr/lib/swift-aarch64
 
   build-swift-corelibs-android-armeabi-v7a:
     needs: [build-icu-android, build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-armeabi-v7a]
@@ -394,7 +394,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-armeabi-v7a-libs
-        path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-armv7
+        path: ~/swift-toolchain/usr/lib/swift-armv7
 
   build-swift-corelibs-android-x86_64:
     needs: [build-icu-android, build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-x86_64]
@@ -438,7 +438,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86_64-libs
-        path: ~/out/swift-android/swift-nightly-install/usr/lib/swift-x86_64
+        path: ~/swift-toolchain/usr/lib/swift-x86_64
 
   build-swift-mac-x86_64:
     runs-on: macos-14

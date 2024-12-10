@@ -4,14 +4,6 @@ set -ex
 source $HOME/.build_env
 export ICU_VERSION=73
 
-function finish {
-    exit_code=$?
-    set +e
-    unlink $DST_ROOT/swift-nightly-install/usr/lib/swift
-    exit $exit_code
-}
-trap finish EXIT
-
 self_dir=$(realpath $(dirname $0))
 
 arch=$1 # arm64 arm x86 x86_64
@@ -100,8 +92,8 @@ cmake --build $foundation_build_dir --target install
 cmake --build $xctest_build_dir --target install
 
 # Copy dependency headers and libraries
-swift_include=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch
-dst_libs=$DST_ROOT/swift-nightly-install/usr/lib/swift-$swift_arch/android
+swift_include=$HOME/swift-toolchain/usr/lib/swift-$swift_arch
+dst_libs=$HOME/swift-toolchain/usr/lib/swift-$swift_arch/android
 
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
