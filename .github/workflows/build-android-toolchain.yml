@@ -337,8 +337,8 @@ jobs:
       with:
         name: swift-android-arm64-v8a
         path: ~/swift-android/lib
-    - name: Replace toolchain lib
-      run: rm -rf ~/swift-toolchain/usr/lib; mv ~/swift-android/lib ~/swift-toolchain/usr/lib
+    - name: Copy andorid stdlibs to swift toolchain
+      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
@@ -385,8 +385,8 @@ jobs:
       with:
         name: swift-android-armeabi-v7a
         path: ~/swift-android/lib
-    - name: Replace toolchain lib
-      run: rm -rf ~/swift-toolchain/usr/lib; mv ~/swift-android/lib ~/swift-toolchain/usr/lib
+    - name: Copy andorid stdlibs to swift toolchain
+      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
@@ -429,8 +429,8 @@ jobs:
       with:
         name: swift-android-x86_64
         path: ~/swift-android/lib
-    - name: Replace toolchain lib
-      run: rm -rf ~/swift-toolchain/usr/lib; mv ~/swift-android/lib ~/swift-toolchain/usr/lib
+    - name: Copy andorid stdlibs to swift toolchain
+      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
     - name: Clone Swift
       run: ./build/Linux/020-clone-swift.sh
     - name: Build Corelibs
