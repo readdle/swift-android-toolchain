@@ -57,6 +57,7 @@ pushd $foundation_build_dir
         -C $self_dir/common-flags-$arch.cmake \
         \
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
+        -D_SwiftSyntax_SourceDIR=$SWIFT_SRC/swift-syntax \
         \
         -DCURL_LIBRARY=$curl_libs/lib/libcurl.so \
         -DCURL_INCLUDE_DIR=$curl_libs/include \

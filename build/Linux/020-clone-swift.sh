@@ -10,10 +10,6 @@ pushd $SWIFT_SRC
     git clone https://github.com/apple/swift.git --branch $BRANCH --single-branch
     swift/utils/update-checkout --clone --scheme $BRANCH
 
-    # Replace Apple foundation with Readdle's fork
-    rm -rf swift-corelibs-foundation
-    git clone https://github.com/swiftlang/swift-corelibs-foundation.git --branch $BRANCH --single-branch
-
     # Construct .swift.sum based on repositories that take part in release build
     echo "cmark-$(git -C ./cmark rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "llvm-project-$(git -C ./llvm-project rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
@@ -23,12 +19,12 @@ pushd $SWIFT_SRC
     echo "llbuild-$(git -C ./llbuild rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "NDK=$ANDROID_NDK_HOME" >> $ROOT_DIR/.swift.sum
 
-    # Apply patches for $BRANCH if exist
+    # Apply patches if exist
     for REPO in */; do
-        if [ -d "$ROOT_DIR/patches/$BRANCH/$REPO" ]; then
+        if [ -d "$ROOT_DIR/patches/$REPO" ]; then
             pushd $REPO
-                git apply $ROOT_DIR/patches/$BRANCH/$REPO/*.patch
-                echo "$(ls $ROOT_DIR/patches/$BRANCH/$REPO)" >> $ROOT_DIR/.swift.sum
+                git apply $ROOT_DIR/patches/$REPO/*.patch
+                echo "$(ls $ROOT_DIR/patches/$REPO)" >> $ROOT_DIR/.swift.sum
             popd
         fi
     done

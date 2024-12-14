@@ -1,0 +1,17 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 265c9d3d..e8eb4443 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -76,6 +76,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE YES)
+ 
+ # Fetchable dependencies
+ include(FetchContent)
++if (_SwiftSyntax_SourceDIR)
++    FetchContent_Declare(SwiftSyntax
++        SOURCE_DIR ${_SwiftSyntax_SourceDIR})
++    message(STATUS "_SwiftSyntax_SourceDIR: ${_SwiftSyntax_SourceDIR}")
++endif()
++
+ if (_SwiftFoundationICU_SourceDIR)
+     FetchContent_Declare(SwiftFoundationICU
+         SOURCE_DIR ${_SwiftFoundationICU_SourceDIR})
