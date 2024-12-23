@@ -1,0 +1,29 @@
+From ec9152bc5f94f8bb7551b5b49d5d201cb515e66a Mon Sep 17 00:00:00 2001
+From: Albert Aleksieiev <albert.aleksieiev@gmail.com>
+Date: Tue, 2 Apr 2019 17:41:29 +0300
+Subject: [PATCH] Avoid bundle localized string for android
+
+---
+ Sources/Foundation/NSString.swift | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Sources/Foundation/NSString.swift b/Sources/Foundation/NSString.swift
+index 79ec002d..0379ff4d 100644
+--- a/Sources/Foundation/NSString.swift
++++ b/Sources/Foundation/NSString.swift
+@@ -26,7 +26,11 @@ func NSLocalizedString(_ key: String,
+                        bundle: Bundle = Bundle.main,
+                        value: String = "",
+                        comment: String) -> String {
+-    return bundle.localizedString(forKey: key, value: value, table: tableName)
++    #if os(Android)
++        return key
++    #else
++        return bundle.localizedString(forKey: key, value: value, table: tableName)
++    #endif
+ }
+ 
+ internal let kCFStringEncodingMacRoman =  CFStringBuiltInEncodings.macRoman.rawValue
+-- 
+2.46.0
+

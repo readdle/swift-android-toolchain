@@ -1,0 +1,37 @@
+From 5f8efde9c38b44dd4257e7194862c01b2c79687a Mon Sep 17 00:00:00 2001
+From: Anton Pogonets <apogonets@readdle.com>
+Date: Tue, 8 Oct 2019 05:30:55 +0300
+Subject: [PATCH] Add CF_MAIN_BUNDLE_PATH for android
+
+(cherry picked from commit 80dbe1d691b6a05b8b0ed81bf48afcfcdadd2ec1)
+---
+ Sources/CoreFoundation/CFBundle_Main.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/Sources/CoreFoundation/CFBundle_Main.c b/Sources/CoreFoundation/CFBundle_Main.c
+index 9afe05fa..00826d08 100644
+--- a/Sources/CoreFoundation/CFBundle_Main.c
++++ b/Sources/CoreFoundation/CFBundle_Main.c
+@@ -80,7 +80,19 @@ static CFBundleRef _CFBundleGetMainBundleAlreadyLocked(void) {
+         CFStringRef str = NULL;
+         CFURLRef executableURL = NULL, bundleURL = NULL;
+         _initedMainBundle = true;
++
++#if defined(__ANDROID__)
++        const char *bundlePath = getenv("CF_MAIN_BUNDLE_PATH");
++        if (bundlePath) {
++            str = CFStringCreateWithFileSystemRepresentation(kCFAllocatorSystemDefault, bundlePath);
++            bundleURL = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault, str, PLATFORM_PATH_STYLE, true);
++            processPath = NULL;
++        } else {
++            processPath = _CFProcessPath();
++        }
++#else
+         processPath = _CFProcessPath();
++#endif
+         if (processPath) {
+             str = CFStringCreateWithFileSystemRepresentation(kCFAllocatorSystemDefault, processPath);
+             if (!executableURL) executableURL = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault, str, PLATFORM_PATH_STYLE, false);
+-- 
+2.46.0
+

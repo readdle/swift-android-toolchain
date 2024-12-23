@@ -1,0 +1,158 @@
+From f500222518c61e68e43b52de756f396c1f8d18be Mon Sep 17 00:00:00 2001
+From: Kostiantyn Gominyuk <kgominyuk@readdle.com>
+Date: Fri, 12 Mar 2021 09:50:12 +0200
+Subject: [PATCH] Add ability to trust invalid certificate
+
+---
+ .../FoundationNetworking/URLCredential.swift  |  7 +++++++
+ Sources/FoundationNetworking/URLRequest.swift |  1 +
+ .../URLSession/HTTP/HTTPURLProtocol.swift     |  4 ++++
+ .../URLSession/URLSessionTask.swift           | 19 +++++++++++++++++++
+ .../URLSession/libcurl/EasyHandle.swift       |  5 +++++
+ .../URLSession/libcurl/MultiHandle.swift      |  4 ++++
+ .../include/CFURLSessionInterface.h           |  2 +-
+ 7 files changed, 41 insertions(+), 1 deletion(-)
+
+diff --git a/Sources/FoundationNetworking/URLCredential.swift b/Sources/FoundationNetworking/URLCredential.swift
+index 556d45f6..fa28ab53 100644
+--- a/Sources/FoundationNetworking/URLCredential.swift
++++ b/Sources/FoundationNetworking/URLCredential.swift
+@@ -48,6 +48,8 @@ open class URLCredential : NSObject, NSSecureCoding, NSCopying, @unchecked Senda
+     private let _user : String
+     private let _password : String
+     private let _persistence : Persistence
++
++    public private(set) var _trustAllCertificates: Bool?
+     
+     /*!
+         @method initWithUser:password:persistence:
+@@ -63,6 +65,11 @@ open class URLCredential : NSObject, NSSecureCoding, NSCopying, @unchecked Senda
+         _persistence = persistence
+         super.init()
+     }
++
++    public convenience init(trust: Bool) {
++        self.init(user: "", password: "", persistence: Persistence.none)
++        self._trustAllCertificates = trust
++    }
+     
+     /*!
+         @method credentialWithUser:password:persistence:
+diff --git a/Sources/FoundationNetworking/URLRequest.swift b/Sources/FoundationNetworking/URLRequest.swift
+index 042e6365..de50c419 100644
+--- a/Sources/FoundationNetworking/URLRequest.swift
++++ b/Sources/FoundationNetworking/URLRequest.swift
+@@ -73,6 +73,7 @@ public struct URLRequest : ReferenceConvertible, Equatable, Hashable, Sendable {
+     
+     internal var authMethod: String?
+     internal var credential: URLCredential?
++    internal var trustAllCertificates: Bool?
+     
+     /// Returns the timeout interval of the receiver.
+     /// - discussion: The timeout interval specifies the limit on the idle
+diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+index 18e56456..908d1d48 100644
+--- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+@@ -454,6 +454,10 @@ internal class _HTTPURLProtocol: _NativeProtocol {
+                 easyHandle.set(username: username, password: password)
+             }
+         }
++
++        if let trustAllCertificates = request.trustAllCertificates {
++            easyHandle.set(trustAllCertificates: trustAllCertificates)
++        }
+     }
+ 
+     /// What action to take
+diff --git a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+index 556e79e5..af6e7722 100644
+--- a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
++++ b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+@@ -1337,6 +1337,19 @@ extension _ProtocolClient : URLProtocolClient {
+ 
+     func urlProtocol(_ protocol: URLProtocol, didFailWithError error: Error) {
+         guard let task = `protocol`.task else { fatalError() }
++        
++        if error._code == NSURLErrorServerCertificateUntrusted {
++            let protectionSpace = URLProtectionSpace(host: "", port: 443, protocol: "https", realm: "",
++                                                     authenticationMethod: NSURLAuthenticationMethodServerTrust)
++
++            let authenticationChallenge = URLAuthenticationChallenge(protectionSpace: protectionSpace, proposedCredential: nil,
++                                                                     previousFailureCount: task.previousFailureCount, failureResponse: nil, error: error,
++                                                                     sender: URLSessionAuthenticationChallengeSender())
++            task.previousFailureCount += 1
++            urlProtocol(`protocol`, didReceive: authenticationChallenge)
++            return
++        }
++
+         urlProtocol(task: task, didFailWithError: error)
+     }
+ 
+@@ -1410,6 +1423,7 @@ extension URLSessionTask {
+             NSURLAuthenticationMethodHTTPBasic : basicAuth,
+             NSURLAuthenticationMethodHTTPDigest: digestAuth,
+             NSURLAuthenticationMethodNTLM      : ntlmAuth,
++            NSURLAuthenticationMethodServerTrust: serverTrustAuth,
+         ]
+         return handlers[authScheme]
+     }
+@@ -1434,6 +1448,11 @@ extension URLSessionTask {
+         task.authRequest?.credential = credential
+     }
+ 
++    static func serverTrustAuth(_ task: URLSessionTask, _ disposition: URLSession.AuthChallengeDisposition, _ credential: URLCredential?) {
++        task.authRequest = task.originalRequest
++        task.authRequest?.trustAllCertificates = credential?._trustAllCertificates
++    }
++
+ }
+ 
+ extension URLProtocol {
+diff --git a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+index a7bdb4cf..cd8c473b 100644
+--- a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
++++ b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+@@ -381,6 +381,11 @@ extension _EasyHandle {
+             CFURLSession_easy_setopt_ptr(rawHandle, CFURLSessionOptionUSERPWD, UnsafeMutablePointer(mutating: $0))
+         }
+     }
++
++    func set(trustAllCertificates: Bool) {
++        CFURLSession_easy_setopt_long(rawHandle, CFURLSessionOptionSSL_VERIFYPEER, trustAllCertificates ? 0 : 1)
++        CFURLSession_easy_setopt_long(rawHandle, CFURLSessionOptionSSL_VERIFYHOST, trustAllCertificates ? 0 : 1)
++    }
+ }
+ 
+ /// WebSocket support
+diff --git a/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift
+index 67f77f4b..ed9e6bd7 100644
+--- a/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift
++++ b/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift
+@@ -380,6 +380,10 @@ fileprivate extension _EasyHandle {
+             return NSURLErrorTimedOut
+         case (CFURLSessionEasyCodeOPERATION_TIMEDOUT, _):
+             return NSURLErrorTimedOut
++        case (CFURLSessionEasyCodePEER_FAILED_VERIFICATION, _):
++            return NSURLErrorServerCertificateUntrusted
++        case (CFURLSessionEasyCodeSSL_CONNECT_ERROR, _):
++            return NSURLErrorSecureConnectionFailed
+         default:
+             //TODO: Need to map to one of the NSURLError... constants
+             return NSURLErrorUnknown
+diff --git a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
+index e126b445..2c0264b1 100644
+--- a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
++++ b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
+@@ -269,7 +269,7 @@ CF_EXPORT CFURLSessionOption const CFURLSessionOptionEGDSOCKET; // CURLOPT_EGDSO
+ CF_EXPORT CFURLSessionOption const CFURLSessionOptionCONNECTTIMEOUT; // CURLOPT_CONNECTTIMEOUT
+ CF_EXPORT CFURLSessionOption const CFURLSessionOptionHEADERFUNCTION; // CURLOPT_HEADERFUNCTION
+ CF_EXPORT CFURLSessionOption const CFURLSessionOptionHTTPGET; // CURLOPT_HTTPGET
+-//CF_EXPORT CFURLSessionOption const CFURLSessionOptionSSL_VERIFYHOST; // CURLOPT_SSL_VERIFYHOST
++CF_EXPORT CFURLSessionOption const CFURLSessionOptionSSL_VERIFYHOST; // CURLOPT_SSL_VERIFYHOST
+ CF_EXPORT CFURLSessionOption const CFURLSessionOptionCOOKIEJAR; // CURLOPT_COOKIEJAR
+ CF_EXPORT CFURLSessionOption const CFURLSessionOptionSSL_CIPHER_LIST; // CURLOPT_SSL_CIPHER_LIST
+ CF_EXPORT CFURLSessionOption const CFURLSessionOptionHTTP_VERSION; // CURLOPT_HTTP_VERSION
+-- 
+2.46.0
+

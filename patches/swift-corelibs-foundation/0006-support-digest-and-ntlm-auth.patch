@@ -1,0 +1,300 @@
+From d9f58c4f8d85aabd891ec65d965f7770a9998918 Mon Sep 17 00:00:00 2001
+From: Konstiantyn Gominyuk <kgominyuk@readdle.com>
+Date: Thu, 12 Nov 2020 18:04:18 +0200
+Subject: [PATCH] Support digest and ntlm auth
+
+---
+ .../URLProtectionSpace.swift                  |  2 ++
+ Sources/FoundationNetworking/URLRequest.swift |  3 ++
+ .../URLSession/HTTP/HTTPMessage.swift         | 24 +++++++++++---
+ .../URLSession/HTTP/HTTPURLProtocol.swift     | 12 +++++++
+ .../URLSession/NativeProtocol.swift           | 16 +++++++++
+ .../URLSession/URLSessionTask.swift           | 33 ++++++++++++++-----
+ .../URLSession/libcurl/EasyHandle.swift       | 22 +++++++++++++
+ .../CFURLSessionInterface.c                   |  7 ++++
+ .../include/CFURLSessionInterface.h           |  5 +++
+ 9 files changed, 112 insertions(+), 12 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLProtectionSpace.swift b/Sources/FoundationNetworking/URLProtectionSpace.swift
+index 6470657b..2c93c486 100644
+--- a/Sources/FoundationNetworking/URLProtectionSpace.swift
++++ b/Sources/FoundationNetworking/URLProtectionSpace.swift
+@@ -350,6 +350,8 @@ extension _HTTPURLProtocol._HTTPMessage._Challenge {
+             return NSURLAuthenticationMethodHTTPBasic
+         } else if authScheme.caseInsensitiveCompare(_HTTPURLProtocol._HTTPMessage._Challenge.AuthSchemeDigest) == .orderedSame {
+             return NSURLAuthenticationMethodHTTPDigest
++        } else if authScheme.caseInsensitiveCompare(_HTTPURLProtocol._HTTPMessage._Challenge.AuthSchemeNTLM) == .orderedSame {
++            return NSURLAuthenticationMethodNTLM
+         } else {
+             return nil
+         }
+diff --git a/Sources/FoundationNetworking/URLRequest.swift b/Sources/FoundationNetworking/URLRequest.swift
+index f8ab4c8c..042e6365 100644
+--- a/Sources/FoundationNetworking/URLRequest.swift
++++ b/Sources/FoundationNetworking/URLRequest.swift
+@@ -71,6 +71,9 @@ public struct URLRequest : ReferenceConvertible, Equatable, Hashable, Sendable {
+     // to explicitly 60 then the precedence should be given to URLRequest.timeoutInterval.
+     internal var isTimeoutIntervalSet = false
+     
++    internal var authMethod: String?
++    internal var credential: URLCredential?
++    
+     /// Returns the timeout interval of the receiver.
+     /// - discussion: The timeout interval specifies the limit on the idle
+     /// interval allotted to a request in the process of loading. The "idle
+diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
+index fae1e612..f6b7d0a5 100644
+--- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
++++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
+@@ -111,6 +111,7 @@ extension _HTTPURLProtocol._HTTPMessage {
+     struct _Challenge {
+         static let AuthSchemeBasic = "basic"
+         static let AuthSchemeDigest = "digest"
++        static let AuthSchemeNTLM = "ntlm"
+         /// A single auth challenge parameter
+         struct _AuthParameter {
+             let name: String
+@@ -213,12 +214,27 @@ extension _HTTPURLProtocol._HTTPMessage._Challenge {
+                 break
+             }
+             let authScheme = String(authenticateView[authSchemeRange])
+-            if authScheme.caseInsensitiveCompare(AuthSchemeBasic) == .orderedSame {
++            let isBasic = authScheme.caseInsensitiveCompare(AuthSchemeBasic) == .orderedSame
++            let isDigest = authScheme.caseInsensitiveCompare(AuthSchemeDigest) == .orderedSame
++            let isNTLM = authScheme.caseInsensitiveCompare(AuthSchemeNTLM) == .orderedSame
++            
++            if isBasic || isDigest || isNTLM {
+                 let authDataView = authenticateView[authSchemeRange.upperBound...]
+                 let authParameters = _HTTPURLProtocol._HTTPMessage._Challenge._AuthParameter.parameters(from: authDataView)
+                 let challenge = _HTTPURLProtocol._HTTPMessage._Challenge(authScheme: authScheme, authParameters: authParameters)
+-                // "realm" is the only mandatory parameter for Basic auth scheme. Otherwise consider parsed data invalid.
+-                if challenge.parameter(withName: "realm") != nil {
++
++                let isValidChallenge: Bool
++                
++                if isBasic || isDigest {
++                    // "realm" is the only mandatory parameter for Basic auth scheme. Otherwise consider parsed data invalid.
++                    isValidChallenge = challenge.parameter(withName: "realm") != nil
++                } else if isNTLM {
++                    isValidChallenge = true
++                } else {
++                    isValidChallenge = false
++                }
++
++                if isValidChallenge {
+                     challenges.append(challenge)
+                 }
+             }
+@@ -433,7 +449,7 @@ private extension String.UnicodeScalarView.SubSequence {
+     var rangeOfTokenPrefix: Range<Index>? {
+         guard !isEmpty else { return nil }
+         var end = startIndex
+-        while self[end].isValidMessageToken {
++        while end < endIndex && self[end].isValidMessageToken {
+             end = self.index(after: end)
+         }
+         guard end != startIndex else { return nil }
+diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+index dfe18758..18e56456 100644
+--- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+@@ -442,6 +442,18 @@ internal class _HTTPURLProtocol: _NativeProtocol {
+         easyHandle.set(requestMethod: request.httpMethod ?? "GET")
+         // Always set the status as it may change if a HEAD is converted to a GET.
+         easyHandle.set(noBody: request.httpMethod == "HEAD")
++        
++        if let authMethod = request.authMethod {
++            let authMethodWasSet = easyHandle.set(authMethod: authMethod)
++            if !authMethodWasSet {
++                NSLog("\(authMethod) is not supported")
++            }
++            if let credential = request.credential {
++                let username = credential.user ?? ""
++                let password = credential.password ?? ""
++                easyHandle.set(username: username, password: password)
++            }
++        }
+     }
+ 
+     /// What action to take
+diff --git a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
+index ad6836dc..965c24ab 100644
+--- a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
+@@ -684,6 +684,22 @@ extension _NativeProtocol {
+     }
+ }
+ 
++extension _NativeProtocol {
++    
++    func prepareAuthenticationRequestReuse() {
++        // Without EasyHandle reuse we have bugs:
++        //  1. Digest: curl use 2 requests intead of 1 to authenticate
++        //  2. Digest + Post + urlRequest.setValue("chunked", forHTTPHeaderField: "Transfer-Encoding")
++        //     curl doesn't send all data and as a result connection disconnects with timeout
++        //     (TestURLSessionRealServer.test_dataTaskWithDigestAuth_InputStream)
++        // This allows to reuse _NativeProtocol and its EasyHandle
++        if case .taskCompleted = internalState {
++            self.internalState = .initial
++        }
++    }
++
++}
++
+ extension URLSession {
+     static func printDebug(_ text: @autoclosure () -> String) {
+         guard enableDebugOutput else { return }
+diff --git a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+index 76ebb561..556e79e5 100644
+--- a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
++++ b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+@@ -1256,7 +1256,11 @@ extension _ProtocolClient : URLProtocolClient {
+                 } else {
+                     task._lastCredentialUsedFromStorageDuringAuthentication = nil
+                 }
+-                task._protocolStorage = .existing(_HTTPURLProtocol(task: task, cachedResponse: nil, client: nil))
++                if let urlProtocol = `protocol` as? _HTTPURLProtocol {
++                    urlProtocol.prepareAuthenticationRequestReuse()
++                } else {
++                    task._protocolStorage = .existing(_HTTPURLProtocol(task: task, cachedResponse: nil, client: nil))
++                }
+             }
+             if case .stream(let stream) = task.knownBody, stream.streamStatus != .notOpen {
+                 task.knownBody = nil
+@@ -1297,7 +1301,12 @@ extension _ProtocolClient : URLProtocolClient {
+                 }
+             }
+         } else {
+-            attemptProceedingWithDefaultCredential()
++            // This function is called from _NativeProtocol.completeTask.
++            // _NativeProtocol.internalState will be set to .taskCompleted after execution of this function.
++            // Seems like a bug. To fix it, I simulate same flow that we have with task delegate.
++            session.delegateQueue.addOperation {
++                attemptProceedingWithDefaultCredential()
++            }
+         }
+     }
+ 
+@@ -1399,7 +1408,8 @@ extension URLSessionTask {
+     static func authHandler(for authScheme: String) -> _AuthHandler? {
+         let handlers: [String : _AuthHandler] = [
+             NSURLAuthenticationMethodHTTPBasic : basicAuth,
+-            NSURLAuthenticationMethodHTTPDigest: digestAuth
++            NSURLAuthenticationMethodHTTPDigest: digestAuth,
++            NSURLAuthenticationMethodNTLM      : ntlmAuth,
+         ]
+         return handlers[authScheme]
+     }
+@@ -1407,16 +1417,23 @@ extension URLSessionTask {
+     //Authentication handlers
+     static func basicAuth(_ task: URLSessionTask, _ disposition: URLSession.AuthChallengeDisposition, _ credential: URLCredential?) {
+         //TODO: Handle disposition. For now, we default to .useCredential
+-        let user = credential?.user ?? ""
+-        let password = credential?.password ?? ""
+-        let encodedString = "\(user):\(password)".data(using: .utf8)?.base64EncodedString()
+         task.authRequest = task.originalRequest
+-        task.authRequest?.setValue("Basic \(encodedString!)", forHTTPHeaderField: "Authorization")
++        task.authRequest?.authMethod = NSURLAuthenticationMethodHTTPBasic
++        task.authRequest?.credential = credential
+     }
+ 
+     static func digestAuth(_ task: URLSessionTask, _ disposition: URLSession.AuthChallengeDisposition, _ credential: URLCredential?) {
+-        fatalError("The URLSession swift-corelibs-foundation implementation doesn't currently handle digest authentication.")
++        task.authRequest = task.originalRequest
++        task.authRequest?.authMethod = NSURLAuthenticationMethodHTTPDigest
++        task.authRequest?.credential = credential
+     }
++    
++    static func ntlmAuth(_ task: URLSessionTask, _ disposition: URLSession.AuthChallengeDisposition, _ credential: URLCredential?) {
++        task.authRequest = task.originalRequest
++        task.authRequest?.authMethod = NSURLAuthenticationMethodNTLM
++        task.authRequest?.credential = credential
++    }
++
+ }
+ 
+ extension URLProtocol {
+diff --git a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+index 8c4437ca..a7bdb4cf 100644
+--- a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
++++ b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+@@ -359,6 +359,28 @@ extension _EasyHandle {
+         CFURLSession_easy_getinfo_double(rawHandle, CFURLSessionInfoTOTAL_TIME, &timeSpent)
+         return timeSpent / 1000
+     }
++    
++    func set(authMethod: String) -> Bool {
++        var method = CFURLSessionAUTH_NONE
++        switch authMethod {
++        case NSURLAuthenticationMethodHTTPBasic:
++            method = CFURLSessionAUTH_BASIC
++        case NSURLAuthenticationMethodHTTPDigest:
++            method = CFURLSessionAUTH_DIGEST
++        case NSURLAuthenticationMethodNTLM:
++            method = CFURLSessionAUTH_NTLM
++        default:
++            return false
++        }
++        CFURLSession_easy_setopt_unsigned_long(rawHandle, CFURLSessionOptionHTTPAUTH, method)
++        return true
++    }
++    
++    func set(username: String, password: String) {
++        "\(username):\(password)".withCString {
++            CFURLSession_easy_setopt_ptr(rawHandle, CFURLSessionOptionUSERPWD, UnsafeMutablePointer(mutating: $0))
++        }
++    }
+ }
+ 
+ /// WebSocket support
+diff --git a/Sources/_CFURLSessionInterface/CFURLSessionInterface.c b/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
+index 14091505..6615fea2 100644
+--- a/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
++++ b/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
+@@ -90,6 +90,9 @@ CFURLSessionEasyCode CFURLSession_easy_setopt_int(CFURLSessionEasyHandle _Nonnul
+ CFURLSessionEasyCode CFURLSession_easy_setopt_long(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long a) {
+     return MakeEasyCode(curl_easy_setopt(curl, option.value, a));
+ }
++CFURLSessionEasyCode CFURLSession_easy_setopt_unsigned_long(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, unsigned long a) {
++    return MakeEasyCode(curl_easy_setopt(curl, option.value, a));
++}
+ CFURLSessionEasyCode CFURLSession_easy_setopt_int64(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long long a) {
+     return MakeEasyCode(curl_easy_setopt(curl, option.value, (int64_t)a));
+ }
+@@ -651,6 +654,10 @@ CFURLSessionCurlVersion CFURLSessionCurlVersionInfo(void) {
+     return v;
+ }
+ 
++unsigned long const CFURLSessionAUTH_NONE = CURLAUTH_NONE;
++unsigned long const CFURLSessionAUTH_BASIC = CURLAUTH_BASIC;
++unsigned long const CFURLSessionAUTH_DIGEST = CURLAUTH_DIGEST;
++unsigned long const CFURLSessionAUTH_NTLM = CURLAUTH_NTLM;
+ 
+ int const CFURLSessionWriteFuncPause = CURL_WRITEFUNC_PAUSE;
+ int const CFURLSessionReadFuncPause = CURL_READFUNC_PAUSE;
+diff --git a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
+index 64c34955..e126b445 100644
+--- a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
++++ b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
+@@ -604,6 +604,10 @@ typedef struct CFURLSessionCurlVersion {
+ } CFURLSessionCurlVersion;
+ CF_EXPORT CFURLSessionCurlVersion CFURLSessionCurlVersionInfo(void);
+ 
++CF_EXPORT unsigned long const CFURLSessionAUTH_NONE;
++CF_EXPORT unsigned long const CFURLSessionAUTH_BASIC;
++CF_EXPORT unsigned long const CFURLSessionAUTH_DIGEST;
++CF_EXPORT unsigned long const CFURLSessionAUTH_NTLM;
+ 
+ CF_EXPORT int const CFURLSessionWriteFuncPause;
+ CF_EXPORT int const CFURLSessionReadFuncPause;
+@@ -635,6 +639,7 @@ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_fptr(CFURLSessionEasyHan
+ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_ptr(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, void *_Nullable a);
+ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_int(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, int a);
+ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_long(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long a);
++CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_unsigned_long(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, unsigned long a);
+ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_int64(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long long a);
+ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_wc(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, size_t(*_Nonnull a)(char *_Nonnull, size_t, size_t, void *_Nullable));
+ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_fwc(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, size_t(*_Nonnull a)(char *_Nonnull, size_t, size_t, void *_Nullable));
+-- 
+2.46.0
+

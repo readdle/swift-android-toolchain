@@ -1,0 +1,42 @@
+From a7735878a9f85f7246c5738c1a05355c5bcf7e2d Mon Sep 17 00:00:00 2001
+From: Alexander Smarus <bender@readdle.com>
+Date: Tue, 16 Jan 2024 19:03:37 +0200
+Subject: [PATCH] Don't crash on non-critical network errors
+
+(cherry picked from commit 2989907d3ca2d37a80c5f62c131ea2b517c89e77)
+---
+ .../URLSession/NativeProtocol.swift                   | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
+index 965c24ab..39adf264 100644
+--- a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
+@@ -66,7 +66,10 @@ internal class _NativeProtocol: URLProtocol, _EasyHandleDelegate {
+             suspend()
+         } else {
+             self.internalState = .transferFailed
+-            guard let error = self.task?.error else { fatalError() }
++            guard let error = self.task?.error else { 
++                completeTask(withError: NSError(domain: NSURLErrorDomain, code: NSURLErrorUnknown))
++                return 
++            }
+             completeTask(withError: error)
+         }
+     }
+@@ -237,7 +240,11 @@ internal class _NativeProtocol: URLProtocol, _EasyHandleDelegate {
+         }
+ 
+         guard let response = ts.response else {
+-            fatalError("Transfer completed, but there's no response.")
++            internalState = .transferFailed
++            let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorUnknown,
++                                userInfo: [NSLocalizedDescriptionKey: "Transfer completed, but there's no response."])
++            failWith(error: error, request: request)
++            return
+         }
+         internalState = .transferCompleted(response: response, bodyDataDrain: ts.bodyDataDrain)
+         let action = completionAction(forCompletedRequest: request, response: response)
+-- 
+2.46.0
+
