@@ -104,3 +104,12 @@ rsync -av $libxml_libs/lib/libxml2.* $dst_libs
 cp -r $openssl_libs/include/openssl $swift_include
 cp -r $curl_libs/include/curl $swift_include
 cp -r $libxml_libs/include/libxml2/libxml $swift_include
+
+# Create simlink to unicode
+pushd $HOME/swift-toolchain/usr/lib/swift
+    ln -s _foundation_unicode unicode
+popd
+
+# Cleanup host libraries
+rm -rf $HOME/swift-toolchain/usr/lib/swift/host
+rm -rf $HOME/swift-toolchain/usr/lib/swift/linux
