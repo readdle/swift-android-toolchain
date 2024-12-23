@@ -2,7 +2,6 @@
 set -ex
 
 source $HOME/.build_env
-export ICU_VERSION=73
 
 self_dir=$(realpath $(dirname $0))
 
@@ -16,7 +15,6 @@ dispatch_build_dir=/tmp/swift-corelibs-libdispatch-$arch
 foundation_build_dir=/tmp/foundation-$arch
 xctest_build_dir=/tmp/xctest-$arch
 
-icu_libs=$ICU_LIBS/build-$ndk_arch
 openssl_libs=$OPENSSL_LIBS/$arch
 curl_libs=$CURL_LIBS/$arch
 libxml_libs=$LIBXML_LIBS/$arch
@@ -93,18 +91,16 @@ cmake --build $foundation_build_dir --target install
 cmake --build $xctest_build_dir --target install
 
 # Copy dependency headers and libraries
-swift_include=$HOME/swift-toolchain/usr/lib/swift-$swift_arch
-dst_libs=$HOME/swift-toolchain/usr/lib/swift-$swift_arch/android
+swift_include=$HOME/swift-toolchain/usr/lib/swift
+dst_libs=$HOME/swift-toolchain/usr/lib/swift/android
 
 rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
 
-rsync -av $icu_libs/*$ICU_VERSION.so $dst_libs
 rsync -av $openssl_libs/lib/libcrypto.a $dst_libs
 rsync -av $openssl_libs/lib/libssl.a $dst_libs
 rsync -av $curl_libs/lib/libcurl.* $dst_libs
 rsync -av $libxml_libs/lib/libxml2.* $dst_libs
 
-cp -r $icu_libs/include/unicode $swift_include
 cp -r $openssl_libs/include/openssl $swift_include
 cp -r $curl_libs/include/curl $swift_include
 cp -r $libxml_libs/include/libxml2/libxml $swift_include
