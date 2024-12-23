@@ -1,39 +1,40 @@
-From 80895c6ddba11b45493343ea1fd2bd91b99ab364 Mon Sep 17 00:00:00 2001
+From 7fa3a0a6c2e5c685d7806f6a7a7ceb1cf5acfef3 Mon Sep 17 00:00:00 2001
 From: Andrew Druk <adruk@readdle.com>
 Date: Sat, 21 Dec 2024 15:24:41 +0200
 Subject: [PATCH] add Android new Glibc support to swift-corelibs-foundation
 
 ---
- Package.swift                                 |  5 +++--
- Sources/CoreFoundation/CFPlatform.c           |  2 +-
- Sources/Foundation/CGFloat.swift              |  4 ++++
- Sources/Foundation/FileHandle.swift           |  7 ++++++-
- Sources/Foundation/FileManager+POSIX.swift    | 10 +++++++---
- Sources/Foundation/FileManager.swift          |  4 ++++
- Sources/Foundation/Host.swift                 |  3 ++-
- Sources/Foundation/NSData.swift               |  6 ++++++
- Sources/Foundation/NSError.swift              |  2 ++
- Sources/Foundation/NSLock.swift               |  2 ++
- Sources/Foundation/NSPathUtilities.swift      |  2 ++
- Sources/Foundation/NSPlatform.swift           |  3 +++
- Sources/Foundation/NSSwiftRuntime.swift       |  2 ++
- Sources/Foundation/NSURL.swift                |  2 ++
- Sources/Foundation/Port.swift                 | 11 ++++++++---
- Sources/Foundation/Process.swift              |  9 +++++++++
- Sources/Foundation/Thread.swift               |  2 ++
- Sources/FoundationNetworking/HTTPCookie.swift |  2 ++
- Sources/Testing/Testing.swift                 |  2 ++
- Sources/plutil/main.swift                     |  3 +++
- Sources/xdgTestHelper/main.swift              |  2 ++
- Tests/Foundation/FTPServer.swift              |  2 ++
- Tests/Foundation/HTTPServer.swift             |  2 ++
- Tests/Foundation/TestFileHandle.swift         |  4 +++-
- Tests/Foundation/TestNSData.swift             |  8 ++++++++
- Tests/Foundation/TestProcess.swift            |  4 ++++
- Tests/Foundation/TestSocketPort.swift         |  2 ++
- Tests/Foundation/TestTimeZone.swift           |  2 +-
- Tests/Foundation/TestURL.swift                |  4 ++++
- 29 files changed, 100 insertions(+), 13 deletions(-)
+ Package.swift                                         |  5 +++--
+ Sources/CoreFoundation/CFPlatform.c                   |  2 +-
+ .../CoreFoundation/include/ForSwiftFoundationOnly.h   |  7 +++++++
+ Sources/Foundation/CGFloat.swift                      |  4 ++++
+ Sources/Foundation/FileHandle.swift                   |  7 ++++++-
+ Sources/Foundation/FileManager+POSIX.swift            | 10 +++++++---
+ Sources/Foundation/FileManager.swift                  |  4 ++++
+ Sources/Foundation/Host.swift                         |  5 +++--
+ Sources/Foundation/NSData.swift                       |  6 ++++++
+ Sources/Foundation/NSError.swift                      |  2 ++
+ Sources/Foundation/NSLock.swift                       |  2 ++
+ Sources/Foundation/NSPathUtilities.swift              |  2 ++
+ Sources/Foundation/NSPlatform.swift                   |  3 +++
+ Sources/Foundation/NSSwiftRuntime.swift               |  2 ++
+ Sources/Foundation/NSURL.swift                        |  2 ++
+ Sources/Foundation/Port.swift                         | 11 ++++++++---
+ Sources/Foundation/Process.swift                      |  9 +++++++++
+ Sources/Foundation/Thread.swift                       |  2 ++
+ Sources/FoundationNetworking/HTTPCookie.swift         |  2 ++
+ Sources/Testing/Testing.swift                         |  2 ++
+ Sources/plutil/main.swift                             |  3 +++
+ Sources/xdgTestHelper/main.swift                      |  2 ++
+ Tests/Foundation/FTPServer.swift                      |  2 ++
+ Tests/Foundation/HTTPServer.swift                     |  2 ++
+ Tests/Foundation/TestFileHandle.swift                 |  4 +++-
+ Tests/Foundation/TestNSData.swift                     |  8 ++++++++
+ Tests/Foundation/TestProcess.swift                    |  4 ++++
+ Tests/Foundation/TestSocketPort.swift                 |  2 ++
+ Tests/Foundation/TestTimeZone.swift                   |  2 +-
+ Tests/Foundation/TestURL.swift                        |  4 ++++
+ 30 files changed, 108 insertions(+), 14 deletions(-)
 
 diff --git a/Package.swift b/Package.swift
 index 70260b63..9f71e25a 100644
@@ -71,6 +72,24 @@ index 69631185..521a38c6 100644
    // Pre-standard posix_spawn_file_actions_addchdir_np version available in:
    //  - Solaris 11.3 (October 2015)
    //  - Glibc 2.29 (February 2019)
+diff --git a/Sources/CoreFoundation/include/ForSwiftFoundationOnly.h b/Sources/CoreFoundation/include/ForSwiftFoundationOnly.h
+index 88fb3d36..53a5d560 100644
+--- a/Sources/CoreFoundation/include/ForSwiftFoundationOnly.h
++++ b/Sources/CoreFoundation/include/ForSwiftFoundationOnly.h
+@@ -69,6 +69,13 @@
+ #include <sys/stat.h>
+ #include <sys/syscall.h>
+ #include <termios.h>
++#include <linux/fcntl.h>
++#ifdef __swift__
++// The linux/stat header is private in the Android modulemap.
++#pragma clang module import posix_filesystem.linux_stat
++#else
++#include <linux/stat.h>
++#endif
+ #elif TARGET_OS_WASI
+ #include <fcntl.h>
+ #include <sys/stat.h>
 diff --git a/Sources/Foundation/CGFloat.swift b/Sources/Foundation/CGFloat.swift
 index ffe3a6c6..c59977f8 100644
 --- a/Sources/Foundation/CGFloat.swift
@@ -167,7 +186,7 @@ index a5d75820..723f8053 100644
  internal typealias NativeFSRCharType = WCHAR
  internal let NativeFSREncoding = String.Encoding.utf16LittleEndian.rawValue
 diff --git a/Sources/Foundation/Host.swift b/Sources/Foundation/Host.swift
-index 6c4f5291..85a1367f 100644
+index 6c4f5291..09461dc5 100644
 --- a/Sources/Foundation/Host.swift
 +++ b/Sources/Foundation/Host.swift
 @@ -13,6 +13,7 @@ import WinSDK
@@ -178,11 +197,13 @@ index 6c4f5291..85a1367f 100644
      // Android Glibc differs a little with respect to the Linux Glibc.
  
      // IFF_LOOPBACK is part of the enumeration net_device_flags, which needs to
-@@ -25,7 +26,7 @@ import WinSDK
+@@ -24,8 +25,8 @@ import WinSDK
+     }
  
      // getnameinfo uses size_t for its 4th and 6th arguments.
-     private func getnameinfo(_ addr: UnsafePointer<sockaddr>?, _ addrlen: socklen_t, _ host: UnsafeMutablePointer<Int8>?, _ hostlen: socklen_t, _ serv: UnsafeMutablePointer<Int8>?, _ servlen: socklen_t, _ flags: Int32) -> Int32 {
+-    private func getnameinfo(_ addr: UnsafePointer<sockaddr>?, _ addrlen: socklen_t, _ host: UnsafeMutablePointer<Int8>?, _ hostlen: socklen_t, _ serv: UnsafeMutablePointer<Int8>?, _ servlen: socklen_t, _ flags: Int32) -> Int32 {
 -        return Glibc.getnameinfo(addr, addrlen, host, Int(hostlen), serv, Int(servlen), flags)
++    private func getnameinfo(_ addr: UnsafePointer<sockaddr>, _ addrlen: socklen_t, _ host: UnsafeMutablePointer<Int8>?, _ hostlen: socklen_t, _ serv: UnsafeMutablePointer<Int8>?, _ servlen: socklen_t, _ flags: Int32) -> Int32 {
 +        return Android.getnameinfo(addr, addrlen, host, Int(hostlen), serv, Int(servlen), flags)
      }
  

@@ -1,6 +1,6 @@
-From 49dac2443c37c2bff59c9294c096b2948cace43b Mon Sep 17 00:00:00 2001
-From: Anton Pogonets <apogonets@readdle.com>
-Date: Fri, 9 Apr 2021 13:38:14 +0300
+From 31962e220c1161d8f382fd30b394f50d192847cc Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Mon, 23 Dec 2024 10:33:28 +0200
 Subject: [PATCH] Dont use posix_spawnattr on Android. It available only from
  API>=28
 
