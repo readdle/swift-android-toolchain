@@ -16,12 +16,12 @@ pushd $SWIFT_SRC
     echo "swift-$(git -C ./swift rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
     echo "swiftpm-$(git -C ./swiftpm rev-parse HEAD)" >> $ROOT_DIR/.swift.sum
 
-    # Apply patches for $BRANCH if exist
+    # Apply patches if exist
     for REPO in */; do
-        if [ -d "$ROOT_DIR/patches/$BRANCH/$REPO" ]; then
+        if [ -d "$ROOT_DIR/patches/$REPO" ]; then
             pushd $REPO
-                git apply $ROOT_DIR/patches/$BRANCH/$REPO/*.patch
-                echo "$(ls $ROOT_DIR/patches/$BRANCH/$REPO)" >> $ROOT_DIR/.swift.sum
+                git apply $ROOT_DIR/patches/$REPO/*.patch
+                echo "$(ls $ROOT_DIR/patches/$REPO)" >> $ROOT_DIR/.swift.sum
             popd
         fi
     done
