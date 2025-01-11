@@ -14,12 +14,12 @@ jobs:
 
   build-swift-android-arm-64:
     runs-on: ubuntu-20.04
+    container: ubuntu:focal
     
     steps:
-    - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@main
-    - name: Clone scripts
-      uses: actions/checkout@v1
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: ./build/Linux/000-install-dependencies.sh
     - name: Install NDK
       run: ./build/Linux/002-install-ndk.sh
     - name: Define build folders
@@ -213,8 +213,8 @@ jobs:
 
 
   build-libxml-android:
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
@@ -227,10 +227,10 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.9.14-r5
+        key: libxmlv2.13.5-r1
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/Linux/000-install-dependencies-nobel.sh
     - name: Install NDK
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/Linux/002-install-ndk.sh
@@ -252,11 +252,6 @@ jobs:
       with:
         name: libxml-x86_64
         path: ~/libxml/x86_64
-    - uses: actions/upload-artifact@v4
-      with:
-        name: libxml-x86
-        path: ~/libxml/x86
-
 
   build-swift-corelibs-android-arm-64:
     needs: [build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-arm-64]
