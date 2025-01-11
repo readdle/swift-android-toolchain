@@ -17,6 +17,7 @@ rsync -av $SWIFT_SRC/build/Ninja-ReleaseAssert+stdlib-Release/swift-macosx-arm64
         --include swift-stdlib-tool \
         --include swiftc \
         --include swift-frontend \
+        --include swift-driver \
         --exclude '*'
 
 pushd $HOME

@@ -383,7 +383,7 @@ jobs:
         name: swift-android-x86_64-libs
         path: ~/swift-toolchain/usr/lib/swift
 
-  build-swift-mac-x86_64:
+  build-swift-mac-arm64:
     runs-on: macos-14
     
     steps:
@@ -397,7 +397,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/swift-android-bin.tar
-        key: ${{ runner.os }}-x86_64-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-mac.outputs.cache-hit != 'true'
       run: ./build/macOS/020-build-swift.sh
@@ -414,7 +414,7 @@ jobs:
 
 
   collect-mac-x86_64-toolchain:
-    needs: [build-swift-mac-x86_64, build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
+    needs: [build-swift-mac-arm64, build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
     runs-on: ubuntu-20.04
     
     steps:
