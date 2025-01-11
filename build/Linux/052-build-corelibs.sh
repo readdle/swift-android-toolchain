@@ -105,9 +105,10 @@ cp -r $openssl_libs/include/openssl $swift_include
 cp -r $curl_libs/include/curl $swift_include
 cp -r $libxml_libs/include/libxml2/libxml $swift_include
 
-# Create simlink to unicode
+# Copy to unicode headers
 pushd $HOME/swift-toolchain/usr/lib/swift
-    ln -s _foundation_unicode unicode
+    cp -r _foundation_unicode unicode
+    rm -rf unicode/module.modulemap
 popd
 
 # Cleanup host libraries
