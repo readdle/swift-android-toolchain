@@ -397,7 +397,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/swift-android-bin.tar
-        key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}-r2
     - name: Build Swift
       if: steps.cache-swift-mac.outputs.cache-hit != 'true'
       run: ./build/macOS/020-build-swift.sh
