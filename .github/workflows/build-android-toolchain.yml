@@ -19,13 +19,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - name: Clone Swift
-      run: ./build/Linux/020-clone-swift.sh
+      run: ./build/020-clone-swift.sh
     - name: Cache Swift Arm64
       id: cache-swift-arm-64
       uses: actions/cache@v2
@@ -34,7 +34,7 @@ jobs:
         key: ${{ runner.os }}-stdlib-arm64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
-      run: ./build/Linux/031-build-swift-arm64.sh
+      run: ./build/031-build-swift-arm64.sh
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-arm64-v8a
@@ -48,13 +48,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - name: Clone Swift
-      run: ./build/Linux/020-clone-swift.sh
+      run: ./build/020-clone-swift.sh
     - name: Cache Swift Arm 32
       id: cache-swift-arm-32
       uses: actions/cache@v2
@@ -63,7 +63,7 @@ jobs:
         key: ${{ runner.os }}-stdlib-arm32-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
-      run: ./build/Linux/032-build-swift-arm.sh
+      run: ./build/032-build-swift-arm.sh
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-armeabi-v7a
@@ -77,13 +77,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - name: Clone Swift
-      run: ./build/Linux/020-clone-swift.sh
+      run: ./build/020-clone-swift.sh
     - name: Cache Swift x86_64
       id: cache-swift-x86_64
       uses: actions/cache@v2
@@ -92,7 +92,7 @@ jobs:
         key: ${{ runner.os }}-stdlib-x86_64-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
-      run: ./build/Linux/033-build-swift-x86_64.sh
+      run: ./build/033-build-swift-x86_64.sh
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86_64
@@ -117,16 +117,16 @@ jobs:
         key: openssl-1.1.1w-r4
     - name: Install dependencies
       if: steps.cache-openssl.outputs.cache-hit != 'true'
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
       if: steps.cache-openssl.outputs.cache-hit != 'true'
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
       if: steps.cache-openssl.outputs.cache-hit != 'true'
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - name: Build OpenSSL
       if: steps.cache-openssl.outputs.cache-hit != 'true'
-      run: ./build/Linux/041-build-openssl.sh
+      run: ./build/041-build-openssl.sh
     - uses: actions/upload-artifact@v4
       with:
         name: openssl-arm64-v8a
@@ -164,13 +164,13 @@ jobs:
         key: curl-7_88_1-r10
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
       if: steps.cache-curl.outputs.cache-hit != 'true'
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
       if: steps.cache-curl.outputs.cache-hit != 'true'
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - uses: actions/download-artifact@v4
       if: steps.cache-curl.outputs.cache-hit != 'true'
       with:
@@ -193,7 +193,7 @@ jobs:
         path: ~/openssl/x86_64
     - name: Build cURL
       if: steps.cache-curl.outputs.cache-hit != 'true'
-      run: ./build/Linux/042-build-curl.sh
+      run: ./build/042-build-curl.sh
     - uses: actions/upload-artifact@v4
       with:
         name: curl-arm64-v8a
@@ -230,16 +230,16 @@ jobs:
         key: libxmlv2.13.5-r1
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
-      run: ./build/Linux/000-install-dependencies-nobel.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       if: steps.cache-libxml.outputs.cache-hit != 'true'
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
       if: steps.cache-libxml.outputs.cache-hit != 'true'
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - name: Build libXML
       if: steps.cache-libxml.outputs.cache-hit != 'true'
-      run: ./build/Linux/043-build-libxml.sh
+      run: ./build/043-build-libxml.sh
     - uses: actions/upload-artifact@v4
       with:
         name: libxml-arm64-v8a
@@ -261,11 +261,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-arm64-v8a
@@ -287,9 +287,9 @@ jobs:
     - name: Remove corelibs headers from swift-toolchain
       run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
     - name: Clone Swift
-      run: ./build/Linux/020-clone-swift.sh
+      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
-      run: ./build/Linux/052-build-corelibs.sh arm64 aarch64 aarch64-linux-android arm64-v8a aarch64-linux-android
+      run: ./build/052-build-corelibs.sh arm64 aarch64 aarch64-linux-android arm64-v8a aarch64-linux-android
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-clang-libs
@@ -307,11 +307,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-armeabi-v7a
@@ -333,9 +333,9 @@ jobs:
     - name: Remove corelibs headers from swift-toolchain
       run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
     - name: Clone Swift
-      run: ./build/Linux/020-clone-swift.sh
+      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
-      run: ./build/Linux/052-build-corelibs.sh arm armv7 arm-linux-androideabi armeabi-v7a armv7a-linux-androideabi
+      run: ./build/052-build-corelibs.sh arm armv7 arm-linux-androideabi armeabi-v7a armv7a-linux-androideabi
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-armeabi-v7a-libs
@@ -349,11 +349,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/Linux/000-install-dependencies.sh
+      run: ./build/000-install-dependencies.sh
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
+      run: ./build/002-install-ndk.sh
     - name: Define build folders
-      run: ./build/Linux/003-define-build-folders.sh
+      run: ./build/003-define-build-folders.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-x86_64
@@ -375,58 +375,22 @@ jobs:
     - name: Remove corelibs headers from swift-toolchain
       run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
     - name: Clone Swift
-      run: ./build/Linux/020-clone-swift.sh
+      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
-      run: ./build/Linux/052-build-corelibs.sh x86_64 x86_64 x86_64-linux-android x86_64 x86_64-linux-android
+      run: ./build/052-build-corelibs.sh x86_64 x86_64 x86_64-linux-android x86_64 x86_64-linux-android
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-x86_64-libs
         path: ~/swift-toolchain/usr/lib/swift
 
-  build-swift-mac-arm64:
-    runs-on: macos-14
-    
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: ./build/macOS/000-install-dependencies.sh
-    - name: Clone Swift
-      run: ./build/macOS/010-clone-swift.sh
-    - name: Cache Swift Mac
-      id: cache-swift-mac
-      uses: actions/cache@v2
-      with:
-        path: ~/swift-android-bin.tar
-        key: ${{ runner.os }}-arm64-${{ hashFiles('.swift.sum') }}-r2
-    - name: Build Swift
-      if: steps.cache-swift-mac.outputs.cache-hit != 'true'
-      run: ./build/macOS/020-build-swift.sh
-    - name: Build Swift PM
-      if: steps.cache-swift-mac.outputs.cache-hit != 'true'
-      run: ./build/macOS/030-build-swiftpm.sh
-    - name: Collect toolchain bin
-      if: steps.cache-swift-mac.outputs.cache-hit != 'true'
-      run: ./build/macOS/040-collect-toolchain-bin.sh
-    - uses: actions/upload-artifact@v4
-      with:
-        name: swift-android-bin
-        path: ~/swift-android-bin.tar
-
-
   collect-mac-x86_64-toolchain:
-    needs: [build-swift-mac-arm64, build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
+    needs: [build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
     runs-on: ubuntu-20.04
     
     steps:
     - uses: actions/checkout@v1
     - name: Install NDK
-      run: ./build/Linux/002-install-ndk.sh
-    - uses: actions/download-artifact@v4
-      with:
-        name: swift-android-bin
-        path: ~/
-    - name: Unarchive bin
-      run: cd ~/; tar -xvf swift-android-bin.tar
+      run: ./build/002-install-ndk.sh
     - uses: actions/download-artifact@v4
       with:
         name: swift-android-arm64-v8a-libs
@@ -444,7 +408,7 @@ jobs:
         name: swift-android-clang-libs
         path: ~/lib/clang
     - name: Collect toolchain
-      run: ./build/Linux/060-collect-toolchain.sh
+      run: ./build/060-collect-toolchain.sh
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android
