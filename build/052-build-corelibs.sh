@@ -56,6 +56,9 @@ pushd $foundation_build_dir
         \
         -Ddispatch_DIR=$dispatch_build_dir/cmake/modules \
         -D_SwiftSyntax_SourceDIR=$SWIFT_SRC/swift-syntax \
+        -D_SwiftFoundation_SourceDIR=$SWIFT_SRC/swift-foundation \
+        -D_SwiftFoundationICU_SourceDIR=$SWIFT_SRC/swift-foundation-icu \
+        -D_SwiftCollections_SourceDIR=$SWIFT_SRC/swift-collections \
         \
         -DCURL_LIBRARY=$curl_libs/lib/libcurl.so \
         -DCURL_INCLUDE_DIR=$curl_libs/include \
