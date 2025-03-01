@@ -16,12 +16,13 @@ mkdir -p $out_toolchain/usr
 input_libs=$HOME/lib
 
 pushd $out
-    # Copy platform libs
-    rsync -av $input_libs $out_toolchain/usr --exclude 'lib/clang/13.0.0/lib'
-popd
+    rsync -av $input_libs $out_toolchain/usr --exclude 'lib/clang/17/lib'
 
-rsync -av shims/Darwin/ $out_toolchain
-rsync -av src/tools/ $out
+    git clone --depth 1 https://github.com/readdle/swift-android-buildtools.git --branch $toolchain_version build-tools
+    pushd build-tools
+        rm -rf .git .gitignore LICENSE
+    popd
+popd
 
 echo $toolchain_version > $out/VERSION
 
