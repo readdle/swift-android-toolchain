@@ -1,0 +1,88 @@
+From 21ebccd585e465a40bfe1ed3f5fac38bdc8d289a Mon Sep 17 00:00:00 2001
+From: Alexander Smarus <bender@readdle.com>
+Date: Sat, 26 Sep 2020 17:35:23 +0300
+Subject: [PATCH] Use content length, if present, from headers for streamed
+ body
+
+Otherwise curl would switch to chunked transfer, which is
+not correct (see https://tools.ietf.org/html/rfc7230#section-3.3.2)
+---
+ .../URLSession/HTTP/HTTPURLProtocol.swift     |  7 ++++-
+ Tests/Foundation/HTTPServer.swift             |  5 ++++
+ Tests/Foundation/TestURLSession.swift         | 26 ++++++++++++++++++-
+ 3 files changed, 36 insertions(+), 2 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+index 90a19611..a00eec13 100644
+--- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+@@ -342,7 +342,12 @@ internal class _HTTPURLProtocol: _NativeProtocol {
+                 set(requestBodyLength: .length(length))
+                 task!.countOfBytesExpectedToSend = Int64(length)
+             case (_, nil):
+-                set(requestBodyLength: .unknown)
++                if let contentLengthValue = request.value(forHTTPHeaderField: "Content-Length"), let contentLength = UInt64(contentLengthValue) {
++                    set(requestBodyLength: .length(contentLength))
++                    task!.countOfBytesExpectedToSend = Int64(contentLength)
++                } else {
++                    set(requestBodyLength: .unknown)
++                }
+             }
+         } catch let e {
+             // Fail the request here.
+diff --git a/Tests/Foundation/HTTPServer.swift b/Tests/Foundation/HTTPServer.swift
+index 96d849f2..07f3f07a 100644
+--- a/Tests/Foundation/HTTPServer.swift
++++ b/Tests/Foundation/HTTPServer.swift
+@@ -742,6 +742,11 @@ public class TestURLSessionServer: CustomStringConvertible {
+         }
+ 
+         if uri == "/upload" {
++            if request.getHeader(for: "transfer-encoding") != nil && request.getHeader(for: "content-length") != nil {
++                // https://tools.ietf.org/html/rfc7230#section-3.3.2
++                // A sender MUST NOT send a Content-Length header field in any message that contains a Transfer-Encoding header field.
++                return try _HTTPResponse(response: .BAD_REQUEST, body: "Content-Length not allowed with Transfer-Encoding")
++            }
+             if let contentLength = request.getHeader(for: "content-length") {
+                 let text = "Upload completed!, Content-Length: \(contentLength)"
+                 return try _HTTPResponse(response: .OK, body: text)
+diff --git a/Tests/Foundation/TestURLSession.swift b/Tests/Foundation/TestURLSession.swift
+index 9f202151..14a810ff 100644
+--- a/Tests/Foundation/TestURLSession.swift
++++ b/Tests/Foundation/TestURLSession.swift
+@@ -135,7 +135,31 @@ final class TestURLSession: LoopbackServerTest, @unchecked Sendable {
+         XCTAssertEqual("London", result, "Did not receive expected value")
+         XCTAssertEqual("London", delegate.capital)
+     }
+-
++    
++    func test_dataTaskWithHttpInputStreamContentLength() throws {
++        let urlString = "http://127.0.0.1:\(TestURLSession.serverPort)/upload"
++        let url = try XCTUnwrap(URL(string: urlString))
++        
++        let dataString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:m=\"http://schemas.microsoft.com/exchange/services/2006/messages\" xmlns:t=\"http://schemas.microsoft.com/exchange/services/2006/types\"><soap:Body><m:SyncFolderHierarchy><m:FolderShape><t:BaseShape>IdOnly</t:BaseShape></m:FolderShape></m:SyncFolderHierarchy></soap:Body></soap:Envelope>"
++        
++        let data = try XCTUnwrap(dataString.data(using: .utf8))
++        
++        var urlRequest = URLRequest(url: url)
++        urlRequest.httpMethod = "POST"
++        urlRequest.httpBodyStream = InputStream(data: data)
++        urlRequest.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
++        
++        let delegate = SessionDelegate(with: expectation(description: "POST \(urlString): with HTTP Body as InputStream"))
++        delegate.run(with: urlRequest, timeoutInterval: 3)
++        waitForExpectations(timeout: 4)
++        
++        let httpResponse = delegate.response as? HTTPURLResponse
++        
++        XCTAssertNil(delegate.error)
++        XCTAssertNotNil(delegate.response)
++        XCTAssertEqual(httpResponse?.statusCode, 200)
++    }
++    
+     func test_dataTaskWithHttpInputStream() async throws {
+         throw XCTSkip("This test is disabled (Flaky test)")
+         #if false
+-- 
+2.46.0
+

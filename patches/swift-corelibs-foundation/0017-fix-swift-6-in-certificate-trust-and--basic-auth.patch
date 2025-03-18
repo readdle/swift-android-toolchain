@@ -1,0 +1,37 @@
+From 9a0389d66c1964c9cc7fb642bc6d7e55a73c67ca Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Tue, 24 Dec 2024 00:55:48 +0200
+Subject: [PATCH] Fix Swift 6 in certificate trust and basic auth
+
+---
+ Sources/FoundationNetworking/URLProtectionSpace.swift | 1 -
+ Sources/FoundationNetworking/URLProtocol.swift        | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLProtectionSpace.swift b/Sources/FoundationNetworking/URLProtectionSpace.swift
+index 2c93c486..286549b0 100644
+--- a/Sources/FoundationNetworking/URLProtectionSpace.swift
++++ b/Sources/FoundationNetworking/URLProtectionSpace.swift
+@@ -103,7 +103,6 @@ public let NSURLAuthenticationMethodClientCertificate: String = "NSURLAuthentica
+     @const NSURLAuthenticationMethodServerTrust
+     @abstract SecTrustRef validation required.  Applies to any protocol.
+  */
+-@available(*, unavailable, message: "swift-corelibs-foundation does not support methods of authentication that rely on the Darwin Security framework.")
+ public let NSURLAuthenticationMethodServerTrust: String = "NSURLAuthenticationMethodServerTrust"
+ 
+ 
+diff --git a/Sources/FoundationNetworking/URLProtocol.swift b/Sources/FoundationNetworking/URLProtocol.swift
+index b59159e2..a2fde729 100644
+--- a/Sources/FoundationNetworking/URLProtocol.swift
++++ b/Sources/FoundationNetworking/URLProtocol.swift
+@@ -156,7 +156,6 @@ internal class _ProtocolClient : NSObject, @unchecked Sendable {
+     var cacheableResponse: URLResponse?
+ }
+ 
+-@available(*, unavailable)
+ extension URLProtocol : @unchecked Sendable { }
+ 
+ /*!
+-- 
+2.46.0
+

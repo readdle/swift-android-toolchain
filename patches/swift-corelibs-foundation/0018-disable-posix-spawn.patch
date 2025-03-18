@@ -1,0 +1,41 @@
+From 31f094b6c1b7f2a5f95384f39ab8dbb2420d424f Mon Sep 17 00:00:00 2001
+From: Andriy Druk <andriy.druk@gmail.com>
+Date: Sat, 18 Jan 2025 13:40:36 +0200
+Subject: [PATCH] process
+
+---
+ Sources/Foundation/Process.swift | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/Sources/Foundation/Process.swift b/Sources/Foundation/Process.swift
+index cfe4cd19..8173d0aa 100644
+--- a/Sources/Foundation/Process.swift
++++ b/Sources/Foundation/Process.swift
+@@ -929,8 +929,8 @@ open class Process: NSObject, @unchecked Sendable {
+         }
+         let useFallbackChdir: Bool
+         if let dir = currentDirectoryURL?.path {
+-            let chdirResult = _CFPosixSpawnFileActionsChdir(fileActions, dir)
+-            useFallbackChdir = chdirResult == ENOSYS
++            // let chdirResult = _CFPosixSpawnFileActionsChdir(fileActions, dir)
++            useFallbackChdir = true ; let chdirResult = ENOSYS
+             if !useFallbackChdir {
+                 try _throwIfPosixError(chdirResult)
+             }
+@@ -943,13 +943,6 @@ open class Process: NSObject, @unchecked Sendable {
+ #else
+         var spawnAttrs: posix_spawnattr_t = posix_spawnattr_t()
+ #endif
+-#if os(Android)
+-        guard var spawnAttrs else {
+-            throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno), userInfo: [
+-                    NSURLErrorKey:self.executableURL!
+-            ])
+-        }
+-#endif
+ 
+ #if !os(Android)
+         try _throwIfPosixError(posix_spawnattr_init(&spawnAttrs))
+-- 
+2.39.5 (Apple Git-154)
+

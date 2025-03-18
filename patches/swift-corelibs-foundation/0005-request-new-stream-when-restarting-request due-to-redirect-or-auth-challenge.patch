@@ -1,0 +1,121 @@
+From f4b8709e72f6b83c622cec71eeef1cdc81500ca5 Mon Sep 17 00:00:00 2001
+From: Alexander Smarus <bender@readdle.com>
+Date: Sat, 26 Sep 2020 19:29:21 +0300
+Subject: [PATCH] Request new stream when restarting request due to redirect or
+ auth challenge
+
+This matches Darwin behavior. Otherwise _BodyStreamSource will have nothing to read.
+---
+ .../URLSession/HTTP/HTTPURLProtocol.swift     |  4 +-
+ .../URLSession/URLSessionTask.swift           |  4 +-
+ Tests/Foundation/TestURLSession.swift         | 57 +++++++++++++++++++
+ 3 files changed, 62 insertions(+), 3 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+index a00eec13..dfe18758 100644
+--- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+@@ -502,7 +502,7 @@ internal class _HTTPURLProtocol: _NativeProtocol {
+         } else {
+             // Follow the redirect. Need to configure new request with cookies, etc.
+             let configuredRequest = session._configuration.configure(request: request)
+-            task?.knownBody = URLSessionTask._Body.none
++            task?.knownBody = nil
+             startNewTransfer(with: configuredRequest)
+         }
+     }
+@@ -714,7 +714,7 @@ extension _HTTPURLProtocol {
+         // Otherwise, we'll start a new transfer with the passed in request.
+         if let r = request {
+             lastRedirectBody = nil
+-            task?.knownBody = URLSessionTask._Body.none
++            task!.knownBody = nil
+             startNewTransfer(with: r)
+         } else {
+             // If the redirect is not followed, return the redirect itself as the response
+diff --git a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+index 4968494b..76ebb561 100644
+--- a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
++++ b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+@@ -1258,7 +1258,9 @@ extension _ProtocolClient : URLProtocolClient {
+                 }
+                 task._protocolStorage = .existing(_HTTPURLProtocol(task: task, cachedResponse: nil, client: nil))
+             }
+-            
++            if case .stream(let stream) = task.knownBody, stream.streamStatus != .notOpen {
++                task.knownBody = nil
++            }
+             task.resume()
+         }
+         
+diff --git a/Tests/Foundation/TestURLSession.swift b/Tests/Foundation/TestURLSession.swift
+index 14a810ff..32dfd0d2 100644
+--- a/Tests/Foundation/TestURLSession.swift
++++ b/Tests/Foundation/TestURLSession.swift
+@@ -1738,6 +1738,63 @@ final class TestURLSession: LoopbackServerTest, @unchecked Sendable {
+         waitForExpectations(timeout: 60)
+     }
+ 
++    func test_basicAuthRequestWithBodyStream() throws {
++        let dataString = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:m=\"http://schemas.microsoft.com/exchange/services/2006/messages\" xmlns:t=\"http://schemas.microsoft.com/exchange/services/2006/types\"><soap:Body><m:SyncFolderHierarchy><m:FolderShape><t:BaseShape>IdOnly</t:BaseShape></m:FolderShape></m:SyncFolderHierarchy></soap:Body></soap:Envelope>"
++        let data = try XCTUnwrap(dataString.data(using: .utf8))
++        let expectedCallbacks = [
++            "urlSession(_:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:)",
++            "urlSession(_:dataTask:didReceive:completionHandler:)",
++            "urlSession(_:task:didReceive:completionHandler:)",
++            "urlSession(_:task:needNewBodyStream:)",
++            "urlSession(_:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:)",
++            "urlSession(_:dataTask:didReceive:completionHandler:)",
++            "urlSession(_:dataTask:didReceive:)",
++            "urlSession(_:task:didCompleteWithError:)"
++        ]
++
++        let urlString = "http://127.0.0.1:\(TestURLSession.serverPort)/auth/basic"
++        let url = URL(string: urlString)!
++        var urlRequest = URLRequest(url: url)
++        urlRequest.httpMethod = "POST"
++        urlRequest.httpBodyStream = InputStream(data: data)
++        let delegate = SessionDelegate(with: expectation(description: "POST \(urlString): Upload data"))
++        delegate.newBodyStreamHandler = { (completionHandler: @escaping (InputStream?) -> Void) in
++            completionHandler(InputStream(data: data))
++        }
++        delegate.challengeHandler = { (challenge: URLAuthenticationChallenge) -> (disposition: URLSession.AuthChallengeDisposition, credetial: URLCredential?) in
++            return (.useCredential, URLCredential(user: "user", password: "passwd", persistence: .none))
++        }
++        delegate.run(with: urlRequest, timeoutInterval: 4)
++        waitForExpectations(timeout: 5)
++        XCTAssertEqual(delegate.callbacks, expectedCallbacks)
++        XCTAssertEqual(delegate.authenticationChallenges.count, 1)
++     }
++
++    func test_httpRedirectionWithBodyStream() throws {
++        let dataString = "Quando l'accento divide il tempo in gruppi di due movimenti, il tempo si dice binario"
++        let data = try XCTUnwrap(dataString.data(using: .utf8))
++        let expectedCallbacks: [String] = [
++            "urlSession(_:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:)",
++            "urlSession(_:task:willPerformHTTPRedirection:newRequest:completionHandler:)",
++            "urlSession(_:task:needNewBodyStream:)",
++            "urlSession(_:task:didCompleteWithError:)"
++        ]
++
++        let urlString = "http://127.0.0.1:\(TestURLSession.serverPort)/301?location=jsonBody"
++        let url = URL(string: urlString)!
++        var urlRequest = URLRequest(url: url)
++        urlRequest.httpMethod = "POST"
++        urlRequest.httpBodyStream = InputStream(data: data)
++        let delegate = SessionDelegate(with: expectation(description: "POST \(urlString): Redirection"))
++        delegate.newBodyStreamHandler = { (completionHandler: @escaping (InputStream?) -> Void) in
++            completionHandler(InputStream(data: data))
++        }
++        delegate.run(with: urlRequest, timeoutInterval: 4)
++        waitForExpectations(timeout: 5)
++        XCTAssertEqual(delegate.callbacks, expectedCallbacks)
++        XCTAssertEqual(delegate.redirectionResponse?.value(forHTTPHeaderField: "Location"), "jsonBody")
++    }
++
+     /* Test for SR-8970 to verify that content-type header is not added to post with empty body */
+     func test_postWithEmptyBody() async {
+         let config = URLSessionConfiguration.default
+-- 
+2.46.0
+

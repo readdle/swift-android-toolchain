@@ -1,0 +1,89 @@
+From 592541a37b90bb4486abd6fbc4a4fc470073cd56 Mon Sep 17 00:00:00 2001
+From: Konstiantyn Gominyuk <kgominyuk@readdle.com>
+Date: Tue, 1 Dec 2020 11:27:54 +0200
+Subject: [PATCH] Update URLProtectionSpace tests after support Digest and NTLM
+ authentications
+
+---
+ Tests/Foundation/TestURLProtectionSpace.swift | 43 +++++++++++++------
+ 1 file changed, 30 insertions(+), 13 deletions(-)
+
+diff --git a/Tests/Foundation/TestURLProtectionSpace.swift b/Tests/Foundation/TestURLProtectionSpace.swift
+index 9ffbe11f..9b924b1d 100644
+--- a/Tests/Foundation/TestURLProtectionSpace.swift
++++ b/Tests/Foundation/TestURLProtectionSpace.swift
+@@ -88,20 +88,30 @@ class TestURLProtectionSpace : XCTestCase {
+         XCTAssertEqual(space2.port, 443)
+         XCTAssertEqual(space2.realm, "test")
+ 
+-        // Digest is not supported
++        // Digest is supported
+         let authenticate3 = "Digest realm=\"Test\", domain=\"/HTTP/Digest\", nonce=\"be2e96ad8ab8acb7ccfb49bc7e162914\""
+         let response3 = try XCTUnwrap(HTTPURLResponse(url: URL(string: "http://jigsaw.w3.org/HTTP/Basic/")!,
+                                                       statusCode: 401,
+                                                       httpVersion: "HTTP/1.1",
+                                                       headerFields: ["www-authenticate" : authenticate3]))
+-        XCTAssertNil(URLProtectionSpace.create(with: response3), "Digest scheme is not supported, should not create protection space")
+-
+-        // NTLM is not supported
++        let space3 = try XCTUnwrap(URLProtectionSpace.create(with: response3), "Failed to create protection space from valid response")
++        XCTAssertEqual(space3.authenticationMethod, NSURLAuthenticationMethodHTTPDigest)
++        XCTAssertEqual(space3.protocol, "http")
++        XCTAssertEqual(space3.host, "jigsaw.w3.org")
++        XCTAssertEqual(space3.port, 80)
++        XCTAssertEqual(space3.realm, "Test")
++        
++        // NTLM is supported
+         let response4 = try XCTUnwrap(HTTPURLResponse(url: URL(string: "http://apple.com:333")!,
+                                                       statusCode: 401,
+                                                       httpVersion: "HTTP/1.1",
+                                                       headerFields: ["www-authenTicate" : "NTLM realm=\"\""]))
+-        XCTAssertNil(URLProtectionSpace.create(with: response4), "NTLM scheme is not supported, should not create protection space")
++        let space4 = try XCTUnwrap(URLProtectionSpace.create(with: response4), "Failed to create protection space from valid response")
++        XCTAssertEqual(space4.authenticationMethod, NSURLAuthenticationMethodNTLM)
++        XCTAssertEqual(space4.protocol, "http")
++        XCTAssertEqual(space4.host, "apple.com")
++        XCTAssertEqual(space4.port, 333)
++        XCTAssertEqual(space4.realm, "")
+ 
+         // Some broken headers
+         let response5 = try XCTUnwrap(HTTPURLResponse(url: URL(string: "http://apple.com")!,
+@@ -141,20 +151,27 @@ class TestURLProtectionSpace : XCTestCase {
+         
+         // Several challenges, but only two of them should be valid
+         let challenges2 = _HTTPURLProtocol._HTTPMessage._Challenge.challenges(from: "Digest realm=\"Unsupported\", Basic, basic realm =    \"First \\\" realm\", Basic realm=\"Second realm\"")
+-        XCTAssertEqual(challenges2.count, 2, "String contains 2 valid challenges")
+-        let challenge2_1 = try XCTUnwrap(challenges2.first)
+-        XCTAssertEqual(challenge2_1.authScheme, "basic")
++        XCTAssertEqual(challenges2.count, 3, "String contains 3 valid challenges")
++        let challenge2_1 = try XCTUnwrap(challenges2.count > 0 ? challenges2[0] : nil)
++        XCTAssertEqual(challenge2_1.authScheme, "Digest")
+         XCTAssertEqual(challenge2_1.authParameters.count, 1, "Wrong number of parameters in challenge")
+         let param2_1_1 = try XCTUnwrap(challenge2_1.parameter(withName: "realm"))
+         XCTAssertEqual(param2_1_1.name, "realm")
+-        XCTAssertEqual(param2_1_1.value, "First \" realm") // contains escaped quote
+-        
+-        let challenge2_2 = try XCTUnwrap(challenges2.last)
+-        XCTAssertEqual(challenge2_2.authScheme, "Basic")
++        XCTAssertEqual(param2_1_1.value, "Unsupported")
++
++        let challenge2_2 = try XCTUnwrap(challenges2.count > 1 ? challenges2[1] : nil)
++        XCTAssertEqual(challenge2_2.authScheme, "basic")
+         XCTAssertEqual(challenge2_2.authParameters.count, 1, "Wrong number of parameters in challenge")
+         let param2_2_1 = try XCTUnwrap(challenge2_2.parameter(withName: "realm"))
+         XCTAssertEqual(param2_2_1.name, "realm")
+-        XCTAssertEqual(param2_2_1.value, "Second realm")
++        XCTAssertEqual(param2_2_1.value, "First \" realm") // contains escaped quote
++        
++        let challenge2_3 = try XCTUnwrap(challenges2.count > 2 ? challenges2[2] : nil)
++        XCTAssertEqual(challenge2_3.authScheme, "Basic")
++        XCTAssertEqual(challenge2_3.authParameters.count, 1, "Wrong number of parameters in challenge")
++        let param2_3_1 = try XCTUnwrap(challenge2_3.parameter(withName: "realm"))
++        XCTAssertEqual(param2_3_1.name, "realm")
++        XCTAssertEqual(param2_3_1.value, "Second realm")
+         
+         // Some tricky and broken strings to test edge cases in parse process
+         let challenges3 = _HTTPURLProtocol._HTTPMessage._Challenge.challenges(from: "not real, Basic realm=\"Second realm\"")
+-- 
+2.46.0
+
