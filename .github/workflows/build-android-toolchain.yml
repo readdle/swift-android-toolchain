@@ -383,13 +383,15 @@ jobs:
         name: swift-android-x86_64-libs
         path: ~/swift-toolchain/usr/lib/swift
 
-  collect-mac-x86_64-toolchain:
+  collect-toolchain:
     needs: [build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
     runs-on: ubuntu-24.04
     container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - uses: actions/download-artifact@v4
