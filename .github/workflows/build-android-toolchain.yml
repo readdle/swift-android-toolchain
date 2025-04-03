@@ -13,13 +13,13 @@ on:
 jobs:
 
   build-swift-android-arm-64:
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - name: Define build folders
@@ -42,13 +42,13 @@ jobs:
 
 
   build-swift-android-armeabi-v7a:
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - name: Define build folders
@@ -71,13 +71,13 @@ jobs:
 
 
   build-swift-android-x86_64:
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - name: Define build folders
@@ -100,8 +100,8 @@ jobs:
 
 
   build-openssl-android:
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
@@ -117,7 +117,7 @@ jobs:
         key: openssl-1.1.1w-r4
     - name: Install dependencies
       if: steps.cache-openssl.outputs.cache-hit != 'true'
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       if: steps.cache-openssl.outputs.cache-hit != 'true'
       run: ./build/002-install-ndk.sh
@@ -147,8 +147,8 @@ jobs:
   
   build-curl-android:
     needs: [build-openssl-android]
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
@@ -164,7 +164,7 @@ jobs:
         key: curl-7_88_1-r10
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/002-install-ndk.sh
@@ -255,13 +255,13 @@ jobs:
 
   build-swift-corelibs-android-arm-64:
     needs: [build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-arm-64]
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - name: Define build folders
@@ -301,13 +301,13 @@ jobs:
 
   build-swift-corelibs-android-armeabi-v7a:
     needs: [build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-armeabi-v7a]
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - name: Define build folders
@@ -343,13 +343,13 @@ jobs:
 
   build-swift-corelibs-android-x86_64:
     needs: [build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-x86_64]
-    runs-on: ubuntu-20.04
-    container: ubuntu:focal
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: ./build/000-install-dependencies.sh
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - name: Define build folders
@@ -383,12 +383,15 @@ jobs:
         name: swift-android-x86_64-libs
         path: ~/swift-toolchain/usr/lib/swift
 
-  collect-mac-x86_64-toolchain:
+  collect-toolchain:
     needs: [build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
     
     steps:
     - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: ./build/000-install-dependencies-nobel.sh
     - name: Install NDK
       run: ./build/002-install-ndk.sh
     - uses: actions/download-artifact@v4

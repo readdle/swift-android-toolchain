@@ -1,0 +1,64 @@
+From fe1d7db7bb6c53b43a5254826e326caffdf882f8 Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Tue, 1 Apr 2025 12:42:55 +0300
+Subject: [PATCH] Fix memory leak in NSAttributedString
+
+---
+ Sources/CoreFoundation/CFRunArray.c         | 8 ++++++++
+ Sources/CoreFoundation/include/CFRunArray.h | 2 ++
+ Sources/Foundation/NSAttributedString.swift | 7 ++++++-
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/Sources/CoreFoundation/CFRunArray.c b/Sources/CoreFoundation/CFRunArray.c
+index 03fb1cdc..7a79ea13 100644
+--- a/Sources/CoreFoundation/CFRunArray.c
++++ b/Sources/CoreFoundation/CFRunArray.c
+@@ -200,6 +200,14 @@ CFRunArrayRef CFRunArrayCreate(CFAllocatorRef allocator) {
+     return array;
+ }
+ 
++CFRunArrayRef CFRunArrayRetain(CFRunArrayRef array) {
++    return COPY(array);
++}
++
++void CFRunArrayRelease(CFRunArrayRef array) {
++    FREE(array);
++}
++
+ CFIndex CFRunArrayGetCount(CFRunArrayRef array) {
+     return array->guts->length;
+ }
+diff --git a/Sources/CoreFoundation/include/CFRunArray.h b/Sources/CoreFoundation/include/CFRunArray.h
+index 6d966cff..f46386ca 100644
+--- a/Sources/CoreFoundation/include/CFRunArray.h
++++ b/Sources/CoreFoundation/include/CFRunArray.h
+@@ -34,6 +34,8 @@ Returns the type identifier of all CFAttributedString instances.
+ CF_EXPORT CFTypeID CFRunArrayGetTypeID(void);
+ 
+ CF_EXPORT CFRunArrayRef CFRunArrayCreate(CFAllocatorRef allocator);
++CF_EXPORT CFRunArrayRef CFRunArrayRetain(CFRunArrayRef array);
++CF_EXPORT void CFRunArrayRelease(CFRunArrayRef array);
+ 
+ CF_EXPORT CFIndex CFRunArrayGetCount(CFRunArrayRef array);
+ CF_EXPORT CFTypeRef CFRunArrayGetValueAtIndex(CFRunArrayRef array, CFIndex loc, CFRange *effectiveRange, CFIndex *runArrayIndexPtr);
+diff --git a/Sources/Foundation/NSAttributedString.swift b/Sources/Foundation/NSAttributedString.swift
+index c83818d7..7378ac1f 100644
+--- a/Sources/Foundation/NSAttributedString.swift
++++ b/Sources/Foundation/NSAttributedString.swift
+@@ -223,7 +223,12 @@ open class NSAttributedString: NSObject, NSCopying, NSMutableCopying, NSSecureCo
+         
+         // use the resulting _string and _attributeArray to initialize a new instance
+         _string = mutableAttributedString._string
+-        _attributeArray = mutableAttributedString._attributeArray
++        _attributeArray = CFRunArrayRetain(mutableAttributedString._attributeArray)
++    }
++
++    deinit {
++        // Release the CFRunArray created in init methods
++        CFRunArrayRelease(_attributeArray)
+     }
+ 
+     /// Executes the block for each attribute in the range.
+-- 
+2.46.0
+
