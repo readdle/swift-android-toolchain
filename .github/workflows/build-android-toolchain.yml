@@ -98,6 +98,34 @@ jobs:
         name: swift-android-x86_64
         path: ~/out/swift-android/lib
 
+  build-swift-android-x86:
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: ./build/000-install-dependencies-nobel.sh
+    - name: Install NDK
+      run: ./build/002-install-ndk.sh
+    - name: Define build folders
+      run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
+    - name: Cache Swift x86
+      id: cache-swift-x86
+      uses: actions/cache@v4
+      with:
+        path: ~/out/swift-android/lib
+        key: ${{ runner.os }}-stdlib-x86-${{ hashFiles('.swift.sum') }}
+    - name: Build Swift
+      if: steps.cache-swift-x86.outputs.cache-hit != 'true'
+      run: ./build/034-build-swift-x86.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: swift-android-x86
+        path: ~/out/swift-android/lib
+
 
   build-openssl-android:
     runs-on: ubuntu-24.04
@@ -227,7 +255,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.13.5-r1
+        key: libxmlv2.13.5-r2
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -252,6 +280,10 @@ jobs:
       with:
         name: libxml-x86_64
         path: ~/libxml/x86_64
+    - uses: actions/upload-artifact@v4
+      with:
+        name: libxml-x86
+        path: ~/libxml/x86
 
   build-swift-corelibs-android-arm-64:
     needs: [build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-arm-64]
@@ -383,8 +415,50 @@ jobs:
         name: swift-android-x86_64-libs
         path: ~/swift-toolchain/usr/lib/swift
 
+  build-swift-corelibs-android-x86:
+    needs: [build-openssl-android, build-curl-android, build-libxml-android, build-swift-android-x86]
+    runs-on: ubuntu-24.04
+    container: ubuntu:noble
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: ./build/000-install-dependencies-nobel.sh
+    - name: Install NDK
+      run: ./build/002-install-ndk.sh
+    - name: Define build folders
+      run: ./build/003-define-build-folders.sh
+    - uses: actions/download-artifact@v4
+      with:
+        name: openssl-x86
+        path: ~/openssl/x86
+    - uses: actions/download-artifact@v4
+      with:
+        name: curl-x86
+        path: ~/curl/x86
+    - uses: actions/download-artifact@v4
+      with:
+        name: libxml-x86
+        path: ~/libxml/x86
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-x86
+        path: ~/swift-android/lib
+    - name: Copy andorid stdlib to swift toolchain
+      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
+    - name: Remove corelibs headers from swift-toolchain
+      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
+    - name: Build Corelibs
+      run: ./build/052-build-corelibs.sh x86 i686 i686-linux-android x86 i686-linux-android
+    - uses: actions/upload-artifact@v4
+      with:
+        name: swift-android-x86-libs
+        path: ~/swift-toolchain/usr/lib/swift
+
   collect-toolchain:
-    needs: [build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64]
+    needs: [build-swift-corelibs-android-arm-64, build-swift-corelibs-android-armeabi-v7a, build-swift-corelibs-android-x86_64, build-swift-corelibs-android-x86]
     runs-on: ubuntu-24.04
     container: ubuntu:noble
     
@@ -406,6 +480,10 @@ jobs:
       with:
         name: swift-android-x86_64-libs
         path: ~/lib/swift-x86_64
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-x86-libs
+        path: ~/lib/swift-i686
     - uses: actions/download-artifact@v4
       with:
         name: swift-android-clang-libs
