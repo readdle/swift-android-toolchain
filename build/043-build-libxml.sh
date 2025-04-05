@@ -6,7 +6,7 @@ source $HOME/.build_env
 LIBXML2_VERSION=v2.13.5
 GIT_URL_LIBXML2=https://gitlab.gnome.org/GNOME/libxml2.git
 
-archs=(arm arm64 x86_64)
+archs=(arm arm64 x86 x86_64)
 
 rm -rf $LIBXML_LIBS
 mkdir -p $LIBXML_LIBS
