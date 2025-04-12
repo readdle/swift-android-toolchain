@@ -1,0 +1,75 @@
+From 8c034c74bd78046b0686e521136a1258f800d1cb Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Mon, 14 Apr 2025 18:18:40 +0300
+Subject: [PATCH] Replace Bionic with Android
+
+---
+ .../LibraryPluginProvider.swift                        |  2 ++
+ Sources/SwiftSyntax/SyntaxText.swift                   | 10 ++++++----
+ .../swift-syntax-dev-utils/common/ProcessRunner.swift  |  2 +-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/Sources/SwiftLibraryPluginProvider/LibraryPluginProvider.swift b/Sources/SwiftLibraryPluginProvider/LibraryPluginProvider.swift
+index 44be07e2..69bb6db8 100644
+--- a/Sources/SwiftLibraryPluginProvider/LibraryPluginProvider.swift
++++ b/Sources/SwiftLibraryPluginProvider/LibraryPluginProvider.swift
+@@ -35,6 +35,8 @@ import SwiftSyntaxMacros
+ @_implementationOnly import Glibc
+ #elseif canImport(Musl)
+ @_implementationOnly import Musl
++#elseif canImport(Android)
++@_implementationOnly import Android
+ #endif
+ #endif
+ 
+diff --git a/Sources/SwiftSyntax/SyntaxText.swift b/Sources/SwiftSyntax/SyntaxText.swift
+index 5229771f..53c0a37a 100644
+--- a/Sources/SwiftSyntax/SyntaxText.swift
++++ b/Sources/SwiftSyntax/SyntaxText.swift
+@@ -15,8 +15,8 @@
+ private import Darwin
+ #elseif canImport(Glibc)
+ private import Glibc
+-#elseif canImport(Bionic)
+-private import Bionic
++#elseif canImport(Android)
++private import Android
+ #elseif canImport(Musl)
+ private import Musl
+ #endif
+@@ -25,6 +25,8 @@ private import Musl
+ import Darwin
+ #elseif canImport(Glibc)
+ import Glibc
++#elseif canImport(Android)
++import Android
+ #elseif canImport(Musl)
+ import Musl
+ #endif
+@@ -296,8 +298,8 @@ private func compareMemory(
+   return Darwin.memcmp(s1, s2, count) == 0
+   #elseif canImport(Glibc)
+   return Glibc.memcmp(s1, s2, count) == 0
+-  #elseif canImport(Bionic)
+-  return Bionic.memcmp(s1, s2, count) == 0
++  #elseif canImport(Android)
++  return Android.memcmp(s1, s2, count) == 0
+   #else
+   return UnsafeBufferPointer(start: s1, count: count)
+     .elementsEqual(UnsafeBufferPointer(start: s2, count: count))
+diff --git a/SwiftSyntaxDevUtils/Sources/swift-syntax-dev-utils/common/ProcessRunner.swift b/SwiftSyntaxDevUtils/Sources/swift-syntax-dev-utils/common/ProcessRunner.swift
+index e88611cb..4f14ab6c 100644
+--- a/SwiftSyntaxDevUtils/Sources/swift-syntax-dev-utils/common/ProcessRunner.swift
++++ b/SwiftSyntaxDevUtils/Sources/swift-syntax-dev-utils/common/ProcessRunner.swift
+@@ -24,7 +24,7 @@ class SigIntListener {
+   /// Registers a `SIGINT` signal handler that forwards `SIGINT` to all
+   /// subprocesses that are registered in `runningSubprocesses`
+   static func registerSigIntSubprocessTerminationHandler() {
+-    #if canImport(Darwin) || canImport(Glibc) || canImport(Bionic)
++    #if canImport(Darwin) || canImport(Glibc) || canImport(Android)
+     signal(SIGINT) { _ in
+       SigIntListener.hasReceivedSigInt = true
+       for process in SigIntListener.runningSubprocesses {
+-- 
+2.46.0
+

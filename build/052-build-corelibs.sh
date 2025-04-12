@@ -19,16 +19,6 @@ openssl_libs=$OPENSSL_LIBS/$arch
 curl_libs=$CURL_LIBS/$arch
 libxml_libs=$LIBXML_LIBS/$arch
 
-# Install fresh version of CMake
-apt remove --purge --auto-remove -y cmake
-version=3.27
-build=7
-wget https://cmake.org/files/v$version/cmake-$version.$build-linux-x86_64.sh 
-mkdir /opt/cmake
-sh cmake-$version.$build-linux-x86_64.sh --prefix=/opt/cmake --skip-license
-ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
-cmake --version
-
 rm -rf $dispatch_build_dir
 rm -rf $foundation_build_dir
 rm -rf $xctest_build_dir
@@ -36,6 +26,9 @@ rm -rf $xctest_build_dir
 mkdir -p $dispatch_build_dir
 mkdir -p $foundation_build_dir
 mkdir -p $xctest_build_dir
+
+# Copy andorid stdlib to NDK
+cp -r ~/swift-android/lib/swift $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib
 
 pushd $dispatch_build_dir
     cmake $DISPATCH_SRC \

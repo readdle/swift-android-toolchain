@@ -1,25 +1,25 @@
-From d9f58c4f8d85aabd891ec65d965f7770a9998918 Mon Sep 17 00:00:00 2001
-From: Konstiantyn Gominyuk <kgominyuk@readdle.com>
-Date: Thu, 12 Nov 2020 18:04:18 +0200
+From 439d6c4dafe939f365c077896126ac5a32cc5965 Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sat, 12 Apr 2025 16:17:35 +0300
 Subject: [PATCH] Support digest and ntlm auth
 
 ---
  .../URLProtectionSpace.swift                  |  2 ++
  Sources/FoundationNetworking/URLRequest.swift |  3 ++
- .../URLSession/HTTP/HTTPMessage.swift         | 24 +++++++++++---
+ .../URLSession/HTTP/HTTPMessage.swift         | 22 +++++++++++--
  .../URLSession/HTTP/HTTPURLProtocol.swift     | 12 +++++++
  .../URLSession/NativeProtocol.swift           | 16 +++++++++
  .../URLSession/URLSessionTask.swift           | 33 ++++++++++++++-----
  .../URLSession/libcurl/EasyHandle.swift       | 22 +++++++++++++
  .../CFURLSessionInterface.c                   |  7 ++++
  .../include/CFURLSessionInterface.h           |  5 +++
- 9 files changed, 112 insertions(+), 12 deletions(-)
+ 9 files changed, 111 insertions(+), 11 deletions(-)
 
 diff --git a/Sources/FoundationNetworking/URLProtectionSpace.swift b/Sources/FoundationNetworking/URLProtectionSpace.swift
-index 6470657b..2c93c486 100644
+index 26dcc234..8fe61f60 100644
 --- a/Sources/FoundationNetworking/URLProtectionSpace.swift
 +++ b/Sources/FoundationNetworking/URLProtectionSpace.swift
-@@ -350,6 +350,8 @@ extension _HTTPURLProtocol._HTTPMessage._Challenge {
+@@ -352,6 +352,8 @@ extension _HTTPURLProtocol._HTTPMessage._Challenge {
              return NSURLAuthenticationMethodHTTPBasic
          } else if authScheme.caseInsensitiveCompare(_HTTPURLProtocol._HTTPMessage._Challenge.AuthSchemeDigest) == .orderedSame {
              return NSURLAuthenticationMethodHTTPDigest
@@ -29,7 +29,7 @@ index 6470657b..2c93c486 100644
              return nil
          }
 diff --git a/Sources/FoundationNetworking/URLRequest.swift b/Sources/FoundationNetworking/URLRequest.swift
-index f8ab4c8c..042e6365 100644
+index e87201e5..b2a104fe 100644
 --- a/Sources/FoundationNetworking/URLRequest.swift
 +++ b/Sources/FoundationNetworking/URLRequest.swift
 @@ -71,6 +71,9 @@ public struct URLRequest : ReferenceConvertible, Equatable, Hashable, Sendable {
@@ -43,7 +43,7 @@ index f8ab4c8c..042e6365 100644
      /// - discussion: The timeout interval specifies the limit on the idle
      /// interval allotted to a request in the process of loading. The "idle
 diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
-index fae1e612..f6b7d0a5 100644
+index d31b7a49..9c5dc1ba 100644
 --- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
 +++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
 @@ -111,6 +111,7 @@ extension _HTTPURLProtocol._HTTPMessage {
@@ -85,15 +85,6 @@ index fae1e612..f6b7d0a5 100644
                      challenges.append(challenge)
                  }
              }
-@@ -433,7 +449,7 @@ private extension String.UnicodeScalarView.SubSequence {
-     var rangeOfTokenPrefix: Range<Index>? {
-         guard !isEmpty else { return nil }
-         var end = startIndex
--        while self[end].isValidMessageToken {
-+        while end < endIndex && self[end].isValidMessageToken {
-             end = self.index(after: end)
-         }
-         guard end != startIndex else { return nil }
 diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
 index dfe18758..18e56456 100644
 --- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
@@ -145,10 +136,10 @@ index ad6836dc..965c24ab 100644
      static func printDebug(_ text: @autoclosure () -> String) {
          guard enableDebugOutput else { return }
 diff --git a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
-index 76ebb561..556e79e5 100644
+index cef77fac..c97ef4c2 100644
 --- a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
 +++ b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
-@@ -1256,7 +1256,11 @@ extension _ProtocolClient : URLProtocolClient {
+@@ -1258,7 +1258,11 @@ extension _ProtocolClient : URLProtocolClient {
                  } else {
                      task._lastCredentialUsedFromStorageDuringAuthentication = nil
                  }
@@ -161,7 +152,7 @@ index 76ebb561..556e79e5 100644
              }
              if case .stream(let stream) = task.knownBody, stream.streamStatus != .notOpen {
                  task.knownBody = nil
-@@ -1297,7 +1301,12 @@ extension _ProtocolClient : URLProtocolClient {
+@@ -1299,7 +1303,12 @@ extension _ProtocolClient : URLProtocolClient {
                  }
              }
          } else {
@@ -175,7 +166,7 @@ index 76ebb561..556e79e5 100644
          }
      }
  
-@@ -1399,7 +1408,8 @@ extension URLSessionTask {
+@@ -1401,7 +1410,8 @@ extension URLSessionTask {
      static func authHandler(for authScheme: String) -> _AuthHandler? {
          let handlers: [String : _AuthHandler] = [
              NSURLAuthenticationMethodHTTPBasic : basicAuth,
@@ -185,7 +176,7 @@ index 76ebb561..556e79e5 100644
          ]
          return handlers[authScheme]
      }
-@@ -1407,16 +1417,23 @@ extension URLSessionTask {
+@@ -1409,16 +1419,23 @@ extension URLSessionTask {
      //Authentication handlers
      static func basicAuth(_ task: URLSessionTask, _ disposition: URLSession.AuthChallengeDisposition, _ credential: URLCredential?) {
          //TODO: Handle disposition. For now, we default to .useCredential
@@ -215,7 +206,7 @@ index 76ebb561..556e79e5 100644
  
  extension URLProtocol {
 diff --git a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
-index 8c4437ca..a7bdb4cf 100644
+index cdf8875f..cdce2777 100644
 --- a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
 +++ b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
 @@ -359,6 +359,28 @@ extension _EasyHandle {
@@ -248,7 +239,7 @@ index 8c4437ca..a7bdb4cf 100644
  
  /// WebSocket support
 diff --git a/Sources/_CFURLSessionInterface/CFURLSessionInterface.c b/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
-index 14091505..6615fea2 100644
+index e493ad77..f8d5a4ab 100644
 --- a/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
 +++ b/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
 @@ -90,6 +90,9 @@ CFURLSessionEasyCode CFURLSession_easy_setopt_int(CFURLSessionEasyHandle _Nonnul

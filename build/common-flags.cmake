@@ -13,6 +13,6 @@ set(ANDROID_NATIVE_API_LEVEL "24" CACHE STRING "")
 set(CMAKE_Swift_FLAGS 
         "-tools-directory $ENV{ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin \
          -sdk $ENV{ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-         -resource-dir ${CMAKE_Swift_SDK}/usr/lib/swift \
+         -resource-dir $ENV{ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/swift \
          -Xlinker --build-id=sha1" 
     CACHE STRING "")

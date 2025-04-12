@@ -1,7 +1,7 @@
-From 293729355d10151589dd2291e57f64345d9755d1 Mon Sep 17 00:00:00 2001
+From 39a43f6e80bf0e63f844b93f24e8de3887a93996 Mon Sep 17 00:00:00 2001
 From: Andrew Druk <adruk@readdle.com>
-Date: Fri, 4 Apr 2025 19:22:42 +0300
-Subject: [PATCH] Commit 6
+Date: Sat, 12 Apr 2025 15:26:32 +0300
+Subject: [PATCH] Enable crashlytics
 
 ---
  stdlib/cmake/modules/AddSwiftStdlib.cmake |   2 +
@@ -11,10 +11,10 @@ Subject: [PATCH] Commit 6
  create mode 100644 stdlib/public/runtime/crashlytics.h
 
 diff --git a/stdlib/cmake/modules/AddSwiftStdlib.cmake b/stdlib/cmake/modules/AddSwiftStdlib.cmake
-index e0fe03b8e66..77dff0e1a21 100644
+index fd5e97675ff..88c09e534e6 100644
 --- a/stdlib/cmake/modules/AddSwiftStdlib.cmake
 +++ b/stdlib/cmake/modules/AddSwiftStdlib.cmake
-@@ -2450,6 +2450,8 @@ function(add_swift_target_library name)
+@@ -2464,6 +2464,8 @@ function(add_swift_target_library name)
          list(APPEND swiftlib_link_flags_all "-shared")
          # TODO: Instead of `lib${name}.so` find variable or target property which already have this value.
          list(APPEND swiftlib_link_flags_all "-Wl,-soname,lib${name}.so")
@@ -24,10 +24,10 @@ index e0fe03b8e66..77dff0e1a21 100644
  
        if (SWIFTLIB_BACK_DEPLOYMENT_LIBRARY)
 diff --git a/stdlib/public/runtime/Errors.cpp b/stdlib/public/runtime/Errors.cpp
-index 26e3a01998c..a53a3251c48 100644
+index f03423c2f3c..b7add2a1558 100644
 --- a/stdlib/public/runtime/Errors.cpp
 +++ b/stdlib/public/runtime/Errors.cpp
-@@ -55,6 +55,10 @@
+@@ -56,6 +56,10 @@
  #include <asl.h>
  #elif defined(__ANDROID__)
  #include <android/log.h>
@@ -38,15 +38,15 @@ index 26e3a01998c..a53a3251c48 100644
  #endif
  
  #if defined(__ELF__)
-@@ -315,6 +319,8 @@ reportOnCrash(uint32_t flags, const char *message)
+@@ -317,6 +321,8 @@ reportOnCrash(uint32_t flags, const char *message)
               &oldMessage, newMessage,
               std::memory_order_release,
               SWIFT_MEMORY_ORDER_CONSUME));
 +#elif defined(__ANDROID__)
 +  firebase::crashlytics::Log(message);
  #else
-   // empty
- #endif // SWIFT_HAVE_CRASHREPORTERCLIENT
+   const char *previous = nullptr;
+   char *current = nullptr;
 diff --git a/stdlib/public/runtime/crashlytics.h b/stdlib/public/runtime/crashlytics.h
 new file mode 100644
 index 00000000000..2571080a28a

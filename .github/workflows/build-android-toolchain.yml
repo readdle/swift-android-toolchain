@@ -1,11 +1,6 @@
 name: Build Android Toolchain
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -298,6 +293,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-arm64-v8a
@@ -314,12 +311,6 @@ jobs:
       with:
         name: swift-android-arm64-v8a
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh arm64 aarch64 aarch64-linux-android arm64-v8a aarch64-linux-android
     - uses: actions/upload-artifact@v4
@@ -344,6 +335,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-armeabi-v7a
@@ -360,12 +353,6 @@ jobs:
       with:
         name: swift-android-armeabi-v7a
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh arm armv7 arm-linux-androideabi armeabi-v7a armv7a-linux-androideabi
     - uses: actions/upload-artifact@v4
@@ -386,6 +373,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-x86_64
@@ -402,12 +391,6 @@ jobs:
       with:
         name: swift-android-x86_64
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh x86_64 x86_64 x86_64-linux-android x86_64 x86_64-linux-android
     - uses: actions/upload-artifact@v4
@@ -428,6 +411,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-x86
@@ -444,12 +429,6 @@ jobs:
       with:
         name: swift-android-x86
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh x86 i686 i686-linux-android x86 i686-linux-android
     - uses: actions/upload-artifact@v4
