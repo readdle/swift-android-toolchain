@@ -27,7 +27,6 @@ hdiutil detach "/Volumes/Android NDK r26c"
 ```
 curl -L -O https://github.com/readdle/swift-android-toolchain/releases/latest/download/swift-android.zip
 unzip swift-android.zip
-swift-android/bin/swift-android tools --update
 ```
 
 4. Set Up Environment Variables
@@ -56,11 +55,11 @@ Our current swift build system is tiny wrapper over Swift PM. See [Swift Package
 Example of compilation flags:
 * Debug
 ```
-swift-build --configuration debug -Xswiftc -DDEBUG
+swift android build --configuration debug -Xswiftc -DDEBUG
 ```
 * Release
 ```
-swift-build --configuration release
+swift android build --configuration release
 ```
 
 `swift android test` wrapper script builds, copies, and runs Swift Package Manager (SPM) tests on a connected Android device.
