@@ -90,8 +90,6 @@ cmake --build $xctest_build_dir --target install
 swift_include=$HOME/swift-toolchain/usr/lib/swift
 dst_libs=$HOME/swift-toolchain/usr/lib/swift/android
 
-rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$clang_arch/libc++_shared.so $dst_libs
-
 rsync -av $openssl_libs/lib/libcrypto.a $dst_libs
 rsync -av $openssl_libs/lib/libssl.a $dst_libs
 rsync -av $curl_libs/lib/libcurl.* $dst_libs

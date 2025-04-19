@@ -315,10 +315,6 @@ jobs:
       run: ./build/052-build-corelibs.sh arm64 aarch64 aarch64-linux-android arm64-v8a aarch64-linux-android
     - uses: actions/upload-artifact@v4
       with:
-        name: swift-android-clang-libs
-        path: ~/swift-toolchain/usr/lib/clang
-    - uses: actions/upload-artifact@v4
-      with:
         name: swift-android-arm64-v8a-libs
         path: ~/swift-toolchain/usr/lib/swift
 
@@ -465,8 +461,20 @@ jobs:
         path: ~/lib/swift-i686
     - uses: actions/download-artifact@v4
       with:
-        name: swift-android-clang-libs
-        path: ~/lib/clang
+        name: swift-android-arm64-v8a
+        path: ~/stdlib/swift-aarch64
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-armeabi-v7a
+        path: ~/stdlib/swift-armv7
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-x86_64
+        path: ~/stdlib/swift-x86_64
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-x86
+        path: ~/stdlib/swift-i686
     - name: Collect toolchain
       run: ./build/060-collect-toolchain.sh
     - uses: actions/upload-artifact@v4
