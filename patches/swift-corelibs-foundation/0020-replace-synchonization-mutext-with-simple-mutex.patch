@@ -1,0 +1,228 @@
+From df05481aa6125cfea117a814efb994ff49c6803a Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sun, 27 Apr 2025 17:23:03 +0300
+Subject: [PATCH] Dev: replace Synhronization Mutex with simple Mutex
+
+---
+ ...chonization-mutext-with-simple-mutex.patch | 209 ++++++++++++++++++
+ 1 file changed, 209 insertions(+)
+ create mode 100644 patches/swift-corelibs-foundation/0020-replace-synchonization-mutext-with-simple-mutex.patch
+
+diff --git a/patches/swift-corelibs-foundation/0020-replace-synchonization-mutext-with-simple-mutex.patch b/patches/swift-corelibs-foundation/0020-replace-synchonization-mutext-with-simple-mutex.patch
+new file mode 100644
+index 0000000..8f393f8
+--- /dev/null
++++ b/patches/swift-corelibs-foundation/0020-replace-synchonization-mutext-with-simple-mutex.patch
+@@ -0,0 +1,209 @@
++From 98d6e54c082eaba50f75468524044c26ca49273f Mon Sep 17 00:00:00 2001
++From: Andrew Druk <adruk@readdle.com>
++Date: Sun, 27 Apr 2025 18:58:53 +0300
++Subject: [PATCH] Dev: replace Synchronization Mutex with simple Mutex
++
++---
++ Sources/Foundation/CMakeLists.txt           |  1 +
++ Sources/Foundation/Mutex.swift              | 74 +++++++++++++++++++
++ Sources/FoundationNetworking/CMakeLists.txt |  1 +
++ Sources/FoundationNetworking/Mutex.swift    | 80 +++++++++++++++++++++
++ 4 files changed, 156 insertions(+)
++ create mode 100644 Sources/Foundation/Mutex.swift
++ create mode 100644 Sources/FoundationNetworking/Mutex.swift
++
++diff --git a/Sources/Foundation/CMakeLists.txt b/Sources/Foundation/CMakeLists.txt
++index 108dfb1c..47ff6a52 100644
++--- a/Sources/Foundation/CMakeLists.txt
+++++ b/Sources/Foundation/CMakeLists.txt
++@@ -51,6 +51,7 @@ add_library(Foundation
++     Measurement.swift
++     MeasurementFormatter.swift
++     Morphology.swift
+++    Mutex.swift
++     Notification.swift
++     NotificationQueue.swift
++     NSArray.swift
++diff --git a/Sources/Foundation/Mutex.swift b/Sources/Foundation/Mutex.swift
++new file mode 100644
++index 00000000..a1e050c7
++--- /dev/null
+++++ b/Sources/Foundation/Mutex.swift
++@@ -0,0 +1,74 @@
+++// Private helper class to hold the value.
+++// This class itself does NOT need to be Sendable.
+++private final class ValueStorage<Value> {
+++    var value: Value
+++    init(_ value: Value) {
+++        self.value = value
+++    }
+++}
+++
+++/**
+++ A thread-safe container class that protects access to a value using a lock.
+++
+++ NOTE: This class is marked @unchecked Sendable. Its thread safety relies on the
+++ internal NSLock correctly synchronizing access to the contained 'storage'.
+++ */
+++public final class Mutex<Value>: @unchecked Sendable { // Use @unchecked Sendable
+++
+++    // Use a standard NSLock for synchronization
+++    private let lock = NSLock()
+++
+++    // Store an immutable reference to the helper class instance.
+++    // The ValueStorage instance itself holds the mutable value.
+++    private let storage: ValueStorage<Value>
+++
+++    /// Initializes the container with an initial value.
+++    /// - Parameter initialValue: The value to store and protect.
+++    public init(_ initialValue: Value) {
+++        self.storage = ValueStorage(initialValue)
+++    }
+++
+++    /**
+++     Executes a closure with exclusive, mutable access to the protected value.
+++
+++     This method acquires the lock, executes the provided closure giving it
+++     an 'inout' reference to the value stored within the internal storage,
+++     and then releases the lock.
+++
+++     - Parameter body: A closure that takes an `inout Value` and returns a Result.
+++     - Returns: The result returned by the `body` closure.
+++     - Throws: Rethrows any error thrown by the `body` closure.
+++     */
+++    public func withLock<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result {
+++        lock.lock()
+++        defer { lock.unlock() }
+++        // Access the 'value' within the 'storage' object. This is safe due to the lock.
+++        return try body(&storage.value)
+++    }
+++
+++    /**
+++     Attempts to execute a closure with exclusive, mutable access if the lock can be acquired immediately.
+++     (Implementation similar to withLock, but using try())
+++     */
+++    public func tryWithLock<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result? {
+++        guard lock.try() else {
+++            return nil
+++        }
+++        defer { lock.unlock() }
+++        return try body(&storage.value)
+++    }
+++
+++    /// Reads the current value safely. Acquires the lock briefly.
+++    public func getValue() -> Value {
+++        lock.lock()
+++        defer { lock.unlock() }
+++        return storage.value // Access value within storage
+++    }
+++
+++    /// Sets a new value safely. Acquires the lock briefly.
+++    public func setValue(_ newValue: Value) {
+++        lock.lock()
+++        defer { lock.unlock() }
+++        storage.value = newValue // Mutate value within storage
+++    }
+++}
++\ No newline at end of file
++diff --git a/Sources/FoundationNetworking/CMakeLists.txt b/Sources/FoundationNetworking/CMakeLists.txt
++index 6ad40968..07730a37 100644
++--- a/Sources/FoundationNetworking/CMakeLists.txt
+++++ b/Sources/FoundationNetworking/CMakeLists.txt
++@@ -17,6 +17,7 @@ add_library(FoundationNetworking
++     DataURLProtocol.swift
++     HTTPCookie.swift
++     HTTPCookieStorage.swift
+++    Mutex.swift
++     NSURLRequest.swift
++     URLAuthenticationChallenge.swift
++     URLCache.swift
++diff --git a/Sources/FoundationNetworking/Mutex.swift b/Sources/FoundationNetworking/Mutex.swift
++new file mode 100644
++index 00000000..2ad7400c
++--- /dev/null
+++++ b/Sources/FoundationNetworking/Mutex.swift
++@@ -0,0 +1,80 @@
+++#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+++import SwiftFoundation
+++#else
+++import Foundation
+++#endif
+++
+++// Private helper class to hold the value.
+++// This class itself does NOT need to be Sendable.
+++private final class ValueStorage<Value> {
+++    var value: Value
+++    init(_ value: Value) {
+++        self.value = value
+++    }
+++}
+++
+++/**
+++ A thread-safe container class that protects access to a value using a lock.
+++
+++ NOTE: This class is marked @unchecked Sendable. Its thread safety relies on the
+++ internal NSLock correctly synchronizing access to the contained 'storage'.
+++ */
+++public final class Mutex<Value>: @unchecked Sendable { // Use @unchecked Sendable
+++
+++    // Use a standard NSLock for synchronization
+++    private let lock = NSLock()
+++
+++    // Store an immutable reference to the helper class instance.
+++    // The ValueStorage instance itself holds the mutable value.
+++    private let storage: ValueStorage<Value>
+++
+++    /// Initializes the container with an initial value.
+++    /// - Parameter initialValue: The value to store and protect.
+++    public init(_ initialValue: Value) {
+++        self.storage = ValueStorage(initialValue)
+++    }
+++
+++    /**
+++     Executes a closure with exclusive, mutable access to the protected value.
+++
+++     This method acquires the lock, executes the provided closure giving it
+++     an 'inout' reference to the value stored within the internal storage,
+++     and then releases the lock.
+++
+++     - Parameter body: A closure that takes an `inout Value` and returns a Result.
+++     - Returns: The result returned by the `body` closure.
+++     - Throws: Rethrows any error thrown by the `body` closure.
+++     */
+++    public func withLock<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result {
+++        lock.lock()
+++        defer { lock.unlock() }
+++        // Access the 'value' within the 'storage' object. This is safe due to the lock.
+++        return try body(&storage.value)
+++    }
+++
+++    /**
+++     Attempts to execute a closure with exclusive, mutable access if the lock can be acquired immediately.
+++     (Implementation similar to withLock, but using try())
+++     */
+++    public func tryWithLock<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result? {
+++        guard lock.try() else {
+++            return nil
+++        }
+++        defer { lock.unlock() }
+++        return try body(&storage.value)
+++    }
+++
+++    /// Reads the current value safely. Acquires the lock briefly.
+++    public func getValue() -> Value {
+++        lock.lock()
+++        defer { lock.unlock() }
+++        return storage.value // Access value within storage
+++    }
+++
+++    /// Sets a new value safely. Acquires the lock briefly.
+++    public func setValue(_ newValue: Value) {
+++        lock.lock()
+++        defer { lock.unlock() }
+++        storage.value = newValue // Mutate value within storage
+++    }
+++}
++\ No newline at end of file
++-- 
++2.46.0
++
+-- 
+2.46.0
+
