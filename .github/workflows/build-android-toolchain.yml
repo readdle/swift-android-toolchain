@@ -26,7 +26,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-arm64-api28-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-arm64-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: ./build/031-build-swift-arm64.sh
@@ -55,7 +55,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-arm32-api28-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-arm32-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: ./build/032-build-swift-arm.sh
@@ -84,7 +84,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-x86_64-api28-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-x86_64-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: ./build/033-build-swift-x86_64.sh
@@ -112,7 +112,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-x86-api28-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-x86-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86.outputs.cache-hit != 'true'
       run: ./build/034-build-swift-x86.sh
@@ -137,7 +137,7 @@ jobs:
           ~/openssl/arm
           ~/openssl/x86_64
           ~/openssl/x86
-        key: openssl-1.1.1w-r5
+        key: openssl-1.1.1w-r6
     - name: Install dependencies
       if: steps.cache-openssl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -184,7 +184,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-7_88_1-r11
+        key: curl-7_88_1-r12
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -250,7 +250,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.13.5-r3
+        key: libxmlv2.13.5-r4
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh

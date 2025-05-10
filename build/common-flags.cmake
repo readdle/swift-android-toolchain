@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/swift-toolchain/usr" CACHE STRING "")
 
-set(ANDROID_NATIVE_API_LEVEL "28" CACHE STRING "")
+set(ANDROID_NATIVE_API_LEVEL "29" CACHE STRING "")
 set(CMAKE_Swift_FLAGS 
         "-tools-directory $ENV{ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin \
          -sdk $ENV{ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot \

@@ -88,7 +88,10 @@ cmake --build $xctest_build_dir --target install
 
 # Copy dependency headers and libraries
 swift_include=$HOME/swift-toolchain/usr/lib/swift
-dst_libs=$HOME/swift-toolchain/usr/lib/swift/android
+dst_libs=$HOME/swift-toolchain/usr/lib/swift/android/$swift_arch
+
+# Move dynamic libraries to proper dst libs
+mv $HOME/swift-toolchain/usr/lib/swift/android/*.so $dst_libs
 
 rsync -av $openssl_libs/lib/libcrypto.a $dst_libs
 rsync -av $openssl_libs/lib/libssl.a $dst_libs
