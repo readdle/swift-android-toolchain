@@ -184,7 +184,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-7_88_1-r12
+        key: curl-7_88_1-r13
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -250,7 +250,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.13.5-r4
+        key: libxmlv2.13.5-r5
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh

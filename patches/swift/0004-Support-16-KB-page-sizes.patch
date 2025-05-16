@@ -1,0 +1,25 @@
+From 4943ffce5edf11eb99b594f34cd946a63c3a9a71 Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Fri, 16 May 2025 22:40:01 +0300
+Subject: [PATCH] Add 16Kb page sizes support
+
+---
+ stdlib/cmake/modules/AddSwiftStdlib.cmake | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/stdlib/cmake/modules/AddSwiftStdlib.cmake b/stdlib/cmake/modules/AddSwiftStdlib.cmake
+index 88c09e534e6..477f0ef00ca 100644
+--- a/stdlib/cmake/modules/AddSwiftStdlib.cmake
++++ b/stdlib/cmake/modules/AddSwiftStdlib.cmake
+@@ -2466,6 +2466,8 @@ function(add_swift_target_library name)
+         list(APPEND swiftlib_link_flags_all "-Wl,-soname,lib${name}.so")
+         # Add the build-id flag to ensure a unique identifier is included in the output binary.
+         list(APPEND swiftlib_link_flags_all "-Wl,--build-id")
++        # Ensure compatibility with Android 15+ devices using 16KB memory pages.
++        list(APPEND swiftlib_link_flags_all "-Wl,-z,max-page-size=16384")
+       endif()
+ 
+       if (SWIFTLIB_BACK_DEPLOYMENT_LIBRARY)
+-- 
+2.46.0
+
