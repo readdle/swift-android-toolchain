@@ -3,9 +3,8 @@ set -ex
 
 source $HOME/.build_env
 
-OPENSSL_VERSION=1.1.1w
-
-DOWNLOAD_URL_OPENSSL=https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
+OPENSSL_VERSION=3.5.0
+DOWNLOAD_URL_OPENSSL=https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz
 
 archs=(arm arm64 x86 x86_64)
 
@@ -13,12 +12,9 @@ rm -rf $OPENSSL_LIBS
 mkdir -p $OPENSSL_LIBS
 
 pushd $OPENSSL_LIBS
-    mkdir downloads src
-
-    mkdir src/openssl
+    mkdir -p downloads src/openssl
     wget $DOWNLOAD_URL_OPENSSL -O downloads/openssl.tar.gz
     tar -xvf downloads/openssl.tar.gz -C src/openssl --strip-components=1
-
 popd
  
 API=29

@@ -3,8 +3,8 @@ set -ex
 
 source $HOME/.build_env
 
-LIBXML2_VERSION=v2.13.5
-GIT_URL_LIBXML2=https://gitlab.gnome.org/GNOME/libxml2.git
+LIBXML2_VERSION=v2.14.3
+LIBXML2_SOURCE=https://gitlab.gnome.org/GNOME/libxml2/-/archive/$LIBXML2_VERSION/libxml2-$LIBXML2_VERSION.tar.gz
 
 archs=(arm arm64 x86 x86_64)
 
@@ -12,12 +12,9 @@ rm -rf $LIBXML_LIBS
 mkdir -p $LIBXML_LIBS
 
 pushd $LIBXML_LIBS
-    mkdir downloads src
-
-    git clone $GIT_URL_LIBXML2 src/libxml2
-    pushd src/libxml2
-        git checkout $LIBXML2_VERSION
-    popd
+    mkdir -p downloads src/libxml2
+    wget $LIBXML2_SOURCE -O downloads/libxml.tar.gz
+    tar -xvf downloads/libxml.tar.gz -C src/libxml2 --strip-components=1
 popd
  
 API=29

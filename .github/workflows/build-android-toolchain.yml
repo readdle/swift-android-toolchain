@@ -137,7 +137,7 @@ jobs:
           ~/openssl/arm
           ~/openssl/x86_64
           ~/openssl/x86
-        key: openssl-1.1.1w-r6
+        key: openssl-3.5.0-r1
     - name: Install dependencies
       if: steps.cache-openssl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -184,7 +184,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-7_88_1-r13
+        key: curl-8.13.0-r1
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -250,7 +250,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.13.5-r5
+        key: libxmlv2.14.3-r1
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
