@@ -34,6 +34,15 @@ pushd $out
     rsync -av $input_lib/swift-x86_64/ $out_toolchain/usr/lib/swift/
     rsync -av $input_lib/swift-i686/ $out_toolchain/usr/lib/swift/
 
+    # Copy libc++ shared library
+    cp $out_toolchain/usr/lib/aarch64-linux-android/libc++_shared.so $out_toolchain/usr/lib/swift/android/aarch64/
+    cp $out_toolchain/usr/lib/arm-linux-androideabi/libc++_shared.so $out_toolchain/usr/lib/swift/android/armv7/
+    cp $out_toolchain/usr/lib/x86_64-linux-android/libc++_shared.so $out_toolchain/usr/lib/swift/android/x86_64/
+    cp $out_toolchain/usr/lib/i686-linux-android/libc++_shared.so $out_toolchain/usr/lib/swift/android/i686/
+
+    # Remove unsuported cpu architectures
+    rm -rf $out_toolchain/usr/lib/riscv64-linux-android
+
     # Remove not supported Andorid version libs
     rm -rf $out_toolchain/usr/lib/*/21
     rm -rf $out_toolchain/usr/lib/*/22
