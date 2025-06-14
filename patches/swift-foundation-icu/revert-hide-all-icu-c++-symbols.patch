@@ -1,0 +1,77 @@
+From 36314e5ff55b4907f70326531f3382f599d8dbce Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sat, 14 Jun 2025 19:53:01 +0300
+Subject: [PATCH] Revert "Hide all ICU public C++ Symbols (#34)"
+
+This reverts commit 0b2f6411bd55a34333fdc094a2bfc391c14d84c2.
+---
+ icuSources/i18n/uspoof.cpp                    |  4 +--
+ .../include/_foundation_unicode/utypes.h      | 32 ++++---------------
+ 2 files changed, 9 insertions(+), 27 deletions(-)
+
+diff --git a/icuSources/i18n/uspoof.cpp b/icuSources/i18n/uspoof.cpp
+index 7a6bb72..ee22170 100644
+--- a/icuSources/i18n/uspoof.cpp
++++ b/icuSources/i18n/uspoof.cpp
+@@ -939,13 +939,13 @@ uspoof_getRecommendedSet(UErrorCode *status) {
+     return gRecommendedSet->toUSet();
+ }
+ 
+-U_CAPI const UnicodeSet * U_EXPORT2
++U_I18N_API const UnicodeSet * U_EXPORT2
+ uspoof_getInclusionUnicodeSet(UErrorCode *status) {
+     umtx_initOnce(gSpoofInitStaticsOnce, &initializeStatics, *status);
+     return gInclusionSet;
+ }
+ 
+-U_CAPI const UnicodeSet * U_EXPORT2
++U_I18N_API const UnicodeSet * U_EXPORT2
+ uspoof_getRecommendedUnicodeSet(UErrorCode *status) {
+     umtx_initOnce(gSpoofInitStaticsOnce, &initializeStatics, *status);
+     return gRecommendedSet;
+diff --git a/icuSources/include/_foundation_unicode/utypes.h b/icuSources/include/_foundation_unicode/utypes.h
+index e88f70a..3cd95e9 100644
+--- a/icuSources/include/_foundation_unicode/utypes.h
++++ b/icuSources/include/_foundation_unicode/utypes.h
+@@ -354,31 +354,13 @@ typedef double UDate;
+ #endif
+ 
+ #if defined(U_COMBINED_IMPLEMENTATION)
+-// SwiftFoundationICU Changes: hide all C++ public symbols
+-// Rationale: When FoundationInternationalization tests are executed,
+-// we effectively load two ICU instances into memory:
+-//
+-// 1) The system ICU loaded by XCTest via system Foundation;
+-// 2) The package ICU SwiftFoundation utilizes.
+-//
+-// These two ICUs cause symbol collisions for dyld due to the fact that
+-// all public C++ symbols share a global namespace and coalesce across all loaded dylibs.
+-// Consequently, we encounter sporadic test failures in SwiftFoundation as dyld
+-// arbitrarily selects ICU symbols and occasionally chooses the system one.
+-//
+-// To address this issue, we resolved to hide all C++ APIs,
+-// ensuring they are not weakly referenced and potentially bound to
+-// the system ICU implementation.
+-//
+-// This solution proves effective for SwiftFoundation,
+-// as it does not actually utilize the C++ APIs.
+-#define U_DATA_API     __attribute__((visibility("hidden")))
+-#define U_COMMON_API   __attribute__((visibility("hidden")))
+-#define U_I18N_API     __attribute__((visibility("hidden")))
+-#define U_LAYOUT_API   __attribute__((visibility("hidden")))
+-#define U_LAYOUTEX_API __attribute__((visibility("hidden")))
+-#define U_IO_API       __attribute__((visibility("hidden")))
+-#define U_TOOLUTIL_API __attribute__((visibility("hidden")))
++#define U_DATA_API     U_EXPORT
++#define U_COMMON_API   U_EXPORT
++#define U_I18N_API     U_EXPORT
++#define U_LAYOUT_API   U_EXPORT
++#define U_LAYOUTEX_API U_EXPORT
++#define U_IO_API       U_EXPORT
++#define U_TOOLUTIL_API U_EXPORT
+ #elif defined(U_STATIC_IMPLEMENTATION)
+ #define U_DATA_API
+ #define U_COMMON_API
+-- 
+2.46.0
+
