@@ -1,0 +1,104 @@
+From 88e3782be7f5536f5c83901d7c25e29b32c3fab5 Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sat, 12 Apr 2025 16:26:57 +0300
+Subject: [PATCH] [PATCH] Fix dispatch source write issue
+
+---
+ .../URLSession/libcurl/MultiHandle.swift      | 35 ++++++++++++++++---
+ .../include/CFURLSessionInterface.h           |  4 +--
+ 2 files changed, 32 insertions(+), 7 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift
+index ed9e6bd7..d0dc7ec5 100644
+--- a/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift
++++ b/Sources/FoundationNetworking/URLSession/libcurl/MultiHandle.swift
+@@ -54,6 +54,12 @@ extension URLSession {
+             configure(with: configuration)
+         }
+         deinit {
++            // Remove callbacks
++            try! CFURLSession_multi_setopt_ptr(rawHandle, CFURLSessionMultiOptionSOCKETDATA, nil)
++            try! CFURLSession_multi_setopt_sf(rawHandle, CFURLSessionMultiOptionSOCKETFUNCTION, nil)
++            try! CFURLSession_multi_setopt_ptr(rawHandle, CFURLSessionMultiOptionTIMERDATA, nil)
++            try! CFURLSession_multi_setopt_tf(rawHandle, CFURLSessionMultiOptionTIMERFUNCTION, nil)
++
+             // C.f.: <https://curl.haxx.se/libcurl/c/curl_multi_cleanup.html>
+             easyHandles.forEach {
+                 try! CFURLSessionMultiHandleRemoveHandle(rawHandle, $0.rawHandle).asError()
+@@ -528,12 +534,17 @@ fileprivate class _SocketSources {
+     var readSource: DispatchSource?
+     var writeSource: DispatchSource?
+ 
++    var readDupSocket: Int32?
++    var writeDupSocket: Int32?
++
+     func createReadSource(socket: CFURLSession_socket_t, queue: DispatchQueue, handler: DispatchWorkItem) {
+         guard readSource == nil else { return }
+ #if os(Windows)
+         let s = DispatchSource.makeReadSource(handle: HANDLE(bitPattern: Int(socket))!, queue: queue)
+ #else
+-        let s = DispatchSource.makeReadSource(fileDescriptor: socket, queue: queue)
++        let dupSocket = dup(socket)
++        readDupSocket = dupSocket
++        let s = DispatchSource.makeReadSource(fileDescriptor: dupSocket, queue: queue)
+ #endif
+         s.setEventHandler(handler: handler)
+         readSource = s as? DispatchSource
+@@ -545,7 +556,9 @@ fileprivate class _SocketSources {
+ #if os(Windows)
+         let s = DispatchSource.makeWriteSource(handle: HANDLE(bitPattern: Int(socket))!, queue: queue)
+ #else
+-        let s = DispatchSource.makeWriteSource(fileDescriptor: socket, queue: queue)
++        let dupSocket = dup(socket)
++        writeDupSocket = dupSocket
++        let s = DispatchSource.makeWriteSource(fileDescriptor: dupSocket, queue: queue)
+ #endif
+         s.setEventHandler(handler: handler)
+         writeSource = s as? DispatchSource
+@@ -565,13 +578,25 @@ fileprivate class _SocketSources {
+         // the reference.
+         let socketReference = handle.beginOperation(for: socket)
+         let cancelHandlerGroup = DispatchGroup()
+-        [readSource, writeSource].compactMap({ $0 }).forEach { source in
++
++        if let readSource = readSource, let readDupSocket = readDupSocket {
+             cancelHandlerGroup.enter()
+-            source.setCancelHandler {   
++            readSource.setCancelHandler {
++                close(readDupSocket)
+                 cancelHandlerGroup.leave()
+             }
+-            source.cancel()
++            readSource.cancel()
+         }
++
++        if let writeSource = writeSource, let writeDupSocket = writeDupSocket {
++            cancelHandlerGroup.enter()
++            writeSource.setCancelHandler {
++                close(writeDupSocket)
++                cancelHandlerGroup.leave()
++            }
++            writeSource.cancel()
++        }
++
+         cancelHandlerGroup.notify(queue: queue) {
+             handle.endOperation(for: socketReference)
+         }
+diff --git a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
+index 2c0264b1..3005fce5 100644
+--- a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
++++ b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
+@@ -663,8 +663,8 @@ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_getinfo_charp(CFURLSessionEasyH
+ 
+ CF_EXPORT CFURLSessionMultiCode CFURLSession_multi_setopt_ptr(CFURLSessionMultiHandle _Nonnull multi_handle, CFURLSessionMultiOption option, void *_Nullable a);
+ CF_EXPORT CFURLSessionMultiCode CFURLSession_multi_setopt_l(CFURLSessionMultiHandle _Nonnull multi_handle, CFURLSessionMultiOption option, long a);
+-CF_EXPORT CFURLSessionMultiCode CFURLSession_multi_setopt_sf(CFURLSessionMultiHandle _Nonnull multi_handle, CFURLSessionMultiOption option, int (*_Nonnull a)(CFURLSessionEasyHandle _Nonnull, CFURLSession_socket_t, int, void *_Nullable, void *_Nullable));
+-CF_EXPORT CFURLSessionMultiCode CFURLSession_multi_setopt_tf(CFURLSessionMultiHandle _Nonnull multi_handle, CFURLSessionMultiOption option, int (*_Nonnull a)(CFURLSessionMultiHandle _Nonnull, long, void *_Nullable));
++CF_EXPORT CFURLSessionMultiCode CFURLSession_multi_setopt_sf(CFURLSessionMultiHandle _Nonnull multi_handle, CFURLSessionMultiOption option, int (*_Nullable a)(CFURLSessionEasyHandle _Nonnull, CFURLSession_socket_t, int, void *_Nullable, void *_Nullable));
++CF_EXPORT CFURLSessionMultiCode CFURLSession_multi_setopt_tf(CFURLSessionMultiHandle _Nonnull multi_handle, CFURLSessionMultiOption option, int (*_Nullable a)(CFURLSessionMultiHandle _Nonnull, long, void *_Nullable));
+ 
+ CF_EXPORT CFURLSessionEasyCode CFURLSessionInit(void);
+ 
+-- 
+2.46.0
+
