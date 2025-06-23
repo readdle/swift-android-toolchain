@@ -26,7 +26,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-arm64-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-arm64-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-64.outputs.cache-hit != 'true'
       run: ./build/031-build-swift-arm64.sh
@@ -55,7 +55,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-arm32-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-arm32-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-arm-32.outputs.cache-hit != 'true'
       run: ./build/032-build-swift-arm.sh
@@ -84,7 +84,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-x86_64-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-x86_64-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86_64.outputs.cache-hit != 'true'
       run: ./build/033-build-swift-x86_64.sh
@@ -112,7 +112,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/out/swift-android/lib
-        key: ${{ runner.os }}-stdlib-x86-${{ hashFiles('.swift.sum') }}
+        key: ${{ runner.os }}-stdlib-x86-api29-${{ hashFiles('.swift.sum') }}
     - name: Build Swift
       if: steps.cache-swift-x86.outputs.cache-hit != 'true'
       run: ./build/034-build-swift-x86.sh
@@ -137,7 +137,7 @@ jobs:
           ~/openssl/arm
           ~/openssl/x86_64
           ~/openssl/x86
-        key: openssl-1.1.1w-r4
+        key: openssl-3.5.0-r1
     - name: Install dependencies
       if: steps.cache-openssl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -184,7 +184,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-7_88_1-r10
+        key: curl-8.13.0-r1
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -250,7 +250,7 @@ jobs:
           ~/libxml/arm
           ~/libxml/x86_64
           ~/libxml/x86
-        key: libxmlv2.13.5-r2
+        key: libxmlv2.14.3-r1
     - name: Install dependencies
       if: steps.cache-libxml.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
@@ -293,6 +293,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-arm64-v8a
@@ -309,18 +311,8 @@ jobs:
       with:
         name: swift-android-arm64-v8a
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh arm64 aarch64 aarch64-linux-android arm64-v8a aarch64-linux-android
-    - uses: actions/upload-artifact@v4
-      with:
-        name: swift-android-clang-libs
-        path: ~/swift-toolchain/usr/lib/clang
     - uses: actions/upload-artifact@v4
       with:
         name: swift-android-arm64-v8a-libs
@@ -339,6 +331,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-armeabi-v7a
@@ -355,12 +349,6 @@ jobs:
       with:
         name: swift-android-armeabi-v7a
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh arm armv7 arm-linux-androideabi armeabi-v7a armv7a-linux-androideabi
     - uses: actions/upload-artifact@v4
@@ -381,6 +369,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-x86_64
@@ -397,12 +387,6 @@ jobs:
       with:
         name: swift-android-x86_64
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh x86_64 x86_64 x86_64-linux-android x86_64 x86_64-linux-android
     - uses: actions/upload-artifact@v4
@@ -423,6 +407,8 @@ jobs:
       run: ./build/002-install-ndk.sh
     - name: Define build folders
       run: ./build/003-define-build-folders.sh
+    - name: Clone Swift
+      run: ./build/020-clone-swift.sh
     - uses: actions/download-artifact@v4
       with:
         name: openssl-x86
@@ -439,12 +425,6 @@ jobs:
       with:
         name: swift-android-x86
         path: ~/swift-android/lib
-    - name: Copy andorid stdlib to swift toolchain
-      run: cp -r ~/swift-android/lib/swift/android ~/swift-toolchain/usr/lib/swift
-    - name: Remove corelibs headers from swift-toolchain
-      run: rm -rf ~/swift-toolchain/usr/lib/swift/CoreFoundation ~/swift-toolchain/usr/lib/swift/dispatch ~/swift-toolchain/usr/lib/swift/_FoundationCShims ~/swift-toolchain/usr/lib/swift/_foundation_unicode
-    - name: Clone Swift
-      run: ./build/020-clone-swift.sh
     - name: Build Corelibs
       run: ./build/052-build-corelibs.sh x86 i686 i686-linux-android x86 i686-linux-android
     - uses: actions/upload-artifact@v4
@@ -481,8 +461,20 @@ jobs:
         path: ~/lib/swift-i686
     - uses: actions/download-artifact@v4
       with:
-        name: swift-android-clang-libs
-        path: ~/lib/clang
+        name: swift-android-arm64-v8a
+        path: ~/stdlib/swift-aarch64
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-armeabi-v7a
+        path: ~/stdlib/swift-armv7
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-x86_64
+        path: ~/stdlib/swift-x86_64
+    - uses: actions/download-artifact@v4
+      with:
+        name: swift-android-x86
+        path: ~/stdlib/swift-i686
     - name: Collect toolchain
       run: ./build/060-collect-toolchain.sh
     - uses: actions/upload-artifact@v4

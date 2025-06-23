@@ -49,15 +49,4 @@ apt-get install -y  \
     rpl
 
 clang --version
-
-# Install swift for bootstraping
-wget https://download.swift.org/swift-6.0.3-release/ubuntu2004/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-ubuntu20.04.tar.gz
-tar -xvzf swift-6.0.3-RELEASE-ubuntu20.04.tar.gz
-rm swift-6.0.3-RELEASE-ubuntu20.04.tar.gz
-mv $HOME/swift-6.0.3-RELEASE-ubuntu20.04 $HOME/swift-toolchain
-export PATH=$HOME/swift-toolchain/usr/bin:$PATH
-echo "export PATH=\$HOME/swift-toolchain/usr/bin:\$PATH" >> .build_env
-echo "export SWIFT_PATH=\$HOME/swift-toolchain/usr/bin" >> .build_env
-
-swift --version
   

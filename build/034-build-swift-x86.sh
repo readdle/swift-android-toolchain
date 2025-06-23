@@ -8,7 +8,7 @@ $SWIFT_SRC/swift/utils/build-script \
     --android \
     --android-ndk $ANDROID_NDK \
     --android-arch i686 \
-    --android-api-level 21 \
+    --android-api-level 29 \
     --stdlib-deployment-targets=android-i686 \
     --native-swift-tools-path=$SWIFT_PATH \
     --native-clang-tools-path=$SWIFT_PATH \
@@ -17,3 +17,7 @@ $SWIFT_SRC/swift/utils/build-script \
     --skip-build-cmark
 
 mv $SWIFT_SRC/build/Ninja-ReleaseAssert/swift-linux-x86_64/lib $DST_ROOT/lib
+
+# Move libraries to proper dst libs
+mv $DST_ROOT/lib/swift/android/*.so $DST_ROOT/lib/swift/android/i686
+mv $DST_ROOT/lib/swift/android/*.a $DST_ROOT/lib/swift/android/i686

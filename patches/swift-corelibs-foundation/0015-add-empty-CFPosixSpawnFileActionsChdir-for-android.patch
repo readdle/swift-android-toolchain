@@ -1,0 +1,27 @@
+From 15c1f65dbeb3a2151d6ac36c03ccb67d7173850d Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sat, 10 May 2025 15:26:22 +0300
+Subject: [PATCH] Add empty _CFPosixSpawnFileActionsChdir
+
+---
+ Sources/CoreFoundation/CFPlatform.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Sources/CoreFoundation/CFPlatform.c b/Sources/CoreFoundation/CFPlatform.c
+index 90f4aa78..0eea2f3b 100644
+--- a/Sources/CoreFoundation/CFPlatform.c
++++ b/Sources/CoreFoundation/CFPlatform.c
+@@ -2248,6 +2248,10 @@ CF_EXPORT int _CFPosixSpawn(pid_t *_CF_RESTRICT pid, const char *_CF_RESTRICT pa
+     return _CFPosixSpawnImpl(pid, path, file_actions, attrp, argv, envp);
+ }
+ 
++CF_EXPORT int _CFPosixSpawnFileActionsChdir(_CFPosixSpawnFileActionsRef file_actions, const char *path) {
++    return 0;
++}
++
+ #elif !TARGET_OS_WIN32 && !TARGET_OS_WASI
+ 
+ #include <spawn.h>
+-- 
+2.46.0
+

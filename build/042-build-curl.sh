@@ -3,9 +3,13 @@ set -ex
 
 source $HOME/.build_env
 
-CURL_VERSION=curl-7_88_1
+VERSION_MAJOR=8
+VERSION_MINOR=13
+VERSION_PATCH=0
 
-GIT_URL_CURL=https://github.com/curl/curl.git
+TAG=curl-${VERSION_MAJOR}_${VERSION_MINOR}_${VERSION_PATCH}
+ARCHIVE_NAME=curl-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.tar.gz
+CURL_SOURCE=https://github.com/curl/curl/releases/download/$TAG/$ARCHIVE_NAME
 
 archs=(arm arm64 x86 x86_64)
 
@@ -13,20 +17,17 @@ rm -rf $CURL_LIBS
 mkdir -p $CURL_LIBS
 
 pushd $CURL_LIBS
-    mkdir downloads src
-
-    git clone $GIT_URL_CURL src/curl
-    pushd src/curl
-        git checkout $CURL_VERSION
-    popd
+    mkdir -p downloads src/curl
+    wget $CURL_SOURCE -O downloads/curl.tar.gz
+    tar -xvf downloads/curl.tar.gz -C src/curl --strip-components=1
 popd
  
-API=24
+API=29
 HOST=linux-x86_64
 TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST
 
 export CFLAGS="-O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
-export LDFLAGS="$LDFLAGS -Wl,--build-id=sha1"
+export LDFLAGS="$LDFLAGS -Wl,--build-id=sha1 -Wl,-z,max-page-size=16384"
 
 for arch in ${archs[*]}
 do
@@ -77,6 +78,7 @@ do
                 --with-zlib \
                 --without-ca-bundle \
                 --without-ca-path \
+                --without-libpsl \
                 --enable-ipv6  --enable-http    --enable-ftp \
                 --enable-proxy
 

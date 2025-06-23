@@ -1,0 +1,25 @@
+From 39a43f6e80bf0e63f844b93f24e8de3887a93996 Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sat, 12 Apr 2025 15:26:32 +0300
+Subject: [PATCH] Enable crashlytics
+
+---
+ stdlib/cmake/modules/AddSwiftStdlib.cmake |   2 +
+ 1 file changed, 2 insertions(+)
+
+diff --git a/stdlib/cmake/modules/AddSwiftStdlib.cmake b/stdlib/cmake/modules/AddSwiftStdlib.cmake
+index fd5e97675ff..88c09e534e6 100644
+--- a/stdlib/cmake/modules/AddSwiftStdlib.cmake
++++ b/stdlib/cmake/modules/AddSwiftStdlib.cmake
+@@ -2464,6 +2464,8 @@ function(add_swift_target_library name)
+         list(APPEND swiftlib_link_flags_all "-shared")
+         # TODO: Instead of `lib${name}.so` find variable or target property which already have this value.
+         list(APPEND swiftlib_link_flags_all "-Wl,-soname,lib${name}.so")
++        # Add the build-id flag to ensure a unique identifier is included in the output binary.
++        list(APPEND swiftlib_link_flags_all "-Wl,--build-id")
+       endif()
+ 
+       if (SWIFTLIB_BACK_DEPLOYMENT_LIBRARY)
+-- 
+2.46.0
+

@@ -1,8 +1,7 @@
-From e092458ed013b43de2dbaea9442f947a4c238ed4 Mon Sep 17 00:00:00 2001
-From: Anton Pogonets <apogonets@readdle.com>
-Date: Wed, 31 Mar 2021 14:21:26 +0300
-Subject: [PATCH 3/7] Forward android-arch form build-script to
- build-script-impl in case of i686
+From 68f24e51020ddf9245f3ac51b822989a06dfd46e Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Sat, 12 Apr 2025 15:24:06 +0300
+Subject: [PATCH] Forward android arch form build script to build script
 
 ---
  utils/build-presets.ini                                  | 7 +++++++
@@ -12,10 +11,10 @@ Subject: [PATCH 3/7] Forward android-arch form build-script to
  4 files changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/utils/build-presets.ini b/utils/build-presets.ini
-index 46ad038f6dc..6c59d8d2ed4 100644
+index 23abcd95d91..76003cdd7bd 100644
 --- a/utils/build-presets.ini
 +++ b/utils/build-presets.ini
-@@ -912,6 +912,13 @@ skip-build-benchmarks
+@@ -1021,6 +1021,13 @@ skip-early-swiftsyntax
  
  reconfigure
  
@@ -30,10 +29,10 @@ index 46ad038f6dc..6c59d8d2ed4 100644
  mixin-preset=buildbot_linux_crosscompile_android,tools=RA,stdlib=RD,build
  
 diff --git a/utils/build-script b/utils/build-script
-index b8e50140d1d..4e2506c9e29 100755
+index d37c50ca35e..e9d6b5ebc41 100755
 --- a/utils/build-script
 +++ b/utils/build-script
-@@ -356,6 +356,9 @@ def apply_default_arguments(toolchain, args):
+@@ -372,6 +372,9 @@ def apply_default_arguments(toolchain, args):
          elif args.android_arch == "aarch64":
              args.stdlib_deployment_targets.append(
                  StdlibDeploymentTarget.Android.aarch64.name)
@@ -44,27 +43,27 @@ index b8e50140d1d..4e2506c9e29 100755
              args.stdlib_deployment_targets.append(
                  StdlibDeploymentTarget.Android.x86_64.name)
 diff --git a/utils/build_swift/build_swift/driver_arguments.py b/utils/build_swift/build_swift/driver_arguments.py
-index 1e2ca9b1d06..5b7ca533ce1 100644
+index 6d5759cab41..1cab2936fc3 100644
 --- a/utils/build_swift/build_swift/driver_arguments.py
 +++ b/utils/build_swift/build_swift/driver_arguments.py
-@@ -1101,10 +1101,10 @@ def create_argument_parser():
+@@ -1423,10 +1423,10 @@ def create_argument_parser():
                      android.adb.commands.DEVICE_TEMP_DIR))
  
      option('--android-arch', store,
 -           choices=['armv7', 'aarch64', 'x86_64'],
 +           choices=['armv7', 'aarch64', 'i686', 'x86_64'],
-            default='armv7',
+            default='aarch64',
             help='The target architecture when building for Android. '
 -                'Currently, only armv7, aarch64, and x86_64 are supported. '
-+                'Currently, only armv7, aarch64, i686, and x86_64 are supported. '
++                'Currently, only armv7, aarch64, i686 and x86_64 are supported. '
                  '%(default)s is the default.')
  
      # -------------------------------------------------------------------------
 diff --git a/utils/swift_build_support/swift_build_support/targets.py b/utils/swift_build_support/swift_build_support/targets.py
-index cb42f52c633..ded5af52681 100644
+index 6447c84f665..82ee2e37228 100644
 --- a/utils/swift_build_support/swift_build_support/targets.py
 +++ b/utils/swift_build_support/swift_build_support/targets.py
-@@ -201,7 +201,7 @@ class StdlibDeploymentTarget(object):
+@@ -300,7 +300,7 @@ class StdlibDeploymentTarget(object):
  
      Cygwin = Platform("cygwin", archs=["x86_64"])
  
@@ -74,5 +73,5 @@ index cb42f52c633..ded5af52681 100644
      Windows = Platform("windows", archs=["x86_64"])
  
 -- 
-2.29.2
+2.46.0
 

@@ -2,7 +2,8 @@
 set -ex
 
 ROOT_DIR=$(realpath $(dirname $0))/../
-BRANCH="release/6.0"
+SWIFT_VERSION="6.1"
+BRANCH="release/$SWIFT_VERSION"
 
 source $HOME/.build_env
 
@@ -37,4 +38,17 @@ pushd $SWIFT_SRC
     rm -rf swiftpm/.git
     rm -rf ninja/.git
 
+popd
+
+# Install swift for bootstraping
+pushd $HOME
+    wget https://download.swift.org/swift-$SWIFT_VERSION-release/ubuntu2404/swift-$SWIFT_VERSION-RELEASE/swift-$SWIFT_VERSION-RELEASE-ubuntu24.04.tar.gz
+    tar -xvzf swift-$SWIFT_VERSION-RELEASE-ubuntu24.04.tar.gz
+    rm swift-$SWIFT_VERSION-RELEASE-ubuntu24.04.tar.gz
+    mv $HOME/swift-$SWIFT_VERSION-RELEASE-ubuntu24.04 $HOME/swift-toolchain
+    export PATH=$HOME/swift-toolchain/usr/bin:$PATH
+    echo "export PATH=\$HOME/swift-toolchain/usr/bin:\$PATH" >> .build_env
+    echo "export SWIFT_PATH=\$HOME/swift-toolchain/usr/bin" >> .build_env
+
+    swift --version
 popd

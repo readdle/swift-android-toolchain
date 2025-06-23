@@ -11,13 +11,49 @@ out_toolchain=$out/toolchain
 
 mkdir -p $out
 mkdir -p $out_toolchain
-mkdir -p $out_toolchain/usr
 
-input_libs=$HOME/lib
+input_stdlib=$HOME/stdlib
+input_lib=$HOME/lib
 
 pushd $out
-    rsync -av $input_libs $out_toolchain/usr --exclude 'lib/clang/17/lib'
+    # Copy NDK sysroot
+    rsync -av $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot/ $out_toolchain/
 
+    # Create swift folder
+    mkdir -p $out_toolchain/usr/lib/swift
+
+    # Copy stlibs
+    rsync -av $input_stdlib/swift-aarch64/swift/ $out_toolchain/usr/lib/swift/
+    rsync -av $input_stdlib/swift-armv7/swift/ $out_toolchain/usr/lib/swift/
+    rsync -av $input_stdlib/swift-x86_64/swift/ $out_toolchain/usr/lib/swift/
+    rsync -av $input_stdlib/swift-i686/swift/ $out_toolchain/usr/lib/swift/
+    
+    # Copy corelibs
+    rsync -av $input_lib/swift-aarch64/ $out_toolchain/usr/lib/swift/
+    rsync -av $input_lib/swift-armv7/ $out_toolchain/usr/lib/swift/
+    rsync -av $input_lib/swift-x86_64/ $out_toolchain/usr/lib/swift/
+    rsync -av $input_lib/swift-i686/ $out_toolchain/usr/lib/swift/
+
+    # Copy libc++ shared library
+    cp $out_toolchain/usr/lib/aarch64-linux-android/libc++_shared.so $out_toolchain/usr/lib/swift/android/aarch64/
+    cp $out_toolchain/usr/lib/arm-linux-androideabi/libc++_shared.so $out_toolchain/usr/lib/swift/android/armv7/
+    cp $out_toolchain/usr/lib/x86_64-linux-android/libc++_shared.so $out_toolchain/usr/lib/swift/android/x86_64/
+    cp $out_toolchain/usr/lib/i686-linux-android/libc++_shared.so $out_toolchain/usr/lib/swift/android/i686/
+
+    # Remove unsuported cpu architectures
+    rm -rf $out_toolchain/usr/lib/riscv64-linux-android
+
+    # Remove not supported Andorid version libs
+    rm -rf $out_toolchain/usr/lib/*/21
+    rm -rf $out_toolchain/usr/lib/*/22
+    rm -rf $out_toolchain/usr/lib/*/23
+    rm -rf $out_toolchain/usr/lib/*/24
+    rm -rf $out_toolchain/usr/lib/*/25
+    rm -rf $out_toolchain/usr/lib/*/26
+    rm -rf $out_toolchain/usr/lib/*/27
+    rm -rf $out_toolchain/usr/lib/*/28
+
+    # Install swift android build tools
     git clone --depth 1 https://github.com/readdle/swift-android-buildtools.git --branch $toolchain_version build-tools
     pushd build-tools
         rm -rf .git .gitignore LICENSE
