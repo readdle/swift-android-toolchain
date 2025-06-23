@@ -8,19 +8,16 @@ Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/
 
 ### Prepare environment (macOS x86_64 or macOS arm64)
 
-1. Download and install [Swift toolchain 6.0.3](https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg)
+1. Install Swift 6.1 toolchain with [swiftly](https://www.swift.org/install/macos/)
 
-2. Install the Android NDK:
+```
+swiftly install 6.1
+```
+
+2. Install the [Android NDK 27c](https://developer.android.com/ndk/downloads)
 * If you have [Android SDK Command-Line Tools](https://developer.android.com/tools#tools-sdk) installed:
 ```
-sdkmanager --install "ndk;26.2.11394342"
-```
-* otherwise:
-```
-curl -O https://dl.google.com/android/repository/android-ndk-r26c-darwin.dmg
-hdiutil attach android-ndk-r26c-darwin.dmg
-cp -r "/Volumes/Android NDK r26c/AndroidNDK11394342.app/Contents/NDK/" ./android-ndk-r26c
-hdiutil detach "/Volumes/Android NDK r26c"
+sdkmanager --install "ndk;27.2.12479018"
 ```
 
 3. Install the Swift Android Toolchain
@@ -44,25 +41,23 @@ Our current swift build system is tiny wrapper over Swift PM. See [Swift Package
 
 | Command                             | Description                  |
 |-------------------------------------|------------------------------|
-| swift package clean                 | Clean build folder           |
-| swift package update                | Update dependencies          |
-| swift android build                 | Build all products           |
-| swift android build --build-tests   | Build all products and tests |
-| swift android test                  | Connect to Android device and run all tests |
+| swift-android build                 | Build all products           |
+| swift-android build --build-tests   | Build all products and tests |
+| swift-android test                  | Connect to Android device and run all tests |
  
-`swift android build` wrapper scripts works as `swift build` from Swift Package Manager but is configured for Android. You can pass additional parameters such as `-Xswiftc -DDEBUG` , `-Xswiftc -suppress-warnings` or `--configuration release`
+`swift-android build` wrapper scripts works as `swift build` from Swift Package Manager but is configured for Android. You can pass additional parameters such as `-Xswiftc -DDEBUG` , `-Xswiftc -suppress-warnings` or `--configuration release`
 
 Example of compilation flags:
 * Debug
 ```
-swift android build --configuration debug -Xswiftc -DDEBUG
+swift-android build --configuration debug -Xswiftc -DDEBUG
 ```
 * Release
 ```
-swift android build --configuration release
+swift-android build --configuration release
 ```
 
-`swift android test` wrapper script builds, copies, and runs Swift Package Manager (SPM) tests on a connected Android device.
+`swift-android test` wrapper script builds, copies, and runs Swift Package Manager (SPM) tests on a connected Android device.
   
 ### Build swift modules with Android Studio
 
