@@ -2,7 +2,7 @@
 set -ex
 
 ROOT_DIR=$(realpath $(dirname $0))/../
-SWIFT_VERSION="6.1"
+SWIFT_VERSION="6.2"
 BRANCH="release/$SWIFT_VERSION"
 
 source $HOME/.build_env
