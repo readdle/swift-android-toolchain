@@ -8,10 +8,10 @@ Prebuilt toolchains are located on [Github Releases](https://github.com/readdle/
 
 ### Prepare environment (macOS x86_64 or macOS arm64)
 
-1. Install Swift 6.1 toolchain with [swiftly](https://www.swift.org/install/macos/)
+1. Install Swift 6.1.0 toolchain with [swiftly](https://www.swift.org/install/macos/)
 
 ```
-swiftly install 6.1
+swiftly install 6.1.0
 ```
 
 2. Install the [Android NDK 27c](https://developer.android.com/ndk/downloads)
