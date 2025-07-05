@@ -48,5 +48,10 @@ apt-get install -y  \
     vim                         \
     rpl
 
+# Swiftly dependency
+apt-get install -y \
+  gnupg2 \
+  jq
+
 clang --version
   
