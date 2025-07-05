@@ -42,13 +42,17 @@ popd
 
 # Install swift for bootstraping
 pushd $HOME
-    wget https://download.swift.org/swift-$SWIFT_VERSION-release/ubuntu2404/swift-$SWIFT_VERSION-RELEASE/swift-$SWIFT_VERSION-RELEASE-ubuntu24.04.tar.gz
-    tar -xvzf swift-$SWIFT_VERSION-RELEASE-ubuntu24.04.tar.gz
-    rm swift-$SWIFT_VERSION-RELEASE-ubuntu24.04.tar.gz
-    mv $HOME/swift-$SWIFT_VERSION-RELEASE-ubuntu24.04 $HOME/swift-toolchain
-    export PATH=$HOME/swift-toolchain/usr/bin:$PATH
-    echo "export PATH=\$HOME/swift-toolchain/usr/bin:\$PATH" >> .build_env
-    echo "export SWIFT_PATH=\$HOME/swift-toolchain/usr/bin" >> .build_env
+    curl -O https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz
+    tar zxf swiftly-$(uname -m).tar.gz
+    export SWIFTLY_HOME_DIR="/root/.local/share/swiftly"
+    ./swiftly init --quiet-shell-followup
+    . "$SWIFTLY_HOME_DIR/env.sh"
+    hash -r
 
-    swift --version
+    swiftly install 6.2-snapshot
+    swiftly use 6.2-snapshot
+
+    # Export SWIFT_PATH
+    TOOLCHAIN_NAME=$(jq -r '.inUse' "$SWIFTLY_HOME_DIR/config.json")
+    echo "export SWIFT_PATH=\"$SWIFTLY_HOME_DIR/toolchains/$TOOLCHAIN_NAME/usr/bin\"" >> .build_env
 popd
