@@ -1,0 +1,368 @@
+From 860ce1e0f2fb76266c27afc1708ae01637a88192 Mon Sep 17 00:00:00 2001
+From: Andrew Druk <adruk@readdle.com>
+Date: Mon, 4 Aug 2025 14:53:38 +0300
+Subject: [PATCH] Fix WebSocket buffered read Add support for fragmented
+ messages
+
+Buffered socket reads could result in incomplete frame parsing due to incorrect assumptions about TCP delivery. This patch introduces proper accumulation of partial reads.
+
+Also adds handling for fragmented WebSocket messages split across multiple frames.
+
+(cherry picked from commit 940dd090506142e4198a11f24fe883bbe26166f0)
+---
+ .../WebSocket/WebSocketURLProtocol.swift      |  25 +++-
+ .../URLSession/libcurl/EasyHandle.swift       |   4 +-
+ Tests/Foundation/HTTPServer.swift             |  99 ++++++++++++++--
+ Tests/Foundation/TestURLSession.swift         | 107 +++++++++---------
+ 4 files changed, 169 insertions(+), 66 deletions(-)
+
+diff --git a/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift b/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+index 8216f23d..e35612dd 100644
+--- a/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+@@ -17,6 +17,9 @@ import Foundation
+ import Dispatch
+ 
+ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
++
++    private var messageData = Data()
++
+     public required init(task: URLSessionTask, cachedResponse: CachedURLResponse?, client: URLProtocolClient?) {
+         super.init(task: task, cachedResponse: nil, client: client)
+     }
+@@ -118,14 +121,14 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+             lastRedirectBody = redirectBody
+         }
+ 
+-        let flags = easyHandle.getWebSocketFlags()
++        let (offset, bytesLeft, flags) = easyHandle.getWebSocketMeta()
+         
+-        notifyTask(aboutReceivedData: data, flags: flags)
++        notifyTask(aboutReceivedData: data, offset: offset, bytesLeft: bytesLeft, flags: flags)
+         internalState = .transferInProgress(ts)
+         return .proceed
+     }
+ 
+-    fileprivate func notifyTask(aboutReceivedData data: Data, flags: _EasyHandle.WebSocketFlags) {
++    fileprivate func notifyTask(aboutReceivedData data: Data, offset: Int64, bytesLeft: Int64, flags: _EasyHandle.WebSocketFlags) {
+         guard let t = self.task else {
+             fatalError("Cannot notify")
+         }
+@@ -159,10 +162,21 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+         } else if flags.contains(.pong) {
+             task.noteReceivedPong()
+         } else if flags.contains(.binary) {
+-            let message = URLSessionWebSocketTask.Message.data(data)
++            if bytesLeft > 0 || flags.contains(.cont) {
++                messageData.append(data)
++                return
++            }
++            messageData.append(data)
++            let message = URLSessionWebSocketTask.Message.data(messageData)
+             task.appendReceivedMessage(message)
++            messageData = Data() // Reset for the next message
+         } else if flags.contains(.text) {
+-            guard let utf8 = String(data: data, encoding: .utf8) else {
++            if bytesLeft > 0 || flags.contains(.cont) {
++                messageData.append(data)
++                return
++            }
++            messageData.append(data)
++            guard let utf8 = String(data: messageData, encoding: .utf8) else {
+                 NSLog("Invalid utf8 message received from server \(data)")
+                 let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorBadServerResponse,
+                                     userInfo: [
+@@ -175,6 +189,7 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+             }
+             let message = URLSessionWebSocketTask.Message.string(utf8)
+             task.appendReceivedMessage(message)
++            messageData = Data() // Reset for the next message
+         } else {
+             NSLog("Unexpected message received from server \(data) \(flags)")
+             let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorBadServerResponse,
+diff --git a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+index cfb9a9e5..c2ae72e6 100644
+--- a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
++++ b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+@@ -402,10 +402,10 @@ extension _EasyHandle {
+     }
+     
+     // Only valid to call within a didReceive(data:size:nmemb:) call
+-    func getWebSocketFlags() -> WebSocketFlags {
++    func getWebSocketMeta() -> (Int64, Int64, WebSocketFlags) {
+         let metadataPointer = CFURLSessionEasyHandleWebSocketsMetadata(rawHandle)
+         let flags = WebSocketFlags(rawValue: metadataPointer.pointee.flags)
+-        return flags
++        return (metadataPointer.pointee.offset, metadataPointer.pointee.bytesLeft, flags)
+     }
+     
+     func receiveWebSocketsData() throws -> (Data, WebSocketFlags) {
+diff --git a/Tests/Foundation/HTTPServer.swift b/Tests/Foundation/HTTPServer.swift
+index ba5782b9..a4a4a38b 100644
+--- a/Tests/Foundation/HTTPServer.swift
++++ b/Tests/Foundation/HTTPServer.swift
+@@ -919,6 +919,8 @@ public class TestURLSessionServer: CustomStringConvertible {
+                                "Connection: Upgrade"]
+         
+         let expectFullRequestResponseTests: Bool
++        let bufferedSendingTests: Bool
++        let fragmentedTests: Bool
+         let sendClosePacket: Bool
+         let completeUpgrade: Bool
+         
+@@ -926,14 +928,32 @@ public class TestURLSessionServer: CustomStringConvertible {
+         switch uri {
+         case "/web-socket":
+             expectFullRequestResponseTests = true
++            bufferedSendingTests = false
++            fragmentedTests = false
++            completeUpgrade = true
++            sendClosePacket = true
++        case "/web-socket/buffered-sending":
++            expectFullRequestResponseTests = true
++            bufferedSendingTests = true
++            fragmentedTests = false
++            completeUpgrade = true
++            sendClosePacket = true
++        case "/web-socket/fragmented":
++            expectFullRequestResponseTests = true
++            bufferedSendingTests = false
++            fragmentedTests = true
+             completeUpgrade = true
+             sendClosePacket = true
+         case "/web-socket/semi-abrupt-close":
+             expectFullRequestResponseTests = false
++            bufferedSendingTests = false
++            fragmentedTests = false
+             completeUpgrade = true
+             sendClosePacket = false
+         case "/web-socket/abrupt-close":
+             expectFullRequestResponseTests = false
++            bufferedSendingTests = false
++            fragmentedTests = false
+             completeUpgrade = false
+             sendClosePacket = false
+         default:
+@@ -949,6 +969,8 @@ public class TestURLSessionServer: CustomStringConvertible {
+             }
+             responseHeaders.append("Sec-WebSocket-Protocol: \(expectedProtocol)")
+             expectFullRequestResponseTests = false
++            bufferedSendingTests = false
++            fragmentedTests = false
+             completeUpgrade = true
+             sendClosePacket = true
+         }
+@@ -983,10 +1005,41 @@ public class TestURLSessionServer: CustomStringConvertible {
+                     NSLog("Invalid string frame")
+                     throw InternalServerError.badBody
+                 }
+-                
+-                // Send a string message
+-                let sendStringFrame = Data([0x81, UInt8(stringPayload.count)]) + stringPayload
+-                try httpServer.tcpSocket.writeRawData(sendStringFrame)
++
++                if bufferedSendingTests {
++                    // Send a string message in chunks of 2 bytes
++                    let sendStringFrame = Data([0x81, UInt8(stringPayload.count)]) + stringPayload
++                    let bufferSize = 2 // Let's assume the server has a buffer size of 2 bytes
++                    for i in stride(from: 0, to: sendStringFrame.count, by: bufferSize) {
++                        let end = min(i + bufferSize, sendStringFrame.count)
++                        let chunk = sendStringFrame.subdata(in: i..<end)
++                        try httpServer.tcpSocket.writeRawData(chunk)
++                        Thread.sleep(forTimeInterval: 0.1) // Sleep to simulate buffered sending
++                    }
++                }
++                else if fragmentedTests {
++                    // Send a string message fragmented by 1 byte
++                    for (i, byte) in stringPayload.enumerated() {
++                        var frame = Data()
++                        let isFirst = i == 0
++                        let isLast = i == stringPayload.count - 1
++
++                        let finBit: UInt8 = isLast ? 0x80 : 0x00
++                        let opcode: UInt8 = isFirst ? 0x1 : 0x0 // 0x1 = text, 0x0 = continuation
++                        let header: UInt8 = finBit | opcode
++
++                        frame.append(header)
++                        frame.append(0x01) // payload length 1, unmasked
++                        frame.append(byte)
++
++                        try httpServer.tcpSocket.writeRawData(frame)
++                    }
++                }
++                else {
++                    // Send a string message
++                    let sendStringFrame = Data([0x81, UInt8(stringPayload.count)]) + stringPayload
++                    try httpServer.tcpSocket.writeRawData(sendStringFrame)
++                }
+                 
+                 // Receive a data message
+                 guard let dataFrame = try httpServer.tcpSocket.readData(),
+@@ -996,10 +1049,40 @@ public class TestURLSessionServer: CustomStringConvertible {
+                     NSLog("Invalid data frame")
+                     throw InternalServerError.badBody
+                 }
+-                
+-                // Send a data message
+-                let sendDataFrame = Data([0x82, UInt8(dataPayload.count)]) + dataPayload
+-                try httpServer.tcpSocket.writeRawData(sendDataFrame)
++
++                if bufferedSendingTests {
++                    let sendDataFrame = Data([0x82, UInt8(dataPayload.count)]) + dataPayload
++                    let bufferSize = 2 // Let's assume the server has a buffer size of 2 bytes
++                    for i in stride(from: 0, to: sendDataFrame.count, by: bufferSize) {
++                        let end = min(i + bufferSize, sendDataFrame.count)
++                        let chunk = sendDataFrame.subdata(in: i..<end)
++                        try httpServer.tcpSocket.writeRawData(chunk)
++                        Thread.sleep(forTimeInterval: 0.1) // Sleep to simulate buffered sending
++                    }
++                }
++                else if fragmentedTests {
++                    // Send a data message fragmented by 1 byte
++                    for (i, byte) in dataPayload.enumerated() {
++                        var frame = Data()
++                        let isFirst = i == 0
++                        let isLast = i == dataPayload.count - 1
++
++                        let finBit: UInt8 = isLast ? 0x80 : 0x00
++                        let opcode: UInt8 = isFirst ? 0x2 : 0x0 // 0x2 = text, 0x0 = continuation
++                        let header: UInt8 = finBit | opcode
++
++                        frame.append(header)
++                        frame.append(0x01) // payload length 1, unmasked
++                        frame.append(byte)
++
++                        try httpServer.tcpSocket.writeRawData(frame)
++                    }
++                }
++                else {
++                    // Send a data message
++                    let sendDataFrame = Data([0x82, UInt8(dataPayload.count)]) + dataPayload
++                    try httpServer.tcpSocket.writeRawData(sendDataFrame)
++                }
+                 
+                 // Receive a ping
+                 guard let pingFrame = try httpServer.tcpSocket.readData(),
+diff --git a/Tests/Foundation/TestURLSession.swift b/Tests/Foundation/TestURLSession.swift
+index fa200abc..07a33a67 100644
+--- a/Tests/Foundation/TestURLSession.swift
++++ b/Tests/Foundation/TestURLSession.swift
+@@ -2182,59 +2182,64 @@ final class TestURLSession: LoopbackServerTest, @unchecked Sendable {
+             print("libcurl lacks WebSockets support, skipping \(#function)")
+             return
+         }
+-        
+-        let urlString = "ws://127.0.0.1:\(TestURLSession.serverPort)/web-socket"
+-        let url = try XCTUnwrap(URL(string: urlString))
+-        let request = URLRequest(url: url)
+-        
+-        let delegate = SessionDelegate(with: expectation(description: "\(urlString): Connect"))
+-        let task = delegate.runWebSocketTask(with: request, timeoutInterval: 4)
+-        
+-        // We interleave sending and receiving, as the test HTTPServer implementation is barebones, and can't handle receiving more than one frame at a time.  So, this back-and-forth acts as a gating mechanism
+-        try await task.send(.string("Hello"))
+-        
+-        let stringMessage = try await task.receive()
+-        switch stringMessage {
+-        case .string(let str):
+-            XCTAssert(str == "Hello")
+-        default:
+-            XCTFail("Unexpected String Message")
+-        }
+-        
+-        try await task.send(.data(Data([0x20, 0x22, 0x10, 0x03])))
+-        
+-        let dataMessage = try await task.receive()
+-        switch dataMessage {
+-        case .data(let data):
+-            XCTAssert(data == Data([0x20, 0x22, 0x10, 0x03]))
+-        default:
+-            XCTFail("Unexpected Data Message")
+-        }
+-        
+-        do {
+-            try await task.sendPing()
+-            // Server hasn't closed the connection yet
+-        } catch {
+-            // Server closed the connection before we could process the pong
+-            let urlError = try XCTUnwrap(error as? URLError)
+-            XCTAssertEqual(urlError._nsError.code, NSURLErrorNetworkConnectionLost)
+-        }
+ 
+-        await fulfillment(of: [delegate.expectation], timeout: 50)
+-        
+-        do {
+-            _ = try await task.receive()
+-            XCTFail("Expected to throw when receiving on closed task")
+-        } catch {
+-            let urlError = try XCTUnwrap(error as? URLError)
+-            XCTAssertEqual(urlError._nsError.code, NSURLErrorNetworkConnectionLost)
++        func testWebSocket(withURL urlString: String) async throws -> Void {
++            let url = try XCTUnwrap(URL(string: urlString))
++            let request = URLRequest(url: url)
++
++            let delegate = SessionDelegate(with: expectation(description: "\(urlString): Connect"))
++            let task = delegate.runWebSocketTask(with: request, timeoutInterval: 4)
++
++            // We interleave sending and receiving, as the test HTTPServer implementation is barebones, and can't handle receiving more than one frame at a time.  So, this back-and-forth acts as a gating mechanism
++            try await task.send(.string("Hello"))
++
++            let stringMessage = try await task.receive()
++            switch stringMessage {
++            case .string(let str):
++                XCTAssert(str == "Hello")
++            default:
++                XCTFail("Unexpected String Message")
++            }
++
++            try await task.send(.data(Data([0x20, 0x22, 0x10, 0x03])))
++
++            let dataMessage = try await task.receive()
++            switch dataMessage {
++            case .data(let data):
++                XCTAssert(data == Data([0x20, 0x22, 0x10, 0x03]))
++            default:
++                XCTFail("Unexpected Data Message")
++            }
++
++            do {
++                try await task.sendPing()
++                // Server hasn't closed the connection yet
++            } catch {
++                // Server closed the connection before we could process the pong
++                let urlError = try XCTUnwrap(error as? URLError)
++                XCTAssertEqual(urlError._nsError.code, NSURLErrorNetworkConnectionLost)
++            }
++
++            await fulfillment(of: [delegate.expectation], timeout: 50)
++
++            do {
++                _ = try await task.receive()
++                XCTFail("Expected to throw when receiving on closed task")
++            } catch {
++                let urlError = try XCTUnwrap(error as? URLError)
++                XCTAssertEqual(urlError._nsError.code, NSURLErrorNetworkConnectionLost)
++            }
++
++            let callbacks = [ "urlSession(_:webSocketTask:didOpenWithProtocol:)",
++                              "urlSession(_:webSocketTask:didCloseWith:reason:)",
++                              "urlSession(_:task:didCompleteWithError:)" ]
++            XCTAssertEqual(delegate.callbacks.count, callbacks.count)
++            XCTAssertEqual(delegate.callbacks, callbacks, "Callbacks for \(#function)")
+         }
+-        
+-        let callbacks = [ "urlSession(_:webSocketTask:didOpenWithProtocol:)",
+-                          "urlSession(_:webSocketTask:didCloseWith:reason:)",
+-                          "urlSession(_:task:didCompleteWithError:)" ]
+-        XCTAssertEqual(delegate.callbacks.count, callbacks.count)
+-        XCTAssertEqual(delegate.callbacks, callbacks, "Callbacks for \(#function)")
++
++        try await testWebSocket(withURL: "ws://127.0.0.1:\(TestURLSession.serverPort)/web-socket")
++        try await testWebSocket(withURL: "ws://127.0.0.1:\(TestURLSession.serverPort)/web-socket/buffered-sending")
++        try await testWebSocket(withURL: "ws://127.0.0.1:\(TestURLSession.serverPort)/web-socket/fragmented")
+     }
+ 
+     func test_webSocketShared() async throws {
+-- 
+2.46.0
+
