@@ -1,0 +1,50 @@
+diff --git a/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift b/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+index e35612dd..5079e72f 100644
+--- a/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+@@ -129,6 +129,7 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+     }
+ 
+     fileprivate func notifyTask(aboutReceivedData data: Data, offset: Int64, bytesLeft: Int64, flags: _EasyHandle.WebSocketFlags) {
++        NSLog("WebSocketURLProtocol received data: \(data.count) flags: \(flags.description) offset: \(offset) bytesLeft: \(bytesLeft)")
+         guard let t = self.task else {
+             fatalError("Cannot notify")
+         }
+@@ -167,6 +168,7 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+                 return
+             }
+             messageData.append(data)
++            NSLog("WebSocketURLProtocol received binary message: \(messageData.count) bytes")
+             let message = URLSessionWebSocketTask.Message.data(messageData)
+             task.appendReceivedMessage(message)
+             messageData = Data() // Reset for the next message
+@@ -187,6 +189,7 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+                 transferCompleted(withError: error)
+                 return
+             }
++            NSLog("WebSocketURLProtocol received text message: \(utf8.count) characters")
+             let message = URLSessionWebSocketTask.Message.string(utf8)
+             task.appendReceivedMessage(message)
+             messageData = Data() // Reset for the next message
+diff --git a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+index a891c981..624f4ce8 100644
+--- a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
++++ b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
+@@ -372,6 +372,17 @@ extension _EasyHandle {
+         static let close  = WebSocketFlags(rawValue: CFURLSessionWebSocketsClose)
+         static let ping   = WebSocketFlags(rawValue: CFURLSessionWebSocketsPing)
+         static let pong   = WebSocketFlags(rawValue: CFURLSessionWebSocketsPong)
++
++        var description: String {
++            var result: [String] = []
++            if self.contains(.text) { result += ["text"] }
++            if self.contains(.binary) { result += ["binary"] }
++            if self.contains(.cont) { result += ["cont"] }
++            if self.contains(.close) { result += ["close"] }
++            if self.contains(.ping) { result += ["ping"] }
++            if self.contains(.pong) { result += ["pong"] }
++            return "[\(result.joined(separator: "|"))]"
++        }
+     }
+     
+     // Only valid to call within a didReceive(data:size:nmemb:) call
