@@ -184,7 +184,7 @@ jobs:
           ~/curl/arm
           ~/curl/x86_64
           ~/curl/x86
-        key: curl-8.15.0-r1
+        key: curl-8.13.0-r1
     - name: Install dependencies
       if: steps.cache-curl.outputs.cache-hit != 'true'
       run: ./build/000-install-dependencies-nobel.sh
