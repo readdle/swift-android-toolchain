@@ -1,0 +1,182 @@
+diff --git a/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift b/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+index e35612dd..db924d71 100644
+--- a/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+@@ -201,4 +201,15 @@ internal class _WebSocketURLProtocol: _HTTPURLProtocol {
+             transferCompleted(withError: error)
+         }
+     }
++
++    // Don’t send a "Connection" header for ws:// connections.
++    // The WebSocket handshake requires "Connection: Upgrade",
++    // which libcurl generates automatically.
++    // Since libcurl 8.15.0, client-provided "Connection" headers
++    // are no longer overridden, so we must strip them all.
++    override var curlHeadersToSet: [(String, String)] {
++        var result = super.curlHeadersToSet
++        result.removeAll { $0.0 == "Connection" }
++        return result
++    }
+ }
+diff --git a/Tests/Foundation/HTTPServer.swift b/Tests/Foundation/HTTPServer.swift
+index 9922d328..7f296276 100644
+--- a/Tests/Foundation/HTTPServer.swift
++++ b/Tests/Foundation/HTTPServer.swift
+@@ -913,44 +913,38 @@ public class TestURLSessionServer: CustomStringConvertible {
+         var responseHeaders = ["Upgrade: websocket",
+                                "Connection: Upgrade"]
+         
+-        let expectFullRequestResponseTests: Bool
+-        let bufferedSendingTests: Bool
+-        let fragmentedTests: Bool
+-        let sendClosePacket: Bool
+-        let completeUpgrade: Bool
+-        
++        var expectFullRequestResponseTests: Bool = false
++        var bufferedSendingTests: Bool = false
++        var fragmentedTests: Bool = false
++        var emptyPayloadTests: Bool = false
++        var sendClosePacket: Bool = false
++        var completeUpgrade: Bool = false
++
+         let uri = request.uri
+         switch uri {
+         case "/web-socket":
+             expectFullRequestResponseTests = true
+-            bufferedSendingTests = false
+-            fragmentedTests = false
+             completeUpgrade = true
+             sendClosePacket = true
+         case "/web-socket/buffered-sending":
+             expectFullRequestResponseTests = true
+             bufferedSendingTests = true
+-            fragmentedTests = false
+             completeUpgrade = true
+             sendClosePacket = true
+         case "/web-socket/fragmented":
+             expectFullRequestResponseTests = true
+-            bufferedSendingTests = false
+             fragmentedTests = true
+             completeUpgrade = true
+             sendClosePacket = true
++        case "/web-socket/empty-payload":
++            expectFullRequestResponseTests = true
++            emptyPayloadTests = true
++            completeUpgrade = true
++            sendClosePacket = true
+         case "/web-socket/semi-abrupt-close":
+-            expectFullRequestResponseTests = false
+-            bufferedSendingTests = false
+-            fragmentedTests = false
+             completeUpgrade = true
+-            sendClosePacket = false
+         case "/web-socket/abrupt-close":
+-            expectFullRequestResponseTests = false
+-            bufferedSendingTests = false
+-            fragmentedTests = false
+             completeUpgrade = false
+-            sendClosePacket = false
+         default:
+             guard uri.count > "/web-socket/".count else {
+                 NSLog("Expected Sec-WebSocket-Protocol")
+@@ -986,12 +980,21 @@ public class TestURLSessionServer: CustomStringConvertible {
+             let closePayload = Data([UInt8(closeCode >> 8),
+                                      UInt8(closeCode & 0xFF)]) + closeReason
+ 
+-            let pingPayload = "Hi".data(using: .utf8)!
++            let pingPayload: Data
++            let stringPayload: Data
++            let dataPayload: Data
++            if emptyPayloadTests {
++                pingPayload = Data()
++                stringPayload = Data()
++                dataPayload = Data()
++            }
++            else {
++                pingPayload = "Hi".data(using: .utf8)!
++                stringPayload = "Hello".data(using: .utf8)!
++                dataPayload = Data([0x20, 0x22, 0x10, 0x03])
++            }
+ 
+             if expectFullRequestResponseTests {
+-                let stringPayload = "Hello".data(using: .utf8)!
+-                let dataPayload = Data([0x20, 0x22, 0x10, 0x03])
+-                
+                 // Receive a string message
+                 guard let stringFrame = try httpServer.tcpSocket.readData(),
+                       stringFrame.count == (2 + 4 + stringPayload.count),
+diff --git a/Tests/Foundation/TestURLSession.swift b/Tests/Foundation/TestURLSession.swift
+index 871e1b4e..0ca0a82c 100644
+--- a/Tests/Foundation/TestURLSession.swift
++++ b/Tests/Foundation/TestURLSession.swift
+@@ -2161,6 +2161,70 @@ final class TestURLSession: LoopbackServerTest, @unchecked Sendable {
+         try await testWebSocket(withURL: "ws://127.0.0.1:\(TestURLSession.serverPort)/web-socket/fragmented")
+     }
+ 
++    func test_webSocketEmptyPayload() async throws {
++        guard #available(macOS 12, iOS 13.0, watchOS 6.0, tvOS 13.0, *) else { return }
++        guard URLSessionWebSocketTask.supportsWebSockets else {
++            print("libcurl lacks WebSockets support, skipping \(#function)")
++            return
++        }
++
++        func testWebSocket(withURL urlString: String) async throws -> Void {
++            let url = try XCTUnwrap(URL(string: urlString))
++            let request = URLRequest(url: url)
++
++            let delegate = SessionDelegate(with: expectation(description: "\(urlString): Connect"))
++            let task = delegate.runWebSocketTask(with: request, timeoutInterval: 4)
++
++            // We interleave sending and receiving, as the test HTTPServer implementation is barebones, and can't handle receiving more than one frame at a time.  So, this back-and-forth acts as a gating mechanism
++            try await task.send(.string(""))
++
++            let stringMessage = try await task.receive()
++            switch stringMessage {
++            case .string(let str):
++                XCTAssert(str == "")
++            default:
++                XCTFail("Unexpected String Message")
++            }
++
++            try await task.send(.data(Data()))
++
++            let dataMessage = try await task.receive()
++            switch dataMessage {
++            case .data(let data):
++                XCTAssert(data == Data())
++            default:
++                XCTFail("Unexpected Data Message")
++            }
++
++            do {
++                try await task.sendPing()
++                // Server hasn't closed the connection yet
++            } catch {
++                // Server closed the connection before we could process the pong
++                let urlError = try XCTUnwrap(error as? URLError)
++                XCTAssertEqual(urlError._nsError.code, NSURLErrorNetworkConnectionLost)
++            }
++
++            await fulfillment(of: [delegate.expectation], timeout: 50)
++
++            do {
++                _ = try await task.receive()
++                XCTFail("Expected to throw when receiving on closed task")
++            } catch {
++                let urlError = try XCTUnwrap(error as? URLError)
++                XCTAssertEqual(urlError._nsError.code, NSURLErrorNetworkConnectionLost)
++            }
++
++            let callbacks = [ "urlSession(_:webSocketTask:didOpenWithProtocol:)",
++                              "urlSession(_:webSocketTask:didCloseWith:reason:)",
++                              "urlSession(_:task:didCompleteWithError:)" ]
++            XCTAssertEqual(delegate.callbacks.count, callbacks.count)
++            XCTAssertEqual(delegate.callbacks, callbacks, "Callbacks for \(#function)")
++        }
++
++        try await testWebSocket(withURL: "ws://127.0.0.1:\(TestURLSession.serverPort)/web-socket/empty-payload")
++    }
++
+     func test_webSocketShared() async throws {
+         guard #available(macOS 12, iOS 13.0, watchOS 6.0, tvOS 13.0, *) else { return }
+         guard URLSessionWebSocketTask.supportsWebSockets else {
