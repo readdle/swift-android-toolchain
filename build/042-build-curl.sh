@@ -18,8 +18,10 @@ mkdir -p $CURL_LIBS
 
 pushd $CURL_LIBS
     mkdir -p downloads src/curl
-    wget $CURL_SOURCE -O downloads/curl.tar.gz
-    tar -xvf downloads/curl.tar.gz -C src/curl --strip-components=1
+    git clone --branch ws-0len-frames --single-branch https://github.com/icing/curl.git src/curl
+    pushd src/curl
+        autoreconf -fi
+    popd
 popd
  
 API=29
@@ -67,7 +69,6 @@ do
 
         # Compile curl
         pushd src/curl            
-            autoreconf -i
             ./configure \
                 --host $TARGET_HOST \
                 --with-ssl=$OPENSSL_LIBS/$arch \
@@ -80,7 +81,8 @@ do
                 --without-ca-path \
                 --without-libpsl \
                 --enable-ipv6  --enable-http    --enable-ftp \
-                --enable-proxy
+                --enable-proxy \
+                --enable-websockets
 
             make && make install
         popd
