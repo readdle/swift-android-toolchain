@@ -42,6 +42,3 @@ apt-get install -y  \
 apt-get install -y \
   gnupg2 \
   jq
-
-clang --version
-  
