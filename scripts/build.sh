@@ -493,10 +493,10 @@ for arch in $archs; do
             --xctest --install-xctest \
             --swift-testing --install-swift-testing \
             --swift-testing-macros --install-swift-testing-macros \
-            --cross-compile-build-swift-tools=False \
+            --cross-compile-build-swift-tools=false \
             --libdispatch-cmake-options=-DCMAKE_SHARED_LINKER_FLAGS= \
             --foundation-cmake-options=-DCMAKE_SHARED_LINKER_FLAGS= \
-            --cross-compile-append-host-target-to-destdir=False 
+            --cross-compile-append-host-target-to-destdir=false 
             # --extra-cmake-options='-DCMAKE_EXTRA_LINK_FLAGS="-Wl,-z,max-page-size=16384"'
         # need to remove the arch-specific portion of the Swift resource dir in
         # the build directory, through this symlink that we create in the NDK to
