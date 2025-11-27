@@ -7,10 +7,12 @@ on:
 
 jobs:
 
-  build-android-sdk:
+  build-swift-android-sdk:
     runs-on: [self-hosted, Linux, x64, Ubuntu]
     
     steps:
+    - name: Cleanup
+      run: sudo rm -rf ./*
     - uses: actions/checkout@v1
     - name: Build sdk with docker
-      run: ./build-docker tag:swift-6.2-RELEASE ./android-sdk
+      run: sudo ./build-docker tag:swift-6.2.1-RELEASE ./android-sdk
