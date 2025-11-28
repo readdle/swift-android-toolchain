@@ -16,3 +16,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build sdk with docker
       run: sudo ./build-docker tag:swift-6.2.1-RELEASE ./android-sdk
+    - uses: actions/upload-artifact@v4
+      with:
+        name: swift-6.2.1-RELEASE_android.artifactbundle.tar.gz
+        path: ./android-sdk/products/swift-6.2.1-RELEASE_android.artifactbundle.tar.gz
