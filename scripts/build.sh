@@ -13,7 +13,7 @@
 #  See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 #
 # ===----------------------------------------------------------------------===
-set -e
+set -ex
 
 # Docker sets TERM to xterm if using a pty; we probably want
 # xterm-256color, otherwise we only get eight colors
@@ -646,10 +646,6 @@ EOF
 
 for arch in $archs; do
     quiet_pushd ${sdk_staging}/${arch}/usr
-        rm -rf bin lib/clang local
-        rm -r include/*
-        cp -r ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging/{module.modulemap,swift} include/
-
         arch_triple="$arch-linux-android"
         if [[ $arch == 'armv7' ]]; then
             arch_triple="arm-linux-androideabi"
@@ -661,10 +657,22 @@ for arch in $archs; do
         mv lib/swift lib/swift-$arch
         ln -s ../swift/clang lib/swift-$arch/clang
 
+        # Let's copy static libxml and borringssl
+        cp lib/libcrypto.a lib/swift-$arch/android
+        cp lib/libssl.a lib/swift-$arch/android
+        cp lib/libxml2.a lib/swift-$arch/android
+        cp -r include/libxml2/libxml lib/swift-$arch
+        cp -r include/openssl lib/swift-$arch
+        cp -r lib/swift-$arch/_foundation_unicode lib/swift-$arch/unicode
+
         mv lib/swift_static lib/swift_static-$arch
         mv lib/lib*.a lib/swift_static-$arch/android
 
         ln -sv ../swift/clang lib/swift_static-$arch/clang
+
+        rm -rf bin lib/clang local
+        rm -r include/*
+        cp -r ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging/{module.modulemap,swift} include/
     quiet_popd
 
     # now sync the massaged sdk_root into the swift_res_root
