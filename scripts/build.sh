@@ -236,15 +236,13 @@ if [[ $swift_version == swift-* ]]; then
 fi
 
 if [[ -z "$sdk_name" ]]; then
-    sdk_name=swift-${swift_version}_android
+    sdk_name=readdle-swift-${swift_version}_android
 fi
 
 libxml2_version=$(versionFromTag ${swift_source_dir}/libxml2)
 
 curl_desc=$(describe ${swift_source_dir}/curl | tr '_' '.')
 curl_version=${curl_desc#curl-}
-
-boringssl_version=$(describe ${source_dir}/boringssl)
 
 function quiet_pushd {
     pushd "$1" >/dev/null 2>&1
@@ -289,7 +287,7 @@ echo "Building from:"
 echo "  - Swift ${swift_version}"
 echo "  - libxml2 ${libxml2_version}"
 echo "  - curl ${curl_version}"
-echo "  - BoringSSL ${boringssl_version}"
+echo "  - OpenSSL 3.6.0"
 
 # make sure the products_dir is writeable
 ls -lad $products_dir
@@ -365,29 +363,41 @@ for arch in $archs; do
     quiet_popd
     groupend
 
-    groupstart "Building boringssl for ${compiler_target_host}"
-    quiet_pushd ${source_dir}/boringssl
-        run cmake \
-            -GNinja \
-            -B ${build_dir}/$arch/boringssl \
-            -DANDROID_ABI=$android_abi \
-            -DANDROID_PLATFORM=android-$android_api \
-            -DCMAKE_TOOLCHAIN_FILE=$ndk_home/build/cmake/android.toolchain.cmake \
-            -DCMAKE_BUILD_TYPE=$build_type \
-            -DCMAKE_INSTALL_PREFIX=$sdk_root/usr \
-            -DCMAKE_EXTRA_LINK_FLAGS="-Wl,-z,max-page-size=16384" \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DBUILD_STATIC_LIBS=ON \
-            -DBUILD_TESTING=OFF
+    groupstart "Building openssl for ${compiler_target_host}"
+    quiet_pushd ${source_dir}/openssl
+        (
+            # Isolated environment
+            export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
+            export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
+            export CFLAGS="-O3 -g -DNDEBUG -fpic -ffunction-sections -fdata-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes"
 
-        quiet_pushd ${build_dir}/$arch/boringssl
-            run ninja -j$parallel_jobs
-        quiet_popd
+            case $arch in
+                armv7)
+                    openssl_arch="android-arm"
+                    ;;
+                aarch64)
+                    openssl_arch="android-arm64"
+                    ;;
+                x86_64)
+                    openssl_arch="android-x86_64"
+                    ;;
+                *)
+                    echo "Unknown architecture '$1'"
+                    usage
+                    exit 0
+                    ;;
+            esac
 
-        header "Installing BoringSSL for $arch"
-        quiet_pushd ${build_dir}/$arch/boringssl
-            run ninja -j$parallel_jobs install
-        quiet_popd
+            make clean || true
+
+            ./Configure $openssl_arch \
+                no-shared \
+                no-engine \
+                zlib \
+                --prefix="$sdk_root/usr"
+
+            make && make install_sw
+        )
     quiet_popd
     groupend
 
@@ -637,7 +647,7 @@ mkdir -p ${swift_res_root}
 
 cat > $swift_res_root/SDKSettings.json <<EOF
 {
-  "DisplayName": "Swift Android SDK",
+  "DisplayName": "Readdle Swift Android SDK",
   "Version": "${android_sdk_version}",
   "VersionMap": {},
   "CanonicalName": "linux-android"
@@ -792,6 +802,7 @@ EOF
       "sdkRootPath": "${ndk_sysroot}",
       "swiftResourcesPath": "${swift_res_root}/usr/lib/${SWIFT_RES_DIR}",
       "swiftStaticResourcesPath": "${swift_res_root}/usr/lib/${SWIFT_STATIC_RES_DIR}",
+      "includeSearchPaths": ["${swift_res_root}/usr/include"],
       "toolsetPaths": [ "swift-toolset.json" ]
 EOF
       #"librarySearchPaths": [ "${swift_res_root}/usr/lib/swift-x86_64/android/x86_64" ],

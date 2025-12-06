@@ -154,10 +154,12 @@ fi
 popd >/dev/null
 groupend
 
-# Fetch BoringSSL
-groupstart "Fetching BoringSSL"
-[[ -d boringssl ]] || git clone https://boringssl.googlesource.com/boringssl
-pushd boringssl >/dev/null 2>&1
-git checkout ${BORINGSSL_VERSION}
-popd >/dev/null 2>&1
+# Fetch OpenSSL
+groupstart "Fetching OpenSSL"
+OPENSSL_VERSION=3.6.0
+DOWNLOAD_URL_OPENSSL=https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz
+wget $DOWNLOAD_URL_OPENSSL -O openssl.tar.gz
+mkdir -p openssl
+tar -xvf openssl.tar.gz -C openssl --strip-components=1
+rm -rf openssl.tar.gz
 groupend

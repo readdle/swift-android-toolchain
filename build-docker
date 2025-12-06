@@ -62,6 +62,7 @@ popd
 
 mkdir -p ${WORKDIR}/products
 chmod ugo+rwx ${WORKDIR}/products
+chmod -R ugo+rwX ${WORKDIR}/source
 
 if [[ "$DOCKER" == "" ]]; then
     DOCKER=docker
