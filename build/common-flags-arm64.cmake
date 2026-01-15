@@ -1,2 +1,0 @@
-set(ANDROID_ABI "arm64-v8a" CACHE STRING "")
-set(CMAKE_Swift_COMPILER_TARGET aarch64-unknown-linux-android${ANDROID_NATIVE_API_LEVEL} CACHE STRING "")
