@@ -6,10 +6,10 @@ Fork of the official Swift SDK for Android that includes Readdle's patches. This
 
 Prebuilt SDKs are located on [GitHub Releases](https://github.com/readdle/swift-android-toolchain/releases).
 
-1. Install Swift toolchain 6.2.1 with [swiftly](https://www.swift.org/install/)
+1. Install Swift toolchain 6.3 with [swiftly](https://www.swift.org/install/)
 
 ```
-swiftly install 6.2.1
+swiftly install 6.3
 ```
 
 2. Install Android NDK 27d
@@ -21,9 +21,9 @@ $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;27.3.13750724"
 3. Install Readdle Swift Android SDK
 
 ```
-swift sdk install https://github.com/readdle/swift-android-toolchain/releases/download/6.2-r1/readdle-swift-6.2.1-RELEASE_android.artifactbundle.tar.gz --checksum 2057ecd9cf71fcd9beaded08d370f4815f867983c073f2d0010796aefdf8c2f1
+swift sdk install https://github.com/readdle/swift-android-toolchain/releases/download/6.3-r1/readdle-swift-6.3-RELEASE_android.artifactbundle.tar.gz --checksum <CHECKSUM>
 export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.3.13750724
-~/Library/org.swift.swiftpm/swift-sdks/readdle-swift-6.2.1-RELEASE_android.artifactbundle/swift-android/scripts/setup-android-sdk.sh
+~/Library/org.swift.swiftpm/swift-sdks/readdle-swift-6.3-RELEASE_android.artifactbundle/swift-android/scripts/setup-android-sdk.sh
 ```
 
 ## Build and test Swift packages on Android
@@ -103,7 +103,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.readdle.android.swift:gradle:6.2'
+        classpath 'com.readdle.android.swift:gradle:6.3'
     }
 }
 ```
@@ -130,12 +130,12 @@ The SDK can be built using Docker or locally on Ubuntu 24.04.
 
 ### Docker build
 ```
-./build-docker tag:swift-6.2.1-RELEASE ./output-dir
+./build-docker tag:swift-6.3-RELEASE ./output-dir
 ```
 
 ### Local build (Ubuntu 24.04)
 ```
-./build-local tag:swift-6.2.1-RELEASE ./output-dir
+./build-local tag:swift-6.3-RELEASE ./output-dir
 ```
 
 Both scripts accept a Swift version specifier and a working directory for the build output.

@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  SWIFT_VERSION: swift-6.2.1-RELEASE
+  SWIFT_VERSION: swift-6.3-RELEASE
 
 jobs:
 

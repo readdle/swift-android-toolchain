@@ -15,8 +15,8 @@
 # ===----------------------------------------------------------------------===
 
 # This script is meant to be sourced from another script that sets the
-# SWIFT_VERSION environment variable to one of "scheme:release/6.2" or
-# "tag:swift-6.2-RELEASE" and will get the latest builds for each build
+# SWIFT_VERSION environment variable to one of "scheme:release/6.3" or
+# "tag:swift-6.3-RELEASE" and will get the latest builds for each build
 # type.
 
 OS=$(echo $HOST_OS | tr -d '.')

@@ -495,6 +495,7 @@ for arch in $archs; do
             --host-test \
             --skip-test-linux \
             --skip-test-xctest --skip-test-foundation \
+            --skip-clean-libdispatch --skip-clean-foundation --skip-clean-xctest \
             --build-swift-static-stdlib \
             --swift-install-components='compiler;clang-resource-dir-symlink;license;stdlib;sdk-overlay' \
             --install-swift \
@@ -513,6 +514,8 @@ for arch in $archs; do
         # the build directory, or else we get errors like:
         # error: could not find module '_Builtin_float' for target 'x86_64-unknown-linux-android'; found: aarch64-unknown-linux-android, at: /home/runner/work/_temp/swift-android-sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/swift/android/_Builtin_float.swiftmodule
         rm -rf $ndk_installation/sysroot/usr/lib/swift/android
+        rm -rf $ndk_installation/sysroot/usr/lib/swift/../swift_static/android
+        rm -rf $ndk_installation/sysroot/usr/lib/swift/../../../swift-linux-x86_64/lib/swift{,_static}/android
     quiet_popd
     groupend
 done
