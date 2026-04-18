@@ -159,6 +159,7 @@ groupstart "Fetching OpenSSL"
 OPENSSL_VERSION=3.6.0
 DOWNLOAD_URL_OPENSSL=https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz
 wget $DOWNLOAD_URL_OPENSSL -O openssl.tar.gz
+rm -rf openssl
 mkdir -p openssl
 tar -xvf openssl.tar.gz -C openssl --strip-components=1
 rm -rf openssl.tar.gz
