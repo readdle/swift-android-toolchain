@@ -3,20 +3,23 @@ name: Build Android SDK
 on:
   pull_request:
     branches:
-      - master
+      - main
+
+env:
+  SWIFT_VERSION: swift-6.2.1-RELEASE
 
 jobs:
 
   build-swift-android-sdk:
     runs-on: [self-hosted, Linux, x64, Ubuntu]
-    
+
     steps:
-    - name: Cleanup
-      run: sudo rm -rf ./*
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
+    - name: Link persistent source cache
+      run: ln -sfn "$HOME/swift-android-cache" ./android-sdk
     - name: Build sdk with docker
-      run: sudo ./build-docker tag:swift-6.2.1-RELEASE ./android-sdk
+      run: sudo ./build-docker tag:${{ env.SWIFT_VERSION }} ./android-sdk
     - uses: actions/upload-artifact@v4
       with:
-        name: readdle-swift-6.2.1-RELEASE_android.artifactbundle.tar.gz
-        path: ./android-sdk/products/readdle-swift-6.2.1-RELEASE_android.artifactbundle.tar.gz
+        name: readdle-${{ env.SWIFT_VERSION }}_android.artifactbundle.tar.gz
+        path: ./android-sdk/products/readdle-${{ env.SWIFT_VERSION }}_android.artifactbundle.tar.gz
