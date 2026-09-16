@@ -11,6 +11,8 @@ env:
 jobs:
 
   build-swift-android-sdk:
+    # Skip PRs from forks so untrusted code never runs on our self-hosted runner.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, Linux, x64, Ubuntu]
 
     steps:
