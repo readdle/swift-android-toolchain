@@ -67,6 +67,7 @@ usage: fetch-source.sh [--swift-scheme <scheme>|--swift-tag <tag>
                        [--boringssl-version <version>]
                        [--clone-with-ssh]
                        [--source-dir <path>]
+                       [--github-comment <comment>]
 
 Fetch all the sources required to build the fully statically linked Linux
 SDK for Swift.  Options are:
@@ -82,18 +83,23 @@ SDK for Swift.  Options are:
                       select a scheme or tag; otherwise it will be treated as
                       a version number.
   --boringssl-version <version>
+  --github-comment <comment>
+                      GitHub PR comment body to pass to update-checkout via
+                      --github-comment, used to select specific repos to check
+                      out from a pull request comment.
 EOF
 }
 
 # Defaults
 if [[ -z "${SWIFT_VERSION}" || ($SWIFT_VERSION != scheme:* && $SWIFT_VERSION != tag:*) ]]; then
-    SWIFT_VERSION=scheme:release/6.2
+    SWIFT_VERSION=scheme:release/6.4
 fi
 if [[ -z "${BORINGSSL_VERSION}" ]]; then
     BORINGSSL_VERSION=fips-20220613
 fi
 
 clone_with_ssh=false
+github_comment=""
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --swift-scheme)
@@ -108,6 +114,8 @@ while [ "$#" -gt 0 ]; do
             clone_with_ssh=true ;;
         --source-dir)
             source_dir="$2"; shift ;;
+        --github-comment)
+            github_comment="$2"; shift ;;
         *)
             usage; exit 0 ;;
     esac
@@ -136,19 +144,23 @@ mkdir -p swift-project
 groupstart "Fetching Swift"
 pushd swift-project >/dev/null
 
-[[ -d swift ]] || git clone ${github}swiftlang/swift.git
+# Shallow clone: update-checkout fetches the requested tag/branch itself
+[[ -d swift ]] || git clone --depth 1 ${github}swiftlang/swift.git
 cd swift
 
 # Get its dependencies
 header "Fetching Swift Dependencies"
 
-extra_args="--skip-history --all-repositories"
+extra_args=(--skip-history --all-repositories)
+if [[ -n "$github_comment" ]]; then
+    extra_args+=(--github-comment "$github_comment")
+fi
 if [[ $SWIFT_VERSION == scheme:* ]]; then
-    utils/update-checkout ${clone_arg} --scheme ${SWIFT_VERSION#scheme:} ${extra_args}
+    utils/update-checkout ${clone_arg} --scheme ${SWIFT_VERSION#scheme:} "${extra_args[@]}"
 elif [[ $SWIFT_VERSION == tag:* ]]; then
-    utils/update-checkout ${clone_arg} --tag ${SWIFT_VERSION#tag:} ${extra_args}
+    utils/update-checkout ${clone_arg} --tag ${SWIFT_VERSION#tag:} "${extra_args[@]}"
 else
-    utils/update-checkout ${clone_arg} --tag swift-${SWIFT_VERSION}-RELEASE ${extra_args}
+    utils/update-checkout ${clone_arg} --tag swift-${SWIFT_VERSION}-RELEASE "${extra_args[@]}"
 fi
 
 popd >/dev/null

@@ -1,0 +1,32 @@
+From 28758fd9ce466e80b564d6f32bebcb24b48a60d8 Mon Sep 17 00:00:00 2001
+From: Yaroslav Biletskyi <ybiletskyi@readdle.com>
+Date: Wed, 15 Apr 2026 15:46:05 +0300
+Subject: [PATCH] Fix crash in redirect callback when timeout races with
+ redirect
+
+Replace fatalError with early return in didCompleteRedirectCallback
+when the timeout handler has already completed the task.
+---
+ .../URLSession/HTTP/HTTPURLProtocol.swift                   | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+index 90a19611..6c5be6cf 100644
+--- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
++++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+@@ -702,7 +702,11 @@ fileprivate let userAgentString: String = {
+ extension _HTTPURLProtocol {
+     fileprivate func didCompleteRedirectCallback(_ request: URLRequest?) {
+         guard case .waitingForRedirectCompletionHandler(response: let response, bodyDataDrain: let bodyDataDrain) = self.internalState else {
+-            fatalError("Received callback for HTTP redirection, but we're not waiting for it. Was it called multiple times?")
++            // The timeout handler may have already transitioned the state
++            // away from .waitingForRedirectCompletionHandler (e.g. to
++            // .taskCompleted). In that case, the task is already finished
++            // and we should simply ignore this late callback.
++            return
+         }
+         // If the request is `nil`, we're supposed to treat the current response
+         // as the final response, i.e. not do any redirection.
+-- 
+2.50.1 (Apple Git-155)
+
