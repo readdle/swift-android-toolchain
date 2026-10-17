@@ -23,6 +23,15 @@ ANDROID_API=28
 BASEPATH=$(dirname $(realpath $0))
 cd ${BASEPATH}
 
+SKIP_FETCH=false
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --skip-fetch) SKIP_FETCH=true ;;
+        *) break ;;
+    esac
+    shift
+done
+
 export SWIFT_VERSION=${1}
 # note that WORKDIR must not be under the current checkout or the patches will fail to apply
 WORKDIR=${2}
@@ -38,7 +47,9 @@ source ./scripts/toolchain-vars.sh
 
 # Check-out and patch the sources. Stamp invalidates cache when SWIFT_VERSION changes.
 STAMP="${WORKDIR}/source/.swift-version"
-if [ -f "${STAMP}" ] && [ "$(cat "${STAMP}")" = "${SWIFT_VERSION}" ]; then
+if [[ "$SKIP_FETCH" == "true" ]]; then
+    echo "Skipping source fetch"
+elif [ -f "${STAMP}" ] && [ "$(cat "${STAMP}")" = "${SWIFT_VERSION}" ]; then
     echo "Using cached sources for ${SWIFT_VERSION}"
 else
     ./scripts/fetch-source.sh --source-dir ${WORKDIR}/source
@@ -51,26 +62,13 @@ for REPO in ${WORKDIR}/source/swift-project/*/; do
     ( cd "$REPO" && git reset --hard HEAD 2>/dev/null || true )
 done
 
-# This `git grep` invocation in a trunk test fails in our Docker for some
-# reason, so just turn it into a plain `grep` again.
-perl -pi -e 's:"git",:#:' ${WORKDIR}/source/swift-project/swift/test/Misc/verify-swift-feature-testing.test-sh
-
 # Work around swiftlang/swift-driver#1822 for now
-perl -pi -g -we "s#(call rm ... \".\{LIBDISPATCH_BUILD_DIR\}\"\n(\s+)fi\n)#\1\2if [[ -d \"\\\${ANDROID_NDK}\" ]]; then call ln -sf \"\\\${SWIFT_BUILD_PATH}/lib/swift\" \"\\\${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib\"; fi#" ${WORKDIR}/source/swift-project/swift/utils/build-script-impl
+perl -0777 -pi -e "s#(call rm ... \".\{LIBDISPATCH_BUILD_DIR\}\"\n(\s+)fi\n)#\1\2if [[ -d \"\\\${ANDROID_NDK}\" ]]; then call ln -sf \"\\\${SWIFT_BUILD_PATH}/lib/swift\" \"\\\${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib\"; fi#g" ${WORKDIR}/source/swift-project/swift/utils/build-script-impl
 
-# disable backtrace() for Android (needs either API33+ or libandroid-execinfo, or to manually add in backtrace backport)
-perl -pi -e 's;os\(Android\);os\(AndroidDISABLED\);g' ${WORKDIR}/source/swift-project/swift-testing/Sources/Testing/SourceAttribution/Backtrace.swift
-
-# Push trunk back to build against Android API 24 with NDK 28c
-if [[ -n "${SWIFT_VERSION}" && ($SWIFT_VERSION == scheme:main || $SWIFT_VERSION == tag:swift-DEV*) ]]; then
-    ANDROID_NDK_VERSION=android-ndk-r28c
-    ANDROID_API=24
-
-    rm ${WORKDIR}/source/swift-project/swift/test/Interop/Cxx/class/invalid-members/stdlib-containers-of-incomplete.swift
-    rm ${WORKDIR}/source/swift-project/swift/test/Interop/SwiftToCxx/stdlib/stdlib-in-cxx-no-diagnostics-generated-header.cpp
-    rm ${WORKDIR}/source/swift-project/swift/test/Reflection/typeref_decoding_packs.swift
-    rm ${WORKDIR}/source/swift-project/swift/test/Reflection/typeref_lowering.swift
-    rm ${WORKDIR}/source/swift-project/swift/test/Reflection/typeref_lowering_packs.swift
+# Push 6.4 and trunk back to build against Android API 23 and NDK 30
+if [[ -n "${SWIFT_VERSION}" && ($SWIFT_VERSION != scheme:release/6.3 && $SWIFT_VERSION != tag:swift-6.3-*) ]]; then
+    ANDROID_API=23
+    ANDROID_NDK_VERSION=android-ndk-r30
 fi
 
 pushd ${WORKDIR}/source/swift-project
@@ -95,9 +93,11 @@ fi
 CONTAINER_NAME="swift-android"
 
 # Build the Docker image
-$DOCKER build --build-arg OS_ARCH_SUFFIX=$OS_ARCH_SUFFIX --build-arg SWIFT_TOOLCHAIN_URL=$SWIFT_TOOLCHAIN_URL --build-arg ANDROID_NDK_VERSION=$ANDROID_NDK_VERSION -t ${CONTAINER_NAME} .
+$DOCKER build --build-arg OS_ARCH_SUFFIX=$OS_ARCH_SUFFIX --build-arg SWIFT_TOOLCHAIN_URL=$SWIFT_TOOLCHAIN_URL --build-arg ANDROID_NDK_VERSION=$ANDROID_NDK_VERSION --build-arg http_proxy --build-arg https_proxy --build-arg HTTP_PROXY --build-arg HTTPS_PROXY -t ${CONTAINER_NAME} .
 
 $DOCKER run -i --rm \
+          -e http_proxy -e https_proxy \
+          -e HTTP_PROXY -e HTTPS_PROXY \
           -v ${WORKDIR}/source:/source \
           -v ${WORKDIR}/products:/products:rw \
           ${CONTAINER_NAME} \

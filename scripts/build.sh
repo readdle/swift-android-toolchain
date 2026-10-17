@@ -504,6 +504,7 @@ for arch in $archs; do
             --xctest --install-xctest \
             --swift-testing --install-swift-testing \
             --swift-testing-macros --install-swift-testing-macros \
+            --build-embedded-stdlib=False \
             --cross-compile-build-swift-tools=false \
             --libdispatch-cmake-options=-DCMAKE_SHARED_LINKER_FLAGS= \
             --foundation-cmake-options=-DCMAKE_SHARED_LINKER_FLAGS= \
@@ -692,7 +693,12 @@ for arch in $archs; do
         ln -sv ../swift/clang lib/swift_static-$arch/clang
 
         rm -rf bin lib/clang local
-        cp -r ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging/{module.modulemap,swift} include/
+        # Branches that have
+        # https://github.com/swiftlang/swift/commit/e39632ff377d9936ee5a6547c34c7be18cee4522
+        # ship this header in the clang resource directory instead.
+        if [[ -d ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging ]]; then
+            cp -r ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging/{module.modulemap,swift} include/
+        fi
     quiet_popd
 
     # now sync the massaged sdk_root into the swift_res_root
@@ -1038,11 +1044,7 @@ module libxml2 [system] {
 EOF
 
 first=true
-# create targets for the supported API and higher,
-# as well as a blank API, which will be the NDK default
-# FIXME: building against blank API doesn't work: ld.lld: error: cannot open crtbegin_dynamic.o: No such file or directory
-#for api in "" $(eval echo "{$android_api..36}"); do
-for api in $(eval echo "{$android_api..36}"); do
+for api in $(eval echo "{$android_api..37}"); do
     for arch in $archs; do
         if [[ "$first" == "true" ]]; then
             first=false
