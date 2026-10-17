@@ -151,16 +151,29 @@ cd swift
 # Get its dependencies
 header "Fetching Swift Dependencies"
 
+# update-checkout retries failed clones itself, but a failed `git ls-remote`
+# while checking the tag exits immediately, bypassing --max-retries. Connections
+# from our CI runner to github.com occasionally time out, so retry the whole
+# step; repos that are already cloned are skipped on the next attempt.
+function update_checkout {
+    for attempt in 1 2 3; do
+        utils/update-checkout "$@" && return 0
+        echo "update-checkout failed (attempt $attempt/3)"
+        [[ $attempt == 3 ]] || sleep 60
+    done
+    return 1
+}
+
 extra_args=(--skip-history --all-repositories)
 if [[ -n "$github_comment" ]]; then
     extra_args+=(--github-comment "$github_comment")
 fi
 if [[ $SWIFT_VERSION == scheme:* ]]; then
-    utils/update-checkout ${clone_arg} --scheme ${SWIFT_VERSION#scheme:} "${extra_args[@]}"
+    update_checkout ${clone_arg} --scheme ${SWIFT_VERSION#scheme:} "${extra_args[@]}"
 elif [[ $SWIFT_VERSION == tag:* ]]; then
-    utils/update-checkout ${clone_arg} --tag ${SWIFT_VERSION#tag:} "${extra_args[@]}"
+    update_checkout ${clone_arg} --tag ${SWIFT_VERSION#tag:} "${extra_args[@]}"
 else
-    utils/update-checkout ${clone_arg} --tag swift-${SWIFT_VERSION}-RELEASE "${extra_args[@]}"
+    update_checkout ${clone_arg} --tag swift-${SWIFT_VERSION}-RELEASE "${extra_args[@]}"
 fi
 
 popd >/dev/null

@@ -22,20 +22,8 @@ jobs:
     # there, so remove them with sudo before and after the build.
     - name: Remove leftovers of a previous run
       run: sudo rm -rf "$RUNNER_TEMP/swift-android-sdk"
-    # Authenticate the ~200 git requests to github.com with the job token:
-    # unauthenticated ones from the runner's IP get rate limited. Passed as
-    # env-only git config (like actions/checkout), so nothing is written to
-    # disk and nothing reaches the Docker container.
     - name: Build sdk with docker
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: |
-        auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
-        echo "::add-mask::$auth"
-        sudo GIT_CONFIG_COUNT=1 \
-             GIT_CONFIG_KEY_0=http.https://github.com/.extraheader \
-             GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth" \
-             ./build-docker tag:${{ env.SWIFT_VERSION }} "$RUNNER_TEMP/swift-android-sdk"
+      run: sudo ./build-docker tag:${{ env.SWIFT_VERSION }} "$RUNNER_TEMP/swift-android-sdk"
     - uses: actions/upload-artifact@v4
       with:
         name: readdle-${{ env.SWIFT_VERSION }}_android.artifactbundle.tar.gz
