@@ -144,7 +144,8 @@ mkdir -p swift-project
 groupstart "Fetching Swift"
 pushd swift-project >/dev/null
 
-[[ -d swift ]] || git clone ${github}swiftlang/swift.git
+# Shallow clone: update-checkout fetches the requested tag/branch itself
+[[ -d swift ]] || git clone --depth 1 ${github}swiftlang/swift.git
 cd swift
 
 # Get its dependencies

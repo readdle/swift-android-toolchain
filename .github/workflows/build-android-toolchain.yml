@@ -17,11 +17,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Link persistent source cache
-      run: ln -sfn "$HOME/swift-android-cache" ./android-sdk
+    # Sources are fetched fresh into the runner temp dir (outside the
+    # checkout, as build-docker requires). Docker leaves root-owned files
+    # there, so remove them with sudo before and after the build.
+    - name: Remove leftovers of a previous run
+      run: sudo rm -rf "$RUNNER_TEMP/swift-android-sdk"
     - name: Build sdk with docker
-      run: sudo ./build-docker tag:${{ env.SWIFT_VERSION }} ./android-sdk
+      run: sudo ./build-docker tag:${{ env.SWIFT_VERSION }} "$RUNNER_TEMP/swift-android-sdk"
     - uses: actions/upload-artifact@v4
       with:
         name: readdle-${{ env.SWIFT_VERSION }}_android.artifactbundle.tar.gz
-        path: ./android-sdk/products/readdle-${{ env.SWIFT_VERSION }}_android.artifactbundle.tar.gz
+        path: ${{ runner.temp }}/swift-android-sdk/products/readdle-${{ env.SWIFT_VERSION }}_android.artifactbundle.tar.gz
+    - name: Clean up
+      if: always()
+      run: sudo rm -rf "$RUNNER_TEMP/swift-android-sdk"
