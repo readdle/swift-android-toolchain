@@ -43,7 +43,7 @@ index e87201e5..b2a104fe 100644
      /// - discussion: The timeout interval specifies the limit on the idle
      /// interval allotted to a request in the process of loading. The "idle
 diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
-index d31b7a49..9c5dc1ba 100644
+index 21f14467..4b88975a 100644
 --- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
 +++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPMessage.swift
 @@ -111,6 +111,7 @@ extension _HTTPURLProtocol._HTTPMessage {
@@ -86,10 +86,10 @@ index d31b7a49..9c5dc1ba 100644
                  }
              }
 diff --git a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
-index dfe18758..18e56456 100644
+index dbe11cc1..6baa638f 100644
 --- a/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
 +++ b/Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
-@@ -442,6 +442,18 @@ internal class _HTTPURLProtocol: _NativeProtocol {
+@@ -441,6 +441,18 @@ internal class _HTTPURLProtocol: _NativeProtocol {
          easyHandle.set(requestMethod: request.httpMethod ?? "GET")
          // Always set the status as it may change if a HEAD is converted to a GET.
          easyHandle.set(noBody: request.httpMethod == "HEAD")
@@ -109,10 +109,10 @@ index dfe18758..18e56456 100644
  
      /// What action to take
 diff --git a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
-index ad6836dc..965c24ab 100644
+index 76ef1b8f..98d35f0d 100644
 --- a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
 +++ b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
-@@ -684,6 +684,22 @@ extension _NativeProtocol {
+@@ -688,6 +688,22 @@ extension _NativeProtocol {
      }
  }
  
@@ -136,10 +136,10 @@ index ad6836dc..965c24ab 100644
      static func printDebug(_ text: @autoclosure () -> String) {
          guard enableDebugOutput else { return }
 diff --git a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
-index cef77fac..c97ef4c2 100644
+index f0ac44b9..c34eb725 100644
 --- a/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
 +++ b/Sources/FoundationNetworking/URLSession/URLSessionTask.swift
-@@ -1258,7 +1258,11 @@ extension _ProtocolClient : URLProtocolClient {
+@@ -1265,7 +1265,11 @@ extension _ProtocolClient : URLProtocolClient {
                  } else {
                      task._lastCredentialUsedFromStorageDuringAuthentication = nil
                  }
@@ -152,7 +152,7 @@ index cef77fac..c97ef4c2 100644
              }
              if case .stream(let stream) = task.knownBody, stream.streamStatus != .notOpen {
                  task.knownBody = nil
-@@ -1299,7 +1303,12 @@ extension _ProtocolClient : URLProtocolClient {
+@@ -1309,7 +1313,12 @@ extension _ProtocolClient : URLProtocolClient {
                  }
              }
          } else {
@@ -166,7 +166,7 @@ index cef77fac..c97ef4c2 100644
          }
      }
  
-@@ -1401,7 +1410,8 @@ extension URLSessionTask {
+@@ -1411,7 +1420,8 @@ extension URLSessionTask {
      static func authHandler(for authScheme: String) -> _AuthHandler? {
          let handlers: [String : _AuthHandler] = [
              NSURLAuthenticationMethodHTTPBasic : basicAuth,
@@ -176,7 +176,7 @@ index cef77fac..c97ef4c2 100644
          ]
          return handlers[authScheme]
      }
-@@ -1409,16 +1419,23 @@ extension URLSessionTask {
+@@ -1419,16 +1429,23 @@ extension URLSessionTask {
      //Authentication handlers
      static func basicAuth(_ task: URLSessionTask, _ disposition: URLSession.AuthChallengeDisposition, _ credential: URLCredential?) {
          //TODO: Handle disposition. For now, we default to .useCredential
@@ -206,10 +206,10 @@ index cef77fac..c97ef4c2 100644
  
  extension URLProtocol {
 diff --git a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
-index cdf8875f..cdce2777 100644
+index 9d337d1c..d8240f89 100644
 --- a/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
 +++ b/Sources/FoundationNetworking/URLSession/libcurl/EasyHandle.swift
-@@ -359,6 +359,28 @@ extension _EasyHandle {
+@@ -378,6 +378,28 @@ extension _EasyHandle {
          CFURLSession_easy_getinfo_double(rawHandle, CFURLSessionInfoTOTAL_TIME, &timeSpent)
          return timeSpent / 1000
      }
@@ -239,10 +239,10 @@ index cdf8875f..cdce2777 100644
  
  /// WebSocket support
 diff --git a/Sources/_CFURLSessionInterface/CFURLSessionInterface.c b/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
-index e493ad77..f8d5a4ab 100644
+index a4d740f2..892a24f0 100644
 --- a/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
 +++ b/Sources/_CFURLSessionInterface/CFURLSessionInterface.c
-@@ -90,6 +90,9 @@ CFURLSessionEasyCode CFURLSession_easy_setopt_int(CFURLSessionEasyHandle _Nonnul
+@@ -119,6 +119,9 @@ CFURLSessionEasyCode CFURLSession_easy_setopt_int(CFURLSessionEasyHandle _Nonnul
  CFURLSessionEasyCode CFURLSession_easy_setopt_long(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long a) {
      return MakeEasyCode(curl_easy_setopt(curl, option.value, a));
  }
@@ -252,8 +252,8 @@ index e493ad77..f8d5a4ab 100644
  CFURLSessionEasyCode CFURLSession_easy_setopt_int64(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long long a) {
      return MakeEasyCode(curl_easy_setopt(curl, option.value, (int64_t)a));
  }
-@@ -651,6 +654,10 @@ CFURLSessionCurlVersion CFURLSessionCurlVersionInfo(void) {
-     return v;
+@@ -719,6 +722,10 @@ CFURLSessionSSLVersion CFURLSessionSSLVersionInfo(void) {
+     return version;
  }
  
 +unsigned long const CFURLSessionAUTH_NONE = CURLAUTH_NONE;
@@ -264,12 +264,12 @@ index e493ad77..f8d5a4ab 100644
  int const CFURLSessionWriteFuncPause = CURL_WRITEFUNC_PAUSE;
  int const CFURLSessionReadFuncPause = CURL_READFUNC_PAUSE;
 diff --git a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
-index 64c34955..e126b445 100644
+index dff3a5e7..9a719b96 100644
 --- a/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
 +++ b/Sources/_CFURLSessionInterface/include/CFURLSessionInterface.h
-@@ -604,6 +604,10 @@ typedef struct CFURLSessionCurlVersion {
- } CFURLSessionCurlVersion;
- CF_EXPORT CFURLSessionCurlVersion CFURLSessionCurlVersionInfo(void);
+@@ -589,6 +589,10 @@ typedef struct CFURLSessionSSLVersion {
+ 
+ CF_EXPORT CFURLSessionSSLVersion CFURLSessionSSLVersionInfo(void);
  
 +CF_EXPORT unsigned long const CFURLSessionAUTH_NONE;
 +CF_EXPORT unsigned long const CFURLSessionAUTH_BASIC;
@@ -278,7 +278,7 @@ index 64c34955..e126b445 100644
  
  CF_EXPORT int const CFURLSessionWriteFuncPause;
  CF_EXPORT int const CFURLSessionReadFuncPause;
-@@ -635,6 +639,7 @@ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_fptr(CFURLSessionEasyHan
+@@ -620,6 +624,7 @@ CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_fptr(CFURLSessionEasyHan
  CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_ptr(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, void *_Nullable a);
  CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_int(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, int a);
  CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_long(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, long a);
@@ -287,5 +287,5 @@ index 64c34955..e126b445 100644
  CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_wc(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, size_t(*_Nonnull a)(char *_Nonnull, size_t, size_t, void *_Nullable));
  CF_EXPORT CFURLSessionEasyCode CFURLSession_easy_setopt_fwc(CFURLSessionEasyHandle _Nonnull curl, CFURLSessionOption option, size_t(*_Nonnull a)(char *_Nonnull, size_t, size_t, void *_Nullable));
 -- 
-2.46.0
+2.56.0
 
