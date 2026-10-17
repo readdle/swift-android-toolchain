@@ -151,7 +151,9 @@ cd swift
 # Get its dependencies
 header "Fetching Swift Dependencies"
 
-extra_args=(--skip-history --all-repositories)
+# Keep parallelism low: bursts of concurrent connections to github.com
+# from our self-hosted runner get dropped (connect timeouts)
+extra_args=(--skip-history --all-repositories -j 4)
 if [[ -n "$github_comment" ]]; then
     extra_args+=(--github-comment "$github_comment")
 fi
