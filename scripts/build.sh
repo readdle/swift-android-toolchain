@@ -349,6 +349,7 @@ for arch in $archs; do
             -DLIBXML2_WITH_ICU=NO \
             -DLIBXML2_WITH_ICONV=NO \
             -DLIBXML2_WITH_LZMA=NO \
+            -DLIBXML2_WITH_TESTS=OFF \
             -DBUILD_SHARED_LIBS=OFF \
             -DBUILD_STATIC_LIBS=ON
 
@@ -495,6 +496,7 @@ for arch in $archs; do
             --host-test \
             --skip-test-linux \
             --skip-test-xctest --skip-test-foundation \
+            --skip-clean-libdispatch --skip-clean-foundation --skip-clean-xctest \
             --build-swift-static-stdlib \
             --swift-install-components='compiler;clang-resource-dir-symlink;license;stdlib;sdk-overlay' \
             --install-swift \
@@ -503,6 +505,7 @@ for arch in $archs; do
             --xctest --install-xctest \
             --swift-testing --install-swift-testing \
             --swift-testing-macros --install-swift-testing-macros \
+            --build-embedded-stdlib=False \
             --cross-compile-build-swift-tools=false \
             --libdispatch-cmake-options=-DCMAKE_SHARED_LINKER_FLAGS= \
             --foundation-cmake-options=-DCMAKE_SHARED_LINKER_FLAGS= \
@@ -513,6 +516,8 @@ for arch in $archs; do
         # the build directory, or else we get errors like:
         # error: could not find module '_Builtin_float' for target 'x86_64-unknown-linux-android'; found: aarch64-unknown-linux-android, at: /home/runner/work/_temp/swift-android-sdk/ndk/android-ndk-r27c/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/swift/android/_Builtin_float.swiftmodule
         rm -rf $ndk_installation/sysroot/usr/lib/swift/android
+        rm -rf $ndk_installation/sysroot/usr/lib/swift/../swift_static/android
+        rm -rf $ndk_installation/sysroot/usr/lib/swift/../../../swift-linux-x86_64/lib/swift{,_static}/android
     quiet_popd
     groupend
 done
@@ -689,7 +694,12 @@ for arch in $archs; do
         ln -sv ../swift/clang lib/swift_static-$arch/clang
 
         rm -rf bin lib/clang local
-        cp -r ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging/{module.modulemap,swift} include/
+        # Branches that have
+        # https://github.com/swiftlang/swift/commit/e39632ff377d9936ee5a6547c34c7be18cee4522
+        # ship this header in the clang resource directory instead.
+        if [[ -d ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging ]]; then
+            cp -r ${swift_source_dir}/swift/lib/ClangImporter/SwiftBridging/{module.modulemap,swift} include/
+        fi
     quiet_popd
 
     # now sync the massaged sdk_root into the swift_res_root
@@ -1035,11 +1045,7 @@ module libxml2 [system] {
 EOF
 
 first=true
-# create targets for the supported API and higher,
-# as well as a blank API, which will be the NDK default
-# FIXME: building against blank API doesn't work: ld.lld: error: cannot open crtbegin_dynamic.o: No such file or directory
-#for api in "" $(eval echo "{$android_api..36}"); do
-for api in $(eval echo "{$android_api..36}"); do
+for api in $(eval echo "{$android_api..37}"); do
     for arch in $archs; do
         if [[ "$first" == "true" ]]; then
             first=false

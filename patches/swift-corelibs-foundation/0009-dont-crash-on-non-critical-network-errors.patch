@@ -5,11 +5,11 @@ Subject: [PATCH] Don't crash on non-critical network errors
 
 (cherry picked from commit 2989907d3ca2d37a80c5f62c131ea2b517c89e77)
 ---
- .../URLSession/NativeProtocol.swift                   | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ Sources/FoundationNetworking/URLSession/NativeProtocol.swift | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
-index 965c24ab..39adf264 100644
+index 98d35f0d..1ed27c51 100644
 --- a/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
 +++ b/Sources/FoundationNetworking/URLSession/NativeProtocol.swift
 @@ -66,7 +66,10 @@ internal class _NativeProtocol: URLProtocol, _EasyHandleDelegate {
@@ -24,19 +24,6 @@ index 965c24ab..39adf264 100644
              completeTask(withError: error)
          }
      }
-@@ -237,7 +240,11 @@ internal class _NativeProtocol: URLProtocol, _EasyHandleDelegate {
-         }
- 
-         guard let response = ts.response else {
--            fatalError("Transfer completed, but there's no response.")
-+            internalState = .transferFailed
-+            let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorUnknown,
-+                                userInfo: [NSLocalizedDescriptionKey: "Transfer completed, but there's no response."])
-+            failWith(error: error, request: request)
-+            return
-         }
-         internalState = .transferCompleted(response: response, bodyDataDrain: ts.bodyDataDrain)
-         let action = completionAction(forCompletedRequest: request, response: response)
 -- 
-2.46.0
+2.56.0
 
