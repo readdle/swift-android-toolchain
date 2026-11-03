@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - main
+    # A documentation-only PR doesn't need a multi-hour SDK build
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
 
 env:
   SWIFT_VERSION: swift-6.4.1-RELEASE
