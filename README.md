@@ -21,7 +21,7 @@ $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;30.0.16248370"
 3. Install Readdle Swift Android SDK
 
 ```
-swift sdk install https://github.com/readdle/swift-android-toolchain/releases/download/6.4-r1/readdle-swift-6.4.1-RELEASE_android.artifactbundle.tar.gz --checksum <CHECKSUM>
+swift sdk install https://github.com/readdle/swift-android-toolchain/releases/download/6.4-r1/readdle-swift-6.4.1-RELEASE_android.artifactbundle.tar.gz --checksum 21438d589ab0b036343780a9722488ad481dbc553e8cabab5259601e6b988f63
 export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/30.0.16248370
 ~/Library/org.swift.swiftpm/swift-sdks/readdle-swift-6.4.1-RELEASE_android.artifactbundle/swift-android/scripts/setup-android-sdk.sh
 ```
@@ -103,7 +103,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.readdle.android.swift:gradle:6.3'
+        classpath 'com.readdle.android.swift:gradle:6.4.0'
     }
 }
 ```
